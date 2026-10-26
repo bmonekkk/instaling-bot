@@ -105,7 +105,7 @@ dist
 
 # Config file
 config/*.json
-!config/*.example.json
+!config/*.defaults.json
 
 # Runtime diagnostics
 pages/

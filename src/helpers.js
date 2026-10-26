@@ -1,21 +1,9 @@
 const config = require('./config.js');
 const fs = require('fs/promises');
 const path = require('path');
-const {EventEmitter} = require('events');
-const {interval, sendAndClear, yellow} = require('./printer.js');
+const {yellow} = require('./printer.js');
 
 const ROOT = path.resolve(__dirname, '..');
-const eventer = new EventEmitter();
-
-eventer.on('stopBot', async code => {
-    try {
-        clearInterval(interval);
-        await sendAndClear();
-    } catch (e) {
-        console.error(e);
-    }
-    process.exit(code || 0);
-});
 
 async function prepare() {
     await Promise.all([
@@ -68,7 +56,7 @@ async function dismissConsent(page, {timeout = 6000} = {}) {
         '.fc-cta-do-not-consent',                 // Google Funding Choices
         'button.fc-cta-do-not-consent',
         '#onetrust-reject-all-handler',
-        'button[aria-label="OdrzuÄ‡ wszystkie"]',
+        'button[aria-label="Odrzuć wszystkie"]',
         'button[aria-label="Reject all"]'
     ];
     const acceptSelectors = [
@@ -193,10 +181,6 @@ function canLogin() {
     return Boolean(config.login && config.password);
 }
 
-function useFeature() {
-    return Boolean(config.feature?.user && config.feature?.password);
-}
-
 module.exports = {
     ROOT,
     prepare,
@@ -211,8 +195,6 @@ module.exports = {
     getRandomInt,
     isVisible,
     canLogin,
-    useFeature,
     savePage,
-    dismissConsent,
-    eventer
+    dismissConsent
 };

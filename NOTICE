@@ -5,9 +5,9 @@ Original project:
   https://github.com/PanSzelescik/instaling-bot
   Copyright (c) 2021 PanSzelescik
 
-This fork (v2.0.1):
-  https://github.com/Bmonek/instaling-bot
-  Copyright (c) 2026 Bmonek and contributors
+This fork (v2.1.0):
+  https://github.com/Bmoneczek/instaling-bot
+  Copyright (c) 2026 Bmoneczek and contributors
 
 The original project is licensed under the ISC license as declared in its
 package.json. This fork is distributed under the same ISC license; see LICENSE.
@@ -17,8 +17,7 @@ Third-party notices
 - This fork no longer bundles or loads uBlock Origin. Ads and tracking scripts
   are blocked with Puppeteer request interception instead.
 - Dependencies are listed in package.json and keep their own licenses:
-  Puppeteer (Apache-2.0), chalk (MIT), strip-ansi (MIT),
-  unique-random-array (MIT).
+  Puppeteer (Apache-2.0), chalk (MIT).
 
 Disclaimer
 ----------

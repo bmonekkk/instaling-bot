@@ -2,6 +2,24 @@
 
 All notable changes to this fork are documented here.
 
+## [2.1.0] - 2026-10-26
+
+### Changed
+- Default `valid_chance` lowered to `0.8` (80% correct answers).
+- Config templates renamed to `config/Config.defaults.json` and `config/SavedWords.defaults.json`.
+- Only the `master` branch is kept in the repository.
+- Removed unused `wait_min` / `wait_max` delay options.
+
+### Removed
+- The `feature` option and the `api.crawcik.space` word database integration; words now come only from `config/SavedWords.json`.
+- The `open_devtools` option.
+- The `webhook` option and all Discord webhook logging; logs go to the console only.
+- Dependencies `discord.js`, `axios`, `strip-ansi` and `unique-random-array`. Runtime dependencies are now just `chalk` and `puppeteer`.
+
+### Fixed
+- Removed the unused `EventEmitter`/`stopBot` plumbing; shutdown now happens directly in `handleStop()` and errors exit with code `1`.
+- Documentation, landing page and project notes now match the actual configuration.
+
 ## [2.0.1] - 2026-10-26
 
 ### Fixed

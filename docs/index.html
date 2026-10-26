@@ -64,7 +64,7 @@
     <div class="badges">
         <span class="badge">Node.js 22+</span>
         <span class="badge">Puppeteer 25</span>
-        <span class="badge">Chrome 156</span>
+        <span class="badge">v2.1.0</span>
         <span class="badge">Licencja ISC</span>
         <span class="badge">Open source</span>
     </div>
@@ -78,6 +78,7 @@
         <li>Automatycznie zamyka okno zgody Google (cookies), które blokowało formularz logowania.</li>
         <li>Rozpoczyna sesję nauki i odpowiada na słówka.</li>
         <li>Zapamiętuje poprawne tłumaczenia w <code>config/SavedWords.json</code>.</li>
+        <li>Domyślnie odpowiada poprawnie w 80% przypadków (<code>valid_chance: 0.8</code>).</li>
         <li>Obsługuje języki dostępne na instaling.pl (m.in. angielski, hiszpański, niemiecki).</li>
     </ul>
 
@@ -85,7 +86,7 @@
 <pre><code>git clone https://github.com/Bmoneczek/instaling-bot.git
 cd instaling-bot
 npm install</code></pre>
-    <p>Następnie uzupełnij <code>config/Config.json</code> (wzór: <code>config/Config.example.json</code>):</p>
+    <p>Następnie skopiuj <code>config/Config.defaults.json</code> do <code>config/Config.json</code> i uzupełnij:</p>
 <pre><code>{
     "credentials": {
         "login": "twoj-login-lub-email",

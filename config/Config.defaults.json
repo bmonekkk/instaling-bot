@@ -12,24 +12,16 @@
         "type_min": 120,
         "type_max": 240,
         "selector": 15000,
-        "wait_min": 2500,
-        "wait_max": 5000,
         "check_min": 3000,
         "check_max": 5500,
         "next_word_min": 2000,
         "next_word_max": 4500
     },
-    "feature": {
-        "user": "",
-        "password": ""
-    },
-    "valid_chance": 1,
+    "valid_chance": 0.8,
     "max_answers": 0,
     "show_browser": true,
-    "open_devtools": false,
     "mute_audio": true,
     "window_width": 1366,
     "window_height": 900,
-    "debug": false,
-    "webhook": ""
+    "debug": false
 }

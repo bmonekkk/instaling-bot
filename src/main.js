@@ -19,21 +19,19 @@ const {
     findSelector,
     isVisible,
     canLogin,
-    useFeature,
     click,
     clickAndWait,
     clickWait,
     type,
     delay,
+    getRandomInt,
     savePage,
     prepare,
-    dismissConsent,
-    eventer
+    dismissConsent
 } = require('./helpers.js');
 const {green, yellow, red, blue, error} = require('./printer.js');
 const chalk = require('chalk');
 const {insertWord, getWord, saveWords} = require('./words.js');
-const uniqueRandomArray = require('unique-random-array');
 
 const blockedHosts = [
     'googletagmanager.com',
@@ -113,15 +111,13 @@ const lastTyped = new Map();
     } catch (err) {
         error(err);
         await savePage(page, 'error');
-        await handleStop(page);
-        eventer.emit('stopBot', 1);
+        await handleStop(page, 1);
     }
 })();
 
 async function start() {
     const options = {
         headless: !config.show_browser,
-        devtools: Boolean(config.open_devtools),
         defaultViewport: config.show_browser ? null : {width: 1366, height: 900},
         // Puppeteer adds --enable-automation by default (adds the "controlled by
         // automated software" bar and sets navigator.webdriver). Drop it.
@@ -183,9 +179,8 @@ async function login(page) {
 
     page.on('dialog', async dialog => {
         red(`Dialog: \`${dialog.message()}\``);
-        if (dialog.message() === 'BĹ‚Ä…d poĹ‚Ä…czenia') {
-            error(new Error('BĹ‚Ä…d poĹ‚Ä…czenia'));
-            eventer.emit('stopBot', 1);
+        if (dialog.message() === 'Błąd połączenia') {
+            error(new Error('Błąd połączenia'));
         }
         await dialog.dismiss().catch(() => {});
     });
@@ -204,7 +199,7 @@ async function login(page) {
     await dismissConsent(page, {timeout: 2000});
 
     const body = await page.evaluate(() => document.body.innerText).catch(() => '');
-    const stillOnLogin = /Logowanie nie powiodĹ‚o siÄ™|nieprawidĹ‚owy login lub hasĹ‚o/i.test(body);
+    const stillOnLogin = /Logowanie nie powiodło się|nieprawidłowy login lub hasło/i.test(body);
     if (stillOnLogin) {
         red('[LOGIN] Login failed - check the login and password in config/Config.json!');
         throw new Error('Login failed');
@@ -274,7 +269,7 @@ async function answerQuestion(page) {
 
     const translation = await getWord(polish, sentence);
     const englishes = translation?.map?.(obj => obj.english) ?? [];
-    const english = englishes.find(word => !lastTyped.get(word)) ?? uniqueRandomArray(englishes)();
+    const english = englishes.find(word => !lastTyped.get(word)) ?? englishes[getRandomInt(0, englishes.length)];
 
     if (await isVisible(page, SELECTORS.newWordForm, 1000)) {
         return newWord(page);
@@ -311,9 +306,9 @@ async function answerQuestion(page) {
 
 async function newWord(page) {
     // The bot does not know the word yet: pick "don't know" so the correct translation is revealed.
-    await savePage(page, `${i}_feature_0`);
+    await savePage(page, `${i}_new_word_0`);
     await clickWait(page, SELECTORS.dontKnowNew, config.delays?.check_min, config.delays?.check_max);
-    await savePage(page, `${i}_feature_1`);
+    await savePage(page, `${i}_new_word_1`);
     blue(`[ANSWER ${i}] Next word!`);
     await clickWait(page, SELECTORS.nextWord, config.delays?.next_word_min, config.delays?.next_word_max);
 }
@@ -321,28 +316,27 @@ async function newWord(page) {
 async function isSessionFinished(page) {
     if (!page) return false;
     const body = await page.evaluate(() => document.body.innerText).catch(() => '');
-    const finishedText = /koniec|zakoĹ„cz|gratulacje|wyniki|podsumowanie|nie ma juĹĽ/i.test(body);
+    const finishedText = /koniec|zakończ|gratulacje|wyniki|podsumowanie|nie ma już/i.test(body);
     const hasForm = await findSelector(page, SELECTORS.answer.concat(SELECTORS.newWordForm), 1000);
     return finishedText && !hasForm;
 }
 
-async function handleStop(page) {
-    if (!page) return;
-    blue('[STOP] Confirming...');
-    const returnButton = await findSelector(page, SELECTORS.returnMain, 3000);
-    if (returnButton) {
-        await click(page, returnButton).catch(() => {});
-    }
+async function handleStop(page, code = 0) {
+    if (page) {
+        blue('[STOP] Confirming...');
+        const returnButton = await findSelector(page, SELECTORS.returnMain, 3000);
+        if (returnButton) {
+            await click(page, returnButton).catch(() => {});
+        }
 
-    if (!useFeature()) {
         blue('[STOP] Saving words...');
         await saveWords().catch(e => console.error(e));
+
+        blue('[STOP] Closing...');
+        await page.browser().close().catch(() => {});
     }
 
-    blue('[STOP] Closing...');
-    await page.browser().close().catch(() => {});
-
     green('Thanks for using InstaLing Bot by PanSzelescik');
-    green('https://github.com/PanSzelescik/instaling-bot');
-    eventer.emit('stopBot', 0);
+    green('https://github.com/Bmoneczek/instaling-bot');
+    process.exit(code);
 }

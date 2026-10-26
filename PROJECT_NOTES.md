@@ -20,7 +20,7 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `E:\Files\OpenCode\instaling-bot` |
 | Your fork | https://github.com/Bmoneczek/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/Bmoneczek/instaling-bot/releases/latest (v2.0.1) |
+| Latest release | https://github.com/Bmoneczek/instaling-bot/releases/latest (v2.1.0) |
 | Landing page | https://bmoneczek.github.io/instaling-bot/ |
 | Remote `origin` | upstream repo |
 | Remote `fork` | your fork |
@@ -30,7 +30,7 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 - Node.js 22+ (tested on 26)
 - Puppeteer 25 (`puppeteer` downloads Chrome for Testing)
 - CommonJS (`require`), no build step, no TypeScript
-- `chalk` (colors), `strip-ansi` (webhook logs), `unique-random-array`
+- `chalk` (console colors) — the only runtime dependency besides Puppeteer
 - No database — words are a JSON array
 
 ## File map
@@ -40,13 +40,13 @@ src/
   main.js       entry point: launch browser, login, session, answer loop, window patch
   helpers.js    DOM helpers: selectors, click/type, delays, cookie consent, diagnostics
   config.js     loads Config.json, normalizes credentials
-  words.js      SavedWords.json + optional crawcik.space feature API
-  printer.js    console logs + Discord webhook (built-in fetch)
+  words.js      SavedWords.json lookup/save (local file only)
+  printer.js    console logging helpers
 config/
-  Config.json           real config (gitignored, contains credentials)
-  Config.example.json   template committed to git
-  SavedWords.json       learned words (gitignored)
-  SavedWords.example.json
+  Config.json             real config (gitignored, contains credentials)
+  Config.defaults.json    template committed to git
+  SavedWords.json         learned words (gitignored)
+  SavedWords.defaults.json
 docs/           GitHub Pages landing page (index.html, robots.txt, sitemap.xml)
 pages/          HTML dumps from the last run (gitignored, diagnostics)
 screenshots/    PNG dumps from the last run (gitignored, diagnostics)
@@ -112,21 +112,19 @@ The loop ends when an expected element disappears (session finished), when `max_
     "check_min": 3000, "check_max": 5500,
     "next_word_min": 2000, "next_word_max": 4500
   },
-  "valid_chance": 1,        // 1 = always answer correctly, 0.85 = 85%
+  "valid_chance": 0.8,      // 0.8 = 80% correct, 1 = always correct
   "max_answers": 0,         // 0 = unlimited
   "show_browser": true,
-  "open_devtools": false,
   "mute_audio": true,
   "window_width": 1366,
   "window_height": 900,
-  "debug": false,
-  "webhook": ""
+  "debug": false
 }
 ```
 
 - Raising delays = slower and less aggressive.
 - `max_answers: 1` is the fastest safe way to test a change.
-- `feature.user/password` is an optional third-party word database (`api.crawcik.space`), **not** your InstaLing login.
+- The canonical template is `config/Config.defaults.json`; there is no remote word database anymore.
 
 ## Common tasks
 
@@ -160,7 +158,6 @@ gh release create vX.Y.Z --repo Bmoneczek/instaling-bot --target master \
 - Detection is never guaranteed — no amount of delay makes a bot invisible.
 - Single account, single run, no scheduling.
 - Words are flat JSON, no dedupe beyond normalizing text.
-- The optional `api.crawcik.space` feature is unmaintained.
 - Uses Chrome for Testing, not the user's installed Chrome.
 - No tests yet (only `node --check`).
 
@@ -200,7 +197,7 @@ Before building the app, separate the engine from the CLI: `src/main.js` current
 
 Copy this into a new chat:
 
-> Project: `E:\Files\OpenCode\instaling-bot` (fork of PanSzelescik/instaling-bot, v2.0.1).
+> Project: `E:\Files\OpenCode\instaling-bot` (fork of PanSzelescik/instaling-bot, v2.1.0).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `src/helpers.js`, `src/config.js` first.
 > Current state: CLI works on Windows with Puppeteer 25; cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; delays are configurable.
 > Goal: turn the CLI into a desktop app (Electron or Tauri) with a GUI for credentials/settings, start/stop, live logs and progress. Keep backwards compatibility with `config/Config.json` and do not regress the cookie or window fixes.
