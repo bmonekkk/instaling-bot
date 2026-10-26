@@ -1,20 +1,42 @@
 {
   "name": "instaling-bot",
-  "version": "1.0.0",
-  "description": "",
+  "version": "2.0.0",
+  "description": "Bot for automatically practising vocabulary on instaling.pl (educational automation project)",
   "main": "src/main.js",
   "scripts": {
-    "start": "node src/main.js"
+    "start": "node src/main.js",
+    "check": "node --check src/main.js && node --check src/helpers.js && node --check src/words.js && node --check src/printer.js && node --check src/config.js"
   },
-  "keywords": [],
+  "keywords": [
+    "instaling",
+    "vocabulary",
+    "puppeteer",
+    "bot",
+    "education"
+  ],
   "author": "PanSzelescik",
+  "contributors": [
+    "Bmonek"
+  ],
   "license": "ISC",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bmonek/instaling-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Bmonek/instaling-bot/issues"
+  },
+  "homepage": "https://github.com/Bmonek/instaling-bot#readme",
   "dependencies": {
-    "axios": "^0.21.1",
-    "chalk": "^4.1.1",
-    "discord.js": "^12.5.3",
-    "puppeteer": "^9.0.0",
-    "strip-ansi": "^6.0.0",
+    "chalk": "^4.1.2",
+    "puppeteer": "^25.16.0",
+    "strip-ansi": "^6.0.1",
     "unique-random-array": "^2.0.0"
+  },
+  "allowScripts": {
+    "puppeteer@25.16.0": true
   }
 }

@@ -1,13 +1,9 @@
 const chalk = require('chalk');
-const config = require('../config/Config.json');
-const {WebhookClient} = require('discord.js');
+const config = require('./config.js');
 const stripAnsi = require('strip-ansi');
-const {MessageEmbed} = require('discord.js');
 
-let webhook = undefined;
 let string = '';
 let interval;
-prepareWebhook();
 
 function log(text) {
     string += '\n';
@@ -33,32 +29,46 @@ function blue(text) {
 
 function error(text) {
     sendAndClear().catch(console.error);
-    webhook?.send?.('', new MessageEmbed()
-        .setColor('RED')
-        .setTitle(`:exclamation: ${text?.name}`)
-        .addField('Message', text?.message, false)
-        .addField('Text', text, false)
-        .setFooter('InstaLing Bot by PanSzelescik', 'https://avatars.githubusercontent.com/u/26679785')
-        .setTimestamp(new Date())
-        .addField('Stacktrace', text?.stack?.length > 1024 ? text?.stack?.substring?.(0, 1023) : text?.stack, false)
-        .setDescription(`Wystąpił nieznany błąd i bot został zatrzymany!\n[ZGŁOŚ BŁĄD](https://github.com/PanSzelescik/instaling-bot/issues)`)).catch(console.error);
+    sendWebhook({
+        embeds: [{
+            color: 0xff0000,
+            title: `:exclamation: ${text?.name ?? 'Error'}`,
+            description: `WystÄ…piĹ‚ nieznany bĹ‚Ä…d i bot zostaĹ‚ zatrzymany!\n[ZGĹOĹš BĹÄ„D](https://github.com/PanSzelescik/instaling-bot/issues)`,
+            fields: [
+                {name: 'Message', value: String(text?.message ?? text ?? 'Unknown'), inline: false},
+                {name: 'Stacktrace', value: String(text?.stack ?? '').substring(0, 1024) || 'brak', inline: false}
+            ],
+            footer: {text: 'InstaLing Bot by PanSzelescik'},
+            timestamp: new Date().toISOString()
+        }]
+    }).catch(console.error);
     console.error(text);
 }
 
+function getWebhookUrl() {
+    return config?.webhook || null;
+}
+
 function prepareWebhook() {
-    if (config?.webhook) {
-        const splitted = config.webhook.split('/');
-        const id = splitted[splitted.length - 2];
-        const token = splitted[splitted.length - 1];
-        if (id && token) {
-            webhook = new WebhookClient(id, token, {apiRequestMethod: 'sequential'});
-            interval = setInterval(async () => sendAndClear(), 5000);
-        }
+    if (!getWebhookUrl()) return;
+    interval = setInterval(async () => sendAndClear(), 5000);
+}
+
+async function sendWebhook(payload) {
+    const url = getWebhookUrl();
+    if (!url) return;
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+        throw new Error(`Discord webhook returned ${response.status}`);
     }
 }
 
 async function send(text) {
-    return webhook?.send?.(stripAnsi(text));
+    return sendWebhook({content: stripAnsi(text).substring(0, 1900)});
 }
 
 async function sendAndClear() {
@@ -69,6 +79,8 @@ async function sendAndClear() {
     }
 }
 
+prepareWebhook();
+
 module.exports = {
     green,
     yellow,
@@ -77,4 +89,4 @@ module.exports = {
     error,
     interval,
     sendAndClear
-}
+};
