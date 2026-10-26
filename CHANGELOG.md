@@ -2,6 +2,38 @@
 
 All notable changes to this fork are documented here.
 
+## [3.0.0] - 2026-10-26
+
+### Added
+- Electron desktop app for Windows and macOS with a retro Windows 95/98 interface, custom titlebar, settings panel and Start/Stop controls.
+- Windows `.exe` installer (NSIS, x64) and macOS `.pkg` installers for Apple Silicon (`arm64`) and Intel (`x64`).
+- Chrome for Testing is bundled into desktop installers, so the app does not require Node.js or a separately installed browser.
+- GUI options for credentials, `valid_chance`, `max_answers`, browser/audio visibility, humanization delays and debug mode.
+- Live log, answer/correct/wrong counters, elapsed time, data-folder shortcut and `logs/last-run.log`.
+- `bot-event` IPC stream from the shared engine (`answer`, `answered`, `new-word`, `phase`, `error`, `finished`) and a graceful stop request.
+- `INSTALING_ROOT`, `INSTALING_CONFIG` and `INSTALING_CHROME` environment variables so the engine can run against a writable per-user directory and the bundled browser.
+- `scripts/prepare-browser.js` to copy Chrome for Testing into `resources/browser` with a manifest.
+- `scripts/ensure-electron.js` postinstall fallback that downloads the Electron runtime when npm skips Electron's own install script.
+- GitHub Actions workflow `.github/workflows/release.yml` that builds Windows and macOS installers and attaches them to a draft release on version tags.
+- Desktop app icon (`build/icon.png`) and a generator script.
+
+### Changed
+- Desktop data lives in `%APPDATA%\instaling-bot` (Windows) or `~/Library/Application Support/instaling-bot` (macOS); the CLI keeps using `config/Config.json` in the project directory.
+- Desktop configs are migrated by adding missing default keys without overwriting user values or dropping unknown fields.
+- `src/main.js` now exports its completion promise, emits IPC events, and no longer calls `process.exit()` when required by the desktop runner.
+- `src/config.js`, `src/helpers.js` and `src/words.js` honor the desktop data paths; `SavedWords.json` is loaded lazily.
+- `electron-builder.yml` packages the app with `asar: false` so the forked engine and `desktop/runner.js` work reliably from the installed app.
+- README, project page and project notes now document the desktop/CLI split, installer downloads, data paths and release process.
+
+### Fixed
+- The Windows installer includes a working Chrome binary and manifest, and the packaged app launches the bot with the bundled browser.
+- Closing the desktop window while the bot runs stops it gracefully, saves words and closes Chrome instead of leaving orphaned processes.
+- Stop requests are handled between steps and during an active answer, with a 15 s force-kill fallback.
+
+### Compatibility
+- The CLI (`npm start`) remains fully supported for as long as the desktop app exists, including Linux and terminal-only systems.
+- Engine, config format and `SavedWords.json` are shared between both variants; all humanization and login fixes from 2.2.x are preserved.
+
 ## [2.2.1] - 2026-10-26
 
 ### Changed

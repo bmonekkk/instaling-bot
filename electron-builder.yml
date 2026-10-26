@@ -1,0 +1,65 @@
+appId: com.bmoneczek.instalingbot
+productName: instaling-bot
+copyright: Copyright © 2026 Bmoneczek
+
+asar: false
+npmRebuild: false
+compression: normal
+publish: null
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - desktop/**/*
+  - src/**/*
+  - config/*.defaults.json
+  - build/icon.png
+  - package.json
+  - LICENSE
+  - NOTICE
+
+extraResources:
+  - from: resources/browser
+    to: browser
+    filter:
+      - "**/*"
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.png
+  artifactName: ${productName}-${version}-setup.${ext}
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: instaling-bot
+  uninstallDisplayName: instaling-bot
+  deleteAppDataOnUninstall: false
+  runAfterFinish: true
+
+mac:
+  category: public.app-category.education
+  minimumSystemVersion: "13.0"
+  icon: build/icon.png
+  identity: null
+  hardenedRuntime: false
+  gatekeeperAssess: false
+  target:
+    - target: pkg
+  artifactName: ${productName}-${version}-${arch}.${ext}
+
+pkg:
+  installLocation: /Applications
+  allowAnywhere: false
+  allowCurrentUserHome: false
+  allowRootDirectory: false
+  isRelocatable: false
+  overwriteAction: upgrade

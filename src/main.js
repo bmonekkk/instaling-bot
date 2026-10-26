@@ -14,6 +14,7 @@ if (process.platform === 'win32') {
 
 const puppeteer = require('puppeteer');
 const config = require('./config.js');
+const {resetControl, isStopRequested} = require('./control.js');
 const {
     getText,
     findSelector,
@@ -79,44 +80,14 @@ const SELECTORS = {
 let i = 0;
 const lastTyped = new Map();
 
-// MAIN
-(async () => {
-    let page;
+function notify(event, payload = {}) {
+    if (typeof process.send !== 'function') return;
     try {
-        if (!canLogin()) {
-            red('Please type in config/Config.json your login and password!');
-            return;
-        }
-
-        page = await start();
-        await login(page);
-        await startSession(page);
-
-        try {
-            // When the session ends, one of the expected elements disappears and the loop stops.
-            while (true) {
-                if (config.max_answers > 0 && i >= config.max_answers) {
-                    yellow(`[DONE] Reached max_answers limit (${config.max_answers}).`);
-                    break;
-                }
-                await answerQuestion(page);
-            }
-            await handleStop(page);
-        } catch (e) {
-            if (await isSessionFinished(page)) {
-                green('[DONE] Session finished!');
-            } else {
-                error(e);
-                await savePage(page, 'error');
-            }
-            await handleStop(page);
-        }
-    } catch (err) {
-        error(err);
-        await savePage(page, 'error');
-        await handleStop(page, 1);
+        process.send({type: 'bot-event', event, ...payload});
+    } catch (e) {
+        // The Electron parent may already be gone; logging must keep working.
     }
-})();
+}
 
 async function start() {
     const options = {
@@ -134,6 +105,12 @@ async function start() {
             '--no-default-browser-check'
         ]
     };
+
+    // The desktop app bundles Chrome for Testing and passes its exact path.
+    // The CLI keeps using Puppeteer's default downloaded browser.
+    if (process.env.INSTALING_CHROME) {
+        options.executablePath = process.env.INSTALING_CHROME;
+    }
 
     if (config.mute_audio) {
         options.args.push('--mute-audio');
@@ -277,6 +254,7 @@ async function startSession(page) {
 
 async function answerQuestion(page) {
     i++;
+    notify('answer', {index: i});
     await savePage(page, i);
     blue(`[ANSWER ${i}] Detecting word...`);
 
@@ -334,12 +312,21 @@ async function answerQuestion(page) {
         await insertWord(polish, validEnglish, sentence);
     }
 
+    notify('answered', {
+        index: i,
+        polish,
+        typed: english || null,
+        valid: validEnglish || null,
+        correct: Boolean(validEnglish && english === validEnglish)
+    });
+
     blue(`[ANSWER ${i}] Next word!`);
     await clickWait(page, SELECTORS.nextWord, config.delays?.next_word_min, config.delays?.next_word_max);
 }
 
 async function newWord(page) {
     // The bot does not know the word yet: pick "don't know" so the correct translation is revealed.
+    notify('new-word', {index: i});
     await savePage(page, `${i}_new_word_0`);
     await clickWait(page, SELECTORS.dontKnowNew, config.delays?.check_min, config.delays?.check_max);
     await savePage(page, `${i}_new_word_1`);
@@ -356,6 +343,8 @@ async function isSessionFinished(page) {
 }
 
 async function handleStop(page, code = 0) {
+    notify('phase', {phase: 'stopping'});
+
     if (page) {
         blue('[STOP] Confirming...');
         const returnButton = await findSelector(page, SELECTORS.returnMain, 3000);
@@ -368,9 +357,95 @@ async function handleStop(page, code = 0) {
 
         blue('[STOP] Closing...');
         await page.browser().close().catch(() => {});
+    } else {
+        blue('[STOP] Saving words...');
+        await saveWords().catch(e => console.error(e));
     }
 
     green('Thanks for using InstaLing Bot by Bmoneczek');
     green('https://github.com/Bmoneczek/instaling-bot');
-    process.exit(code);
+    notify('finished', {code});
+    return code;
 }
+
+async function run() {
+    resetControl();
+    i = 0;
+    lastTyped.clear();
+
+    let page;
+    try {
+        if (!canLogin()) {
+            red('Please type in config/Config.json your login and password!');
+            notify('error', {message: 'Missing login or password'});
+            return 0;
+        }
+
+        page = await start();
+        if (isStopRequested()) {
+            yellow('[STOP] Stop requested.');
+            return await handleStop(page, 0);
+        }
+
+        await login(page);
+        notify('phase', {phase: 'logged-in'});
+        if (isStopRequested()) {
+            yellow('[STOP] Stop requested.');
+            return await handleStop(page, 0);
+        }
+
+        await startSession(page);
+        notify('phase', {phase: 'running'});
+
+        try {
+            // When the session ends, one of the expected elements disappears and the loop stops.
+            while (true) {
+                if (isStopRequested()) {
+                    yellow('[STOP] Stop requested.');
+                    break;
+                }
+                if (config.max_answers > 0 && i >= config.max_answers) {
+                    yellow(`[DONE] Reached max_answers limit (${config.max_answers}).`);
+                    break;
+                }
+                await answerQuestion(page);
+            }
+            return await handleStop(page, 0);
+        } catch (e) {
+            if (isStopRequested()) {
+                yellow('[STOP] Stop requested.');
+                return await handleStop(page, 0);
+            }
+            if (await isSessionFinished(page)) {
+                green('[DONE] Session finished!');
+            } else {
+                error(e);
+                notify('error', {message: String(e?.message ?? e)});
+                await savePage(page, 'error');
+            }
+            return await handleStop(page, 0);
+        }
+    } catch (err) {
+        if (isStopRequested()) {
+            return await handleStop(page, 0);
+        }
+        error(err);
+        notify('error', {message: String(err?.message ?? err)});
+        await savePage(page, 'error');
+        return await handleStop(page, 1);
+    }
+}
+
+const done = run();
+
+if (require.main === module) {
+    done
+        .then(code => process.exit(code))
+        .catch(err => {
+            console.error(err);
+            process.exit(1);
+        });
+}
+
+// The Electron runner awaits this promise; the CLI wrapper above exits itself.
+module.exports = done;

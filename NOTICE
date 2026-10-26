@@ -5,7 +5,7 @@ Original project:
   https://github.com/PanSzelescik/instaling-bot
   Copyright (c) 2021 PanSzelescik
 
-This fork (v2.2.1):
+This fork (v3.0.0):
   https://github.com/Bmoneczek/instaling-bot
   Copyright (c) 2026 Bmoneczek and contributors
 
@@ -16,8 +16,18 @@ Third-party notices
 -------------------
 - This fork no longer bundles or loads uBlock Origin. Ads and tracking scripts
   are blocked with Puppeteer request interception instead.
-- Dependencies are listed in package.json and keep their own licenses:
-  Puppeteer (Apache-2.0), chalk (MIT).
+- Runtime dependencies are listed in package.json and keep their own licenses:
+  Puppeteer (Apache-2.0) and chalk (MIT).
+- The desktop app is built with Electron (MIT) and electron-builder (MIT).
+  Their license texts are included in the installed application
+  (LICENSE.electron.txt and the electron-builder metadata).
+- Desktop installers bundle Chrome for Testing, which is based on the Chromium
+  open-source project and includes third-party components under their own
+  licenses. The Chromium license text is included in the installed application
+  as LICENSES.chromium.html. Chrome and the Chrome logo are trademarks of
+  Google LLC; this project is not affiliated with or endorsed by Google.
+- The bundled browser is used only to automate instaling.pl on the user's
+  machine. It is not modified and is not exposed as a general-purpose browser.
 
 Disclaimer
 ----------

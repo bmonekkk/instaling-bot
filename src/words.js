@@ -1,7 +1,34 @@
-const words = require('../config/SavedWords.json');
-const {ROOT} = require('./helpers.js');
-const {writeFile} = require('fs/promises');
+const fs = require('fs/promises');
 const path = require('path');
+
+// The CLI uses the project directory. The Electron app provides a writable
+// per-user directory through INSTALING_ROOT.
+const ROOT = process.env.INSTALING_ROOT
+    ? path.resolve(process.env.INSTALING_ROOT)
+    : path.resolve(__dirname, '..');
+
+const CONFIG_DIR = path.join(ROOT, 'config');
+const SAVED_WORDS_PATH = path.join(CONFIG_DIR, 'SavedWords.json');
+
+let words = null;
+
+async function loadWords() {
+    if (words) return words;
+
+    try {
+        const raw = await fs.readFile(SAVED_WORDS_PATH, 'utf8');
+        const parsed = JSON.parse(raw.replace(/^\uFEFF/, ''));
+        words = Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        if (error.code === 'ENOENT') {
+            words = [];
+        } else {
+            throw new Error(`Could not read ${SAVED_WORDS_PATH}: ${error.message}`);
+        }
+    }
+
+    return words;
+}
 
 function normalize(text) {
     return String(text ?? '').trim().toLowerCase();
@@ -13,7 +40,8 @@ async function getWord(polish, sentence) {
         console.error({polish, sentence});
         return [];
     }
-    return words.filter(obj => normalize(obj.polish) === normalize(polish));
+    const saved = await loadWords();
+    return saved.filter(obj => normalize(obj.polish) === normalize(polish));
 }
 
 async function insertWord(polish, english, sentence) {
@@ -23,23 +51,27 @@ async function insertWord(polish, english, sentence) {
         return;
     }
 
-    const exists = words.some(word => normalize(word.polish) === normalize(polish)
+    const saved = await loadWords();
+    const exists = saved.some(word => normalize(word.polish) === normalize(polish)
         && normalize(word.english) === normalize(english)
         && normalize(word.sentence) === normalize(sentence));
     if (!exists) {
-        words.push({polish, english, sentence});
+        saved.push({polish, english, sentence});
     }
 }
 
 async function saveWords() {
-    return writeFile(
-        path.join(ROOT, 'config', 'SavedWords.json'),
-        JSON.stringify(words, null, 4) + '\n',
+    const saved = await loadWords();
+    await fs.mkdir(CONFIG_DIR, {recursive: true});
+    return fs.writeFile(
+        SAVED_WORDS_PATH,
+        JSON.stringify(saved, null, 4) + '\n',
         {encoding: 'utf8'}
     );
 }
 
 module.exports = {
+    SAVED_WORDS_PATH,
     getWord,
     insertWord,
     saveWords

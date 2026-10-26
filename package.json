@@ -1,18 +1,26 @@
 {
   "name": "instaling-bot",
-  "version": "2.2.1",
-  "description": "Bot for automatically practising vocabulary on instaling.pl (educational automation project)",
-  "main": "src/main.js",
+  "version": "3.0.0",
+  "description": "Desktop app and CLI bot for practising vocabulary on instaling.pl (educational automation project)",
+  "main": "desktop/main.js",
   "scripts": {
     "start": "node src/main.js",
-    "check": "node --check src/main.js && node --check src/helpers.js && node --check src/words.js && node --check src/printer.js && node --check src/config.js"
+    "desktop": "electron .",
+    "dev": "electron .",
+    "postinstall": "node scripts/ensure-electron.js",
+    "check": "node --check src/main.js && node --check src/helpers.js && node --check src/words.js && node --check src/control.js && node --check src/printer.js && node --check src/config.js && node --check desktop/main.js && node --check desktop/preload.js && node --check desktop/runner.js && node --check desktop/renderer/renderer.js && node --check scripts/prepare-browser.js && node --check scripts/ensure-electron.js",
+    "prepare:browser": "node scripts/prepare-browser.js",
+    "dist:win": "npm run prepare:browser && electron-builder --win nsis",
+    "dist:mac": "npm run prepare:browser && electron-builder --mac pkg"
   },
   "keywords": [
     "instaling",
     "vocabulary",
     "puppeteer",
     "bot",
-    "education"
+    "education",
+    "electron",
+    "desktop"
   ],
   "author": "Bmoneczek",
   "contributors": [
@@ -34,7 +42,14 @@
     "chalk": "^4.1.2",
     "puppeteer": "^25.16.0"
   },
+  "devDependencies": {
+    "electron": "45.0.0",
+    "electron-builder": "26.18.0"
+  },
   "allowScripts": {
-    "puppeteer@25.16.0": true
+    "puppeteer@25.16.0": true,
+    "electron@45.0.0": true,
+    "electron-builder@26.18.0": true,
+    "electron-winstaller@5.4.0": true
   }
 }

@@ -3,7 +3,9 @@ const fs = require('fs/promises');
 const path = require('path');
 const {yellow} = require('./printer.js');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = process.env.INSTALING_ROOT
+    ? path.resolve(process.env.INSTALING_ROOT)
+    : path.resolve(__dirname, '..');
 
 async function prepare() {
     await Promise.all([

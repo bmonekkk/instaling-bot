@@ -3,29 +3,29 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>instaling-bot - bot do instaling.pl z ludzkim pisaniem (2026)</title>
-    <meta name="description" content="Działający bot do instaling.pl: automatyczne logowanie, rozwiązywanie słówek i zapamiętywanie tłumaczeń. Wersja 2.2.1 dodaje ludzkie pisanie: losowe opóźnienia, literówki i backspace. Open source, licencja ISC.">
-    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, puppeteer, nodejs, open source, human like typing">
+    <title>instaling-bot - aplikacja desktopowa i bot do instaling.pl (2026)</title>
+    <meta name="description" content="Działający bot do instaling.pl jako aplikacja desktopowa dla Windows i macOS oraz wersja CLI dla Linuksa. Wersja 3.0.0: instalator .exe i .pkg, wbudowany Chrome, live log i ludzkie pisanie. Open source, licencja ISC.">
+    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, aplikacja desktopowa, electron, windows, macos, linux, cli, puppeteer, nodejs, open source, human like typing">
     <meta name="author" content="Bmoneczek">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://bmoneczek.github.io/instaling-bot/">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="instaling-bot - działający bot do instaling.pl (2026)">
-    <meta property="og:description" content="Automatyczne logowanie i rozwiązywanie słówek na instaling.pl. Wersja 2.2.1 z ludzkim pisaniem, literówkami i szybkim logowaniem. Node.js 22+, Puppeteer 25.">
+    <meta property="og:title" content="instaling-bot - aplikacja desktopowa i bot do instaling.pl (2026)">
+    <meta property="og:description" content="Aplikacja dla Windows i macOS oraz CLI dla Linuksa. Automatyczne logowanie, rozwiązywanie słówek, live log i wbudowany Chrome. Wersja 3.0.0, open source, ISC.">
     <meta property="og:url" content="https://bmoneczek.github.io/instaling-bot/">
     <meta property="og:site_name" content="instaling-bot">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="instaling-bot - bot do instaling.pl">
-    <meta name="twitter:description" content="Działający bot do automatycznego rozwiązywania słówek na instaling.pl. Open source, ISC.">
+    <meta name="twitter:description" content="Desktop dla Windows i macOS oraz CLI dla Linuksa. Automatyczne rozwiązywanie słówek na instaling.pl. Open source, ISC.">
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "instaling-bot",
-        "softwareVersion": "2.2.1",
+        "softwareVersion": "3.0.0",
         "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Windows, Linux, macOS",
-        "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Obsługuje logowanie, sesję nauki, zapamiętywanie tłumaczeń i ludzkie pisanie z literówkami.",
+        "operatingSystem": "Windows, macOS, Linux",
+        "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Aplikacja desktopowa dla Windows i macOS z wbudowanym Chrome oraz wersja CLI dla Linuksa. Obsługuje logowanie, sesję nauki, zapamiętywanie tłumaczeń i ludzkie pisanie z literówkami.",
         "url": "https://bmoneczek.github.io/instaling-bot/",
         "downloadUrl": "https://github.com/Bmoneczek/instaling-bot/releases/latest",
         "codeRepository": "https://github.com/Bmoneczek/instaling-bot",
@@ -231,6 +231,67 @@
 
         .grid ul { margin: 0; }
 
+.downloads {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin: 16px 0 6px;
+}
+
+.download-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 13px;
+    background: var(--window);
+    border: 2px solid;
+    border-color: #fff var(--window-darker) var(--window-darker) #fff;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, .35);
+}
+
+.download-card .platform {
+    font-size: .78rem;
+    font-weight: 700;
+    color: var(--title-1);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.download-card .filename {
+    font-family: "Courier New", Consolas, monospace;
+    font-size: .76rem;
+    word-break: break-all;
+}
+
+.download-card .meta {
+    margin: 0 0 6px;
+    color: #444;
+    font-size: .78rem;
+}
+
+.download-card .btn {
+    margin-top: auto;
+    text-align: center;
+}
+
+.note {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    font-size: .84rem;
+    background: #ffffcc;
+    border: 1px solid var(--window-dark);
+}
+
+.tag {
+    display: inline-block;
+    padding: 0 5px;
+    font-family: "Courier New", Consolas, monospace;
+    font-size: .76rem;
+    font-weight: 700;
+    color: #fff;
+    background: var(--title-1);
+}
+
         code, pre {
             font-family: "Courier New", Consolas, monospace;
         }
@@ -376,6 +437,7 @@
             body { padding: 12px 8px 76px; }
             .content { padding: 20px 16px 24px; }
             .grid { grid-template-columns: 1fr; }
+            .downloads { grid-template-columns: 1fr; }
             .menubar { gap: 14px; }
             .task { display: none; }
             .titlebar-text { font-size: .82rem; }
@@ -397,7 +459,7 @@
 <div class="window">
     <div class="titlebar">
         <span class="titlebar-icon">🤖</span>
-        <span class="titlebar-text">instaling-bot.exe — v2.2.1</span>
+        <span class="titlebar-text">instaling-bot.exe — v3.0.0</span>
         <span class="titlebar-buttons" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
     </div>
 
@@ -410,59 +472,101 @@
 
     <main class="content">
         <h1>instaling<span>-bot</span></h1>
-        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 2.2.1 pisze jeszcze bardziej po ludzku: losowe opóźnienia między literami, symulowane literówki i szybkie, pewne logowanie.</p>
+        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 3.0.0 to pełnoprawna <strong>aplikacja desktopowa dla Windows i macOS</strong> — z wbudowanym Chrome, panelem ustawień, live logiem i przyciskami Start/Stop. Dla Linuksa i terminala zostaje w pełni wspierane CLI.</p>
 
         <div class="badges">
-            <span class="badge">Node.js 22+</span>
-            <span class="badge">Puppeteer 25</span>
-            <span class="badge">v2.2.1</span>
-            <span class="badge">Human-like typing</span>
+            <span class="badge">Windows .exe</span>
+            <span class="badge">macOS .pkg</span>
+            <span class="badge">Linux CLI</span>
+            <span class="badge">Electron</span>
+            <span class="badge">Chrome w zestawie</span>
+            <span class="badge">v3.0.0</span>
             <span class="badge">Licencja ISC</span>
             <span class="badge">Open source</span>
         </div>
 
         <p class="actions">
-            <a class="btn primary" href="https://github.com/Bmoneczek/instaling-bot/releases/latest">Pobierz v2.2.1</a>
-            <a class="btn" href="https://github.com/Bmoneczek/instaling-bot">Zobacz kod na GitHub</a>
+            <a class="btn primary" href="https://github.com/Bmoneczek/instaling-bot/releases/download/v3.0.0/instaling-bot-3.0.0-setup.exe">Pobierz dla Windows (.exe)</a>
+            <a class="btn" href="#macos">Pobierz dla macOS (.pkg)</a>
+            <a class="btn" href="#cli">Wersja CLI dla Linuksa</a>
+            <a class="btn" href="https://github.com/Bmoneczek/instaling-bot">Kod na GitHub</a>
         </p>
 
         <section class="panel highlight">
-            <h2>Nowość: bardziej ludzkie pisanie</h2>
+            <h2>Nowość w 3.0.0: aplikacja desktopowa</h2>
             <div class="grid">
                 <ul>
-                    <li>Każda litera ma własne, losowe opóźnienie.</li>
-                    <li>Losowe mikro-pauzy w trakcie pisania.</li>
-                    <li>Czasem zły klawisz, backspace i poprawna litera.</li>
+                    <li>Instalator Windows <code>.exe</code> (NSIS) oraz macOS <code>.pkg</code> dla Apple Silicon i Intel.</li>
+                    <li>Chrome for Testing jest dołączony do instalatora — bez Node.js i bez osobnej przeglądarki.</li>
+                    <li>GUI: dane logowania, poprawność odpowiedzi, limit, humanizacja, Start/Stop.</li>
                 </ul>
                 <ul>
-                    <li>Gdy <code>valid_chance</code> każe odpowiedzieć źle, bot wpisuje wiarygodną literówkę zamiast pustego pola.</li>
-                    <li>Logowanie: szybkie, dokładne wpisanie danych i jedna automatyczna ponowna próba.</li>
-                    <li>Przyciski nawigacji (kontynuuj, rozpocznij) reagują od razu.</li>
+                    <li>Live log, liczniki odpowiedzi, czas pracy, folder danych i pełny log ostatniego uruchomienia.</li>
+                    <li>CLI pozostaje wspierane i korzysta z tego samego silnika, konfiguracji oraz <code>SavedWords.json</code>.</li>
+                    <li>Humanizacja pisania z 2.2.x działa bez zmian: opóźnienia, mikro-pauzy i literówki z backspace.</li>
                 </ul>
             </div>
+        </section>
+
+        <section class="panel" id="macos">
+            <h2>Pobierz aplikację desktopową</h2>
+            <div class="downloads">
+                <div class="download-card">
+                    <span class="platform">Windows 10/11</span>
+                    <span class="filename">instaling-bot-3.0.0-setup.exe</span>
+                    <p class="meta">x64 · instalator NSIS · Chrome w zestawie</p>
+                    <a class="btn primary" href="https://github.com/Bmoneczek/instaling-bot/releases/download/v3.0.0/instaling-bot-3.0.0-setup.exe">Pobierz .exe</a>
+                </div>
+                <div class="download-card">
+                    <span class="platform">macOS Apple Silicon</span>
+                    <span class="filename">instaling-bot-3.0.0-arm64.pkg</span>
+                    <p class="meta">macOS 13+ · M1–M4 · Chrome w zestawie</p>
+                    <a class="btn" href="https://github.com/Bmoneczek/instaling-bot/releases/download/v3.0.0/instaling-bot-3.0.0-arm64.pkg">Pobierz .pkg</a>
+                </div>
+                <div class="download-card">
+                    <span class="platform">macOS Intel</span>
+                    <span class="filename">instaling-bot-3.0.0-x64.pkg</span>
+                    <p class="meta">macOS 13+ · procesory Intel · Chrome w zestawie</p>
+                    <a class="btn" href="https://github.com/Bmoneczek/instaling-bot/releases/download/v3.0.0/instaling-bot-3.0.0-x64.pkg">Pobierz .pkg</a>
+                </div>
+            </div>
+            <p class="note"><strong>Instalatory są niepodpisane.</strong> Windows SmartScreen: <em>More info → Run anyway</em>. macOS: kliknij instalator prawym przyciskiem → <em>Open</em> albo zatwierdź aplikację w <em>System Settings → Privacy &amp; Security</em>. To normalne dla buildów bez certyfikatu code signing. <a href="https://github.com/Bmoneczek/instaling-bot/releases">Wszystkie wydania</a>.</p>
+        </section>
+
+        <section class="panel">
+            <h2>Pierwsze uruchomienie (desktop)</h2>
+            <ol>
+                <li>Uruchom pobrany instalator i otwórz <strong>instaling-bot</strong>.</li>
+                <li>Wpisz login i hasło do InstaLing.</li>
+                <li>Ustaw poprawność odpowiedzi (domyślnie 80%) i limit odpowiedzi (<code>0</code> = bez limitu).</li>
+                <li>Naciśnij <strong>Start</strong>. Bot otworzy osobne okno Chrome, zaloguje się i rozpocznie lub kontynuuje sesję.</li>
+                <li>Postęp, liczniki i błędy śledź w konsoli aplikacji. Przycisk <strong>Folder danych</strong> otwiera pliki konfiguracji i logi.</li>
+            </ol>
+            <p>Dane aplikacji: <code>%APPDATA%\instaling-bot</code> (Windows) lub <code>~/Library/Application Support/instaling-bot</code> (macOS). W środku są <code>config/Config.json</code>, <code>config/SavedWords.json</code>, <code>logs/last-run.log</code>, <code>pages/</code> i <code>screenshots/</code>.</p>
         </section>
 
         <section class="panel">
             <h2>Co robi ten bot?</h2>
             <ul>
-                <li>Loguje się na instaling.pl danymi z <code>config/Config.json</code>.</li>
+                <li>Loguje się na instaling.pl danymi z konfiguracji.</li>
                 <li>Automatycznie zamyka okno zgody Google (cookies), które blokowało formularz logowania.</li>
                 <li>Rozpoczyna lub kontynuuje sesję nauki i odpowiada na słówka.</li>
-                <li>Zapamiętuje poprawne tłumaczenia w <code>config/SavedWords.json</code>.</li>
+                <li>Zapamiętuje poprawne tłumaczenia w <code>SavedWords.json</code>.</li>
                 <li>Domyślnie odpowiada poprawnie w 80% przypadków (<code>valid_chance: 0.8</code>).</li>
                 <li>Obsługuje języki dostępne na instaling.pl (m.in. angielski, hiszpański, niemiecki).</li>
             </ul>
         </section>
 
-        <section class="panel">
-            <h2>Instalacja</h2>
+        <section class="panel" id="cli">
+            <h2>CLI: Linux i terminal</h2>
+            <p>Wersja CLI jest wspierana tak długo, jak istnieje aplikacja desktopowa. To zalecany wariant dla Linuksa i wszystkich osób, które wolą terminal. Wymaga Node.js 22+.</p>
             <ol>
                 <li>Zainstaluj Node.js 22 lub nowszy: <a href="https://nodejs.org/">nodejs.org</a>.</li>
                 <li>Sklonuj repozytorium i zainstaluj zależności:</li>
             </ol>
 <pre><code>git clone https://github.com/Bmoneczek/instaling-bot.git
 cd instaling-bot
-npm install</code></pre>
+npm install --omit=dev</code></pre>
             <p>Skopiuj <code>config/Config.defaults.json</code> do <code>config/Config.json</code> i uzupełnij dane logowania:</p>
 <pre><code>{
     "credentials": {
@@ -472,6 +576,7 @@ npm install</code></pre>
 }</code></pre>
             <p>Uruchom bota:</p>
 <pre><code>npm start</code></pre>
+            <p>Jeśli Puppeteer nie pobrał przeglądarki podczas instalacji, uruchom <code>npx puppeteer browsers install chrome</code>.</p>
         </section>
 
         <section class="panel">
@@ -486,16 +591,17 @@ npm install</code></pre>
                 <li><code>show_browser</code> - pokazuje okno Chrome; ustaw <code>false</code> na serwerze bez GUI.</li>
                 <li><code>debug</code> - dodatkowe logi z przeglądarki i zrzuty stron.</li>
             </ul>
-            <p>Pełny wzór: <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/config/Config.defaults.json"><code>config/Config.defaults.json</code></a>.</p>
+            <p>Desktop pokazuje najważniejsze opcje w GUI, a pełny plik można edytować ręcznie. Wzór: <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/config/Config.defaults.json"><code>config/Config.defaults.json</code></a>.</p>
         </section>
 
         <section class="panel">
             <h2>Najczęstsze problemy</h2>
             <ul>
+                <li><strong>SmartScreen / Gatekeeper ostrzega</strong> - instalatory są niepodpisane. Windows: <em>More info → Run anyway</em>. macOS: prawy przycisk → <em>Open</em> lub ustawienia prywatności.</li>
                 <li><strong>Bot nie przechodzi logowania</strong> - sprawdź login i hasło. Bot wpisuje je dokładnie i sam ponawia próbę raz, jeśli strona chwilowo odrzuci formularz.</li>
-                <li><strong>Brak Chrome</strong> - uruchom <code>npx puppeteer browsers install chrome</code>.</li>
+                <li><strong>Brak Chrome w CLI</strong> - uruchom <code>npx puppeteer browsers install chrome</code>. Desktop ma Chrome w instalatorze.</li>
                 <li><strong>Strona zmieniła układ</strong> - włącz <code>"debug": true</code> i sprawdź pliki w <code>pages/</code> oraz <code>screenshots/</code>.</li>
-                <li><strong>Chcesz szybciej / wolniej</strong> - zmień wartości w sekcji <code>delays</code> w <code>config/Config.json</code>.</li>
+                <li><strong>Chcesz szybciej / wolniej</strong> - zmień wartości w sekcji <code>delays</code> w <code>Config.json</code> lub w panelu humanizacji.</li>
             </ul>
         </section>
 
@@ -511,7 +617,7 @@ npm install</code></pre>
 
     <div class="statusbar">
         <span>Gotowe</span>
-        <span>v2.2.1 · Node.js 22+</span>
+        <span>v3.0.0 · Windows · macOS · Linux</span>
     </div>
 </div>
 
