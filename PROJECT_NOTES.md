@@ -20,7 +20,7 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `E:\Files\OpenCode\instaling-bot` |
 | Your fork | https://github.com/Bmoneczek/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/Bmoneczek/instaling-bot/releases/latest (v2.2.0) |
+| Latest release | https://github.com/Bmoneczek/instaling-bot/releases/latest (v2.2.1) |
 | Landing page | https://bmoneczek.github.io/instaling-bot/ |
 | Remote `origin` | upstream repo |
 | Remote `fork` | your fork |
@@ -210,7 +210,7 @@ Before building the app, separate the engine from the CLI: `src/main.js` current
 
 Copy this into a new chat:
 
-> Project: `E:\Files\OpenCode\instaling-bot` (fork of PanSzelescik/instaling-bot, v2.2.0).
+> Project: `E:\Files\OpenCode\instaling-bot` (fork of PanSzelescik/instaling-bot, v2.2.1).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `src/helpers.js`, `src/config.js` first.
 > Current state: CLI works on Windows with Puppeteer 25; cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry; delays are configurable.
 > Goal: turn the CLI into a desktop app (Electron or Tauri) with a GUI for credentials/settings, start/stop, live logs and progress. Keep backwards compatibility with `config/Config.json` and do not regress the cookie or window fixes.

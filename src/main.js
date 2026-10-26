@@ -370,7 +370,7 @@ async function handleStop(page, code = 0) {
         await page.browser().close().catch(() => {});
     }
 
-    green('Thanks for using InstaLing Bot by PanSzelescik');
+    green('Thanks for using InstaLing Bot by Bmoneczek');
     green('https://github.com/Bmoneczek/instaling-bot');
     process.exit(code);
 }

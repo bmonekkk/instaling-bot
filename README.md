@@ -5,7 +5,7 @@ Bot dla automatycznego rozwiązywania słówek na [instaling.pl](https://instali
 **Strona projektu:** https://bmoneczek.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/Bmoneczek/instaling-bot/releases/latest
 
-Działająca wersja (2.2.0): obsługa okna zgody na cookies, Puppeteer 25, Node.js 22+, aktualne selektory strony oraz ludzkie pisanie z literówkami i backspace. Open source, licencja ISC.
+Działająca wersja (2.2.1): obsługa okna zgody na cookies, Puppeteer 25, Node.js 22+, aktualne selektory strony oraz ludzkie pisanie z literówkami i backspace. Open source, licencja ISC.
 
 Wymaga **Node.js 22+** (testowane na Node 26) oraz przeglądarki instalowanej automatycznie przez Puppeteer.
 
@@ -87,8 +87,9 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 - **Brak Chrome** - uruchom `npx puppeteer browsers install chrome`, jeśli `npm install` nie pobrał przeglądarki.
 - Po każdej próbie bot zapisuje zrzuty strony w `pages/` i `screenshots/` - to najlepsze źródło informacji o błędzie.
 
-# Zmiany w tej wersji (2.2.0)
+# Zmiany w tej wersji (2.2.1)
 
+- Poprawiono nazwę autora na **Bmoneczek** w konsoli, `package.json`, `LICENSE` i `NOTICE`. Oryginalny projekt, jego autor i link do upstreamu pozostają w atrybucji bez zmian.
 - Dodano ludzkie pisanie: losowe opóźnienia na każdą literę, mikro-pauzy oraz symulowane literówki poprawiane backspace'em.
 - Gdy `valid_chance` każe odpowiedzieć źle, bot wpisuje wiarygodną literówkę zamiast pustego pola.
 - Logowanie jest szybkie i dokładne: dane są weryfikowane przed wysłaniem, a nieudany submit jest ponawiany tylko raz.

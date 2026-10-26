@@ -2,6 +2,11 @@
 
 All notable changes to this fork are documented here.
 
+## [2.2.1] - 2026-10-26
+
+### Changed
+- The fork author is now **Bmoneczek** in `package.json`, the console footer, `LICENSE` and `NOTICE`. The original project name (`instaling-bot`), upstream link and original copyright attribution remain unchanged.
+
 ## [2.2.0] - 2026-10-26
 
 ### Added
