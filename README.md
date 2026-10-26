@@ -108,3 +108,7 @@ This project is for **educational purposes** only (browser automation practice).
 
 ISC - zobacz plik [LICENSE](LICENSE). Projekt jest kontynuacją [PanSzelescik/instaling-bot](https://github.com/PanSzelescik/instaling-bot).
 
+# Dla deweloperów
+
+Szczegółowy opis działania, architektury, znanych ograniczeń i planów na wersję desktopową: [PROJECT_NOTES.md](PROJECT_NOTES.md).
+
