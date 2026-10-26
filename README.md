@@ -2,6 +2,11 @@
 
 Bot dla automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl).
 
+**Strona projektu:** https://bmoneczek.github.io/instaling-bot/
+**Najnowsza wersja:** https://github.com/Bmoneczek/instaling-bot/releases/latest
+
+Działająca wersja (fix 2026): obsługa okna zgody na cookies, Puppeteer 25, Node.js 22+, aktualne selektory strony. Open source, licencja ISC.
+
 Wymaga **Node.js 22+** (testowane na Node 26) oraz przeglądarki instalowanej automatycznie przez Puppeteer.
 
 # Instalacja

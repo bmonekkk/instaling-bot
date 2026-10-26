@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>instaling-bot - automatyczne rozwiązywanie słówek na instaling.pl (2026)</title>
+    <meta name="description" content="Działający bot do instaling.pl: automatyczne logowanie, rozwiązywanie słówek i zapamiętywanie tłumaczeń. Fix 2026 dla Node.js 22+ i Puppeteer 25. Open source, licencja ISC.">
+    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, puppeteer, nodejs, open source">
+    <meta name="author" content="Bmoneczek">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://bmoneczek.github.io/instaling-bot/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="instaling-bot - działający bot do instaling.pl (2026)">
+    <meta property="og:description" content="Automatyczne logowanie i rozwiązywanie słówek na instaling.pl. Fix problemu z oknem cookies. Node.js 22+, Puppeteer 25.">
+    <meta property="og:url" content="https://bmoneczek.github.io/instaling-bot/">
+    <meta property="og:site_name" content="instaling-bot">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="instaling-bot - bot do instaling.pl">
+    <meta name="twitter:description" content="Działający bot do automatycznego rozwiązywania słówek na instaling.pl. Open source, ISC.">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "instaling-bot",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Windows, Linux, macOS",
+        "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Obsługuje logowanie, sesję nauki i zapamiętywanie tłumaczeń.",
+        "url": "https://bmoneczek.github.io/instaling-bot/",
+        "downloadUrl": "https://github.com/Bmoneczek/instaling-bot/releases/latest",
+        "codeRepository": "https://github.com/Bmoneczek/instaling-bot",
+        "license": "https://github.com/Bmoneczek/instaling-bot/blob/master/LICENSE",
+        "programmingLanguage": "JavaScript",
+        "author": {"@type": "Person", "name": "Bmoneczek"},
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "PLN"}
+    }
+    </script>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8; --green: #4ade80; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+        main { max-width: 860px; margin: 0 auto; padding: 48px 20px 80px; }
+        h1 { font-size: 2.4rem; line-height: 1.15; margin: 0 0 12px; }
+        h1 span { color: var(--accent); }
+        h2 { margin-top: 40px; font-size: 1.35rem; }
+        p.lead { font-size: 1.15rem; color: var(--muted); margin-top: 0; }
+        .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 28px; }
+        .badge { background: #0b1220; border: 1px solid #334155; border-radius: 999px; padding: 4px 12px; font-size: .85rem; color: var(--muted); }
+        .card { background: var(--card); border: 1px solid #334155; border-radius: 12px; padding: 20px 22px; margin: 18px 0; }
+        code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+        pre { background: #0b1220; border: 1px solid #334155; border-radius: 10px; padding: 16px; overflow-x: auto; }
+        a { color: var(--accent); }
+        ul { padding-left: 22px; }
+        .cta { display: inline-block; background: var(--accent); color: #001018; font-weight: 700; padding: 12px 20px; border-radius: 10px; text-decoration: none; margin: 6px 8px 6px 0; }
+        .cta.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+        .warn { border-left: 3px solid #f59e0b; background: #1c1917; padding: 14px 18px; border-radius: 8px; color: #fcd34d; }
+        footer { margin-top: 56px; color: var(--muted); font-size: .9rem; border-top: 1px solid #334155; padding-top: 18px; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>instaling<span>-bot</span></h1>
+    <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Naprawiony w 2026: obsługa okna cookies, nowy Puppeteer i aktualne selektory strony.</p>
+
+    <div class="badges">
+        <span class="badge">Node.js 22+</span>
+        <span class="badge">Puppeteer 25</span>
+        <span class="badge">Chrome 156</span>
+        <span class="badge">Licencja ISC</span>
+        <span class="badge">Open source</span>
+    </div>
+
+    <a class="cta" href="https://github.com/Bmoneczek/instaling-bot/releases/latest">Pobierz najnowszą wersję</a>
+    <a class="cta secondary" href="https://github.com/Bmoneczek/instaling-bot">Zobacz kod na GitHub</a>
+
+    <h2>Co robi ten bot?</h2>
+    <ul>
+        <li>Loguje się na instaling.pl danymi z <code>config/Config.json</code>.</li>
+        <li>Automatycznie zamyka okno zgody Google (cookies), które blokowało formularz logowania.</li>
+        <li>Rozpoczyna sesję nauki i odpowiada na słówka.</li>
+        <li>Zapamiętuje poprawne tłumaczenia w <code>config/SavedWords.json</code>.</li>
+        <li>Obsługuje języki dostępne na instaling.pl (m.in. angielski, hiszpański, niemiecki).</li>
+    </ul>
+
+    <h2>Instalacja</h2>
+<pre><code>git clone https://github.com/Bmoneczek/instaling-bot.git
+cd instaling-bot
+npm install</code></pre>
+    <p>Następnie uzupełnij <code>config/Config.json</code> (wzór: <code>config/Config.example.json</code>):</p>
+<pre><code>{
+    "credentials": {
+        "login": "twoj-login-lub-email",
+        "password": "twoje-haslo"
+    }
+}</code></pre>
+    <p>I uruchom:</p>
+<pre><code>npm start</code></pre>
+
+    <h2>Najczęstsze problemy</h2>
+    <ul>
+        <li><strong>Bot nie przechodzi logowania</strong> - wersja 2.0.0 naprawia nakładkę cookies Google. Upewnij się, że używasz najnowszego release'a.</li>
+        <li><strong>Brak Chrome</strong> - uruchom <code>npx puppeteer browsers install chrome</code>.</li>
+        <li><strong>Strona zmieniła układ</strong> - włącz <code>"debug": true</code> i sprawdź pliki w <code>pages/</code> oraz <code>screenshots/</code>.</li>
+    </ul>
+
+    <h2>Ważne zastrzeżenie</h2>
+    <div class="warn">
+        Projekt ma charakter <strong>edukacyjny</strong> (nauka automatyzacji przeglądarki). Nie jest powiązany z InstaLing i nie jest przeznaczony do oszukiwania w nauce. Automatyczne korzystanie z serwisu może naruszać jego regulamin - używaj odpowiedzialnie i na własną odpowiedzialność. Oprogramowanie jest dostarczane bez gwarancji (licencja ISC).
+    </div>
+
+    <footer>
+        <p>Projekt jest kontynuacją <a href="https://github.com/PanSzelescik/instaling-bot">PanSzelescik/instaling-bot</a>. Licencja <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/LICENSE">ISC</a>.</p>
+        <p>Strona projektu: <a href="https://bmoneczek.github.io/instaling-bot/">bmoneczek.github.io/instaling-bot</a></p>
+    </footer>
+</main>
+</body>
+</html>
