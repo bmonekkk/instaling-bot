@@ -1,3 +1,17 @@
+// Puppeteer forces `windowsHide: true` when spawning Chrome on Windows, which can
+// keep the browser window hidden (no taskbar entry). Patch spawn before requiring
+// Puppeteer so a normal, visible window is created when show_browser is true.
+if (process.platform === 'win32') {
+    const childProcess = require('child_process');
+    const originalSpawn = childProcess.spawn;
+    childProcess.spawn = function (command, args, options = {}) {
+        if (options && options.windowsHide === true) {
+            options = {...options, windowsHide: false};
+        }
+        return originalSpawn.call(this, command, args, options);
+    };
+}
+
 const puppeteer = require('puppeteer');
 const config = require('./config.js');
 const {
@@ -109,10 +123,16 @@ async function start() {
         headless: !config.show_browser,
         devtools: Boolean(config.open_devtools),
         defaultViewport: config.show_browser ? null : {width: 1366, height: 900},
+        // Puppeteer adds --enable-automation by default (adds the "controlled by
+        // automated software" bar and sets navigator.webdriver). Drop it.
+        ignoreDefaultArgs: ['--enable-automation'],
         args: [
             '--disable-blink-features=AutomationControlled',
             `--window-size=${config.window_width ?? 1366},${config.window_height ?? 900}`,
-            '--lang=pl-PL,pl'
+            '--window-position=40,40',
+            '--lang=pl-PL,pl',
+            '--no-first-run',
+            '--no-default-browser-check'
         ]
     };
 
@@ -136,6 +156,13 @@ async function start() {
         } else {
             request.continue().catch(() => {});
         }
+    });
+
+    // Small, non-invasive stealth tweaks. They reduce the most common automation
+    // fingerprints, but no timing tweak can guarantee that a site won't detect a bot.
+    await page.evaluateOnNewDocument(() => {
+        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
+        Object.defineProperty(navigator, 'languages', {get: () => ['pl-PL', 'pl', 'en-US', 'en']});
     });
 
     if (config.show_browser) {

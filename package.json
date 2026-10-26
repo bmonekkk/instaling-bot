@@ -1,6 +1,6 @@
 {
   "name": "instaling-bot",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Bot for automatically practising vocabulary on instaling.pl (educational automation project)",
   "main": "src/main.js",
   "scripts": {

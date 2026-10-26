@@ -82,6 +82,8 @@ Wymaga **Node.js 22+** (testowane na Node 26) oraz przeglądarki instalowanej au
 
 # Zmiany w tej wersji
 
+- **2.0.1:** naprawiono ukrywanie okna Chrome na Windows (brak ikony na pasku zadań) - Puppeteer wymuszał `windowsHide: true`.
+- **2.0.1:** wolniejsze domyślne opóźnienia (bardziej naturalne tempo) oraz usunięcie flagi `--enable-automation` i podstawowe ukrycie `navigator.webdriver`. To zmniejsza typowe ślady automatyzacji, ale nie gwarantuje niewykrywalności.
 - Zaktualizowano Puppeteer do wersji 25 (obsługa współczesnego Chrome i Node 22+).
 - Usunięto stary uBlock Origin (Manifest V2 nie jest już obsługiwany, a rozszerzenie nie było już używane) - reklamy i skrypty śledzące są blokowane przez przechwytywanie żądań.
 - Naprawiono blokadę logowania przez okno zgody Google (cookies).

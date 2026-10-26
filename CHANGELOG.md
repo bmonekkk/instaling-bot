@@ -2,6 +2,16 @@
 
 All notable changes to this fork are documented here.
 
+## [2.0.1] - 2026-10-26
+
+### Fixed
+- On Windows, Puppeteer's hardcoded `windowsHide: true` hid the Chrome window (no taskbar entry, only grey windows behind the terminal). `child_process.spawn` is now patched before launching so a visible browser window is created when `show_browser` is `true`.
+
+### Changed
+- Slower default delays (`click` 3.5-6.5 s, `type` 120-240 ms, `next_word` 2-4.5 s, `selector` 15 s) for gentler, more human-like pacing.
+- Removed Puppeteer's default `--enable-automation` flag and overrode `navigator.webdriver`; language list set to `pl-PL`.
+- Window is positioned at 40,40 with `--no-first-run` / `--no-default-browser-check`.
+
 ## [2.0.0] - 2026-10-26
 
 ### Fixed
