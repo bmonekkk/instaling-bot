@@ -23,6 +23,9 @@ const {
     clickAndWait,
     clickWait,
     type,
+    typeExact,
+    misspell,
+    quickClick,
     delay,
     getRandomInt,
     savePage,
@@ -191,21 +194,38 @@ async function login(page) {
     // The Google consent dialog covers the whole login form on instaling.pl.
     await dismissConsent(page);
 
-    await type(page, SELECTORS.loginEmail, config.login);
-    await type(page, SELECTORS.loginPassword, config.password);
+    // Login must be fast and deterministic. Type the credentials with a short
+    // fixed-ish delay, verify both values, and retry once if the site rejects
+    // the first submit (for example because of a transient session issue).
+    for (let attempt = 1; attempt <= 2; attempt++) {
+        if (attempt > 1) {
+            yellow('[LOGIN] Login was rejected, retrying once...');
+            await delay(1200);
+            await page.goto(config.sites.login, {waitUntil: 'domcontentloaded', timeout: 60000});
+            await dismissConsent(page);
+        }
 
-    await clickAndWait(page, SELECTORS.loginSubmit, 30000);
-    await delay(1000);
-    await dismissConsent(page, {timeout: 2000});
+        const loginValue = await typeExact(page, SELECTORS.loginEmail, config.login, getRandomInt(18, 35));
+        const passwordValue = await typeExact(page, SELECTORS.loginPassword, config.password, getRandomInt(18, 35));
+        if (loginValue !== config.login || passwordValue !== config.password) {
+            throw new Error('Could not fill the login form correctly');
+        }
 
-    const body = await page.evaluate(() => document.body.innerText).catch(() => '');
-    const stillOnLogin = /Logowanie nie powiodło się|nieprawidłowy login lub hasło/i.test(body);
-    if (stillOnLogin) {
-        red('[LOGIN] Login failed - check the login and password in config/Config.json!');
-        throw new Error('Login failed');
+        await clickAndWait(page, SELECTORS.loginSubmit, 30000);
+        await delay(300);
+        await dismissConsent(page, {timeout: 2000});
+
+        const body = await page.evaluate(() => document.body.innerText).catch(() => '');
+        const onLoginPage = /teacher\.php\?page=login/i.test(page.url());
+        const rejected = /Logowanie nie powiodło się|nieprawidłowy login lub hasło/i.test(body) || onLoginPage;
+        if (!rejected) {
+            green(`[LOGIN] Logged in! (${page.url()})`);
+            return;
+        }
     }
 
-    green(`[LOGIN] Logged in! (${page.url()})`);
+    red('[LOGIN] Login failed - check the login and password in config/Config.json!');
+    throw new Error('Login failed');
 }
 
 async function startSession(page) {
@@ -214,8 +234,7 @@ async function startSession(page) {
     // Optional "streak" popup.
     const streak = await findSelector(page, SELECTORS.streakClose, 2000);
     if (streak) {
-        await click(page, streak).catch(() => {});
-        await delay(500);
+        await quickClick(page, streak).catch(() => {});
     }
 
     // Make sure the learning page is loaded before looking for the start button.
@@ -229,19 +248,21 @@ async function startSession(page) {
         throw new Error('Could not find the "start session" button');
     }
 
-    await clickAndWait(page, startButton, 15000);
-    await delay(1000);
+    // Navigation buttons should react quickly. If the page takes longer, the
+    // selectors below keep waiting for the actual content.
+    await clickAndWait(page, startButton, 2500);
+    await delay(getRandomInt(200, 400));
     await dismissConsent(page, {timeout: 2000});
 
     // A previous session may be waiting to be continued.
-    const continueButton = await findSelector(page, SELECTORS.continueSession, 5000);
+    const continueButton = await findSelector(page, SELECTORS.continueSession, 8000);
     if (continueButton) {
-        await clickAndWait(page, continueButton, 8000);
+        await clickAndWait(page, continueButton, 2500);
         green('[START] Continued previous session!');
     } else {
-        const newButton = await findSelector(page, SELECTORS.newSession, 5000);
+        const newButton = await findSelector(page, SELECTORS.newSession, 8000);
         if (newButton) {
-            await clickAndWait(page, newButton, 8000);
+            await clickAndWait(page, newButton, 2500);
             green('[START] Started new session!');
         }
     }
@@ -282,7 +303,9 @@ async function answerQuestion(page) {
             green(`[ANSWER ${i}] Typing!`);
             await type(page, SELECTORS.answer, english);
         } else {
-            yellow(`[ANSWER ${i}] Not typing! \`${chalk.white(random)}\` is higher than \`${chalk.cyan(config.valid_chance)}\``);
+            const wrong = misspell(english);
+            yellow(`[ANSWER ${i}] Deliberate misspelling: \`${chalk.cyan(wrong)}\` (was: \`${chalk.white(english)}\`)`);
+            await type(page, SELECTORS.answer, wrong);
         }
     } else {
         red(`[ANSWER ${i}] Not found translation for: \`${chalk.white(polish)}\``);
@@ -290,14 +313,25 @@ async function answerQuestion(page) {
 
     await clickWait(page, SELECTORS.check, config.delays?.check_min, config.delays?.check_max);
 
-    const valid_english = (await getText(page, SELECTORS.correctWord)).trim();
-    blue(`[ANSWER ${i}] Valid translation for: \`${chalk.white(polish)}\` is: \`${chalk.cyan(valid_english)}\``);
-    if (english) {
-        lastTyped.set(english, english !== valid_english);
+    // The answer-result page normally puts the correct word in #word. For a
+    // "Literówka" (typo) result that element can stay empty, so fall back to
+    // the translation we already know instead of failing the whole run.
+    const correctSelector = await findSelector(page, SELECTORS.correctWord, 2000);
+    const revealed = correctSelector
+        ? await page.$eval(correctSelector, el => (el.textContent || '').trim()).catch(() => '')
+        : '';
+    const validEnglish = revealed || english || '';
+    if (validEnglish) {
+        blue(`[ANSWER ${i}] Valid translation for: \`${chalk.white(polish)}\` is: \`${chalk.cyan(validEnglish)}\``);
+    } else {
+        yellow(`[ANSWER ${i}] Could not read the correct answer from the page.`);
     }
-    if (valid_english && !englishes.find(word => word === valid_english)) {
-        yellow(`[ANSWER ${i}] Saving translation for: \`${chalk.white(polish)}\`: \`${chalk.cyan(valid_english)}\``);
-        await insertWord(polish, valid_english, sentence);
+    if (english) {
+        lastTyped.set(english, english !== validEnglish);
+    }
+    if (validEnglish && !englishes.find(word => word === validEnglish)) {
+        yellow(`[ANSWER ${i}] Saving translation for: \`${chalk.white(polish)}\`: \`${chalk.cyan(validEnglish)}\``);
+        await insertWord(polish, validEnglish, sentence);
     }
 
     blue(`[ANSWER ${i}] Next word!`);

@@ -131,13 +131,187 @@ async function clickWait(page, selector, wait_min = config.delays.click_min, wai
     return delay(getRandomInt(wait_min, wait_max));
 }
 
-async function type(page, selector, text, delayTime) {
-    const found = await waitForAny(page, selector);
-    await page.$eval(found, el => {
+const TYPO_NEIGHBORS = {
+    q: ['w', 'a', 's'],
+    w: ['q', 'e', 'a', 's', 'd'],
+    e: ['w', 'r', 's', 'd', 'f'],
+    r: ['e', 't', 'd', 'f', 'g'],
+    t: ['r', 'y', 'f', 'g', 'h'],
+    y: ['t', 'u', 'g', 'h', 'j'],
+    u: ['y', 'i', 'h', 'j', 'k'],
+    i: ['u', 'o', 'j', 'k', 'l'],
+    o: ['i', 'p', 'k', 'l'],
+    p: ['o', 'l'],
+    a: ['q', 'w', 's', 'z', 'x'],
+    s: ['a', 'd', 'w', 'e', 'z', 'x', 'c'],
+    d: ['s', 'f', 'e', 'r', 'x', 'c', 'v'],
+    f: ['d', 'g', 'r', 't', 'c', 'v', 'b'],
+    g: ['f', 'h', 't', 'y', 'v', 'b', 'n'],
+    h: ['g', 'j', 'y', 'u', 'b', 'n', 'm'],
+    j: ['h', 'k', 'u', 'i', 'n', 'm'],
+    k: ['j', 'l', 'i', 'o', 'm'],
+    l: ['k', 'o', 'p'],
+    z: ['a', 's', 'x'],
+    x: ['z', 'c', 's', 'd'],
+    c: ['x', 'v', 'd', 'f'],
+    v: ['c', 'b', 'f', 'g'],
+    b: ['v', 'n', 'g', 'h'],
+    n: ['b', 'm', 'h', 'j'],
+    m: ['n', 'j', 'k']
+};
+
+const ACCENT_MAP = {
+    á: 'a', à: 'a', ä: 'a', â: 'a', ã: 'a', å: 'a',
+    é: 'e', è: 'e', ë: 'e', ê: 'e',
+    í: 'i', ì: 'i', ï: 'i', î: 'i',
+    ó: 'o', ò: 'o', ö: 'o', ô: 'o', õ: 'o',
+    ú: 'u', ù: 'u', ü: 'u', û: 'u',
+    ñ: 'n', ç: 'c', ß: 's', ł: 'l', ą: 'a', ć: 'c', ę: 'e',
+    ś: 's', ź: 'z', ż: 'z', ń: 'n', ó: 'o'
+};
+
+function getTypoChar(char) {
+    const lower = char.toLowerCase();
+    if (lower === char.toUpperCase()) {
+        return char;
+    }
+    const base = ACCENT_MAP[lower] ?? lower;
+    const options = TYPO_NEIGHBORS[base] ?? 'abcdefghijklmnopqrstuvwxyz'.split('');
+    const wrong = options[getRandomInt(0, options.length)];
+    return char === char.toUpperCase() ? wrong.toUpperCase() : wrong;
+}
+
+/**
+ * Creates a plausible (but wrong) spelling of a word. Used when valid_chance
+ * decides that the bot should answer incorrectly, so the answer field is filled
+ * with a human-like mistake instead of being left empty.
+ */
+function misspell(word) {
+    const chars = [...word];
+    if (chars.length < 2) {
+        return word + 'x';
+    }
+    const style = getRandomInt(0, 3);
+    if (style === 0) {
+        const i = getRandomInt(0, chars.length - 1);
+        [chars[i], chars[i + 1]] = [chars[i + 1], chars[i]];
+    } else if (style === 1) {
+        chars.splice(getRandomInt(0, chars.length), 1);
+    } else {
+        const i = getRandomInt(0, chars.length);
+        chars[i] = getTypoChar(chars[i]);
+    }
+    const result = chars.join('');
+    return result === word ? word.slice(0, -1) : result;
+}
+
+async function clearField(page, selector) {
+    await page.$eval(selector, el => {
         el.focus();
         el.value = '';
-    }).catch(() => {});
-    return page.type(found, text, {delay: delayTime ?? getRandomInt(config.delays.type_min, config.delays.type_max)});
+        el.dispatchEvent(new Event('input', {bubbles: true}));
+        el.dispatchEvent(new Event('change', {bubbles: true}));
+    });
+}
+
+/**
+ * Fast, deterministic typing for credentials and other values that must never
+ * be mistyped. Verifies the resulting value and falls back to setting it
+ * directly if the page transforms the input while typing.
+ */
+async function typeExact(page, selector, text, delayTime = 25) {
+    const found = await waitForAny(page, selector);
+    await clearField(page, found);
+    await page.type(found, text, {delay: delayTime});
+
+    let value = await page.$eval(found, el => el.value);
+    if (value !== text) {
+        await page.$eval(found, (el, expected) => {
+            el.value = expected;
+            el.dispatchEvent(new Event('input', {bubbles: true}));
+            el.dispatchEvent(new Event('change', {bubbles: true}));
+        }, text);
+        value = await page.$eval(found, el => el.value);
+    }
+    return value;
+}
+
+/**
+ * Human-like typing: every character has its own random delay, there are
+ * occasional micro-pauses, and sometimes a neighbouring key is pressed first
+ * and corrected with Backspace. The final value is verified, so a simulated
+ * typo can never change the actual answer.
+ */
+async function typeHuman(page, selector, text) {
+    const found = await waitForAny(page, selector);
+    await clearField(page, found);
+    await page.focus(found);
+
+    const delays = config.delays ?? {};
+    const typeMin = delays.type_min ?? 90;
+    const typeMax = delays.type_max ?? 230;
+    const pauseChance = delays.type_pause_chance ?? 0.12;
+    const pauseMin = delays.type_pause_min ?? 250;
+    const pauseMax = delays.type_pause_max ?? 700;
+    const typoChance = delays.typo_chance ?? 0.15;
+
+    const chars = [...text];
+    const typoable = chars
+        .map((char, index) => (/[a-z]/i.test(char) ? index : -1))
+        .filter(index => index >= 0);
+    const typoAt = typoable.length > 0 && Math.random() < typoChance
+        ? typoable[getRandomInt(0, typoable.length)]
+        : -1;
+
+    try {
+        for (let index = 0; index < chars.length; index++) {
+            if (index === typoAt) {
+                await page.keyboard.type(getTypoChar(chars[index]));
+                await delay(getRandomInt(90, 200));
+                await page.keyboard.press('Backspace');
+                await delay(getRandomInt(60, 150));
+            }
+
+            await page.keyboard.type(chars[index]);
+            await delay(getRandomInt(typeMin, typeMax));
+
+            const isBreak = chars[index] === ' ' || chars[index] === ',';
+            if (index < chars.length - 1 && (isBreak || Math.random() < pauseChance)) {
+                await delay(getRandomInt(pauseMin, pauseMax));
+            }
+        }
+    } catch (e) {
+        // If an input mask or an unusual character breaks keyboard typing,
+        // fall back to fast deterministic typing.
+        return typeExact(page, found, text, 20);
+    }
+
+    let value = await page.$eval(found, el => el.value);
+    if (value !== text) {
+        await typeExact(page, found, text, 20);
+        value = await page.$eval(found, el => el.value);
+    }
+    return value;
+}
+
+async function type(page, selector, text, options = {}) {
+    if (options && options.exact) {
+        return typeExact(page, selector, text, options.delay ?? 25);
+    }
+    return typeHuman(page, selector, text);
+}
+
+/**
+ * Clicks a navigation button and waits only briefly for a page load. Any
+ * content that appears later is handled by the following findSelector() call,
+ * so the bot never stalls on an AJAX-only button.
+ */
+async function quickClick(page, selector) {
+    await click(page, selector);
+    return delay(getRandomInt(
+        config.delays?.quick_click_min ?? 120,
+        config.delays?.quick_click_max ?? 300
+    ));
 }
 
 function delay(time) {
@@ -191,6 +365,10 @@ module.exports = {
     clickAndWait,
     clickWait,
     type,
+    typeExact,
+    typeHuman,
+    misspell,
+    quickClick,
     delay,
     getRandomInt,
     isVisible,

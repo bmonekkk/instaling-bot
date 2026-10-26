@@ -5,7 +5,7 @@ Bot dla automatycznego rozwiązywania słówek na [instaling.pl](https://instali
 **Strona projektu:** https://bmoneczek.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/Bmoneczek/instaling-bot/releases/latest
 
-Działająca wersja (fix 2026): obsługa okna zgody na cookies, Puppeteer 25, Node.js 22+, aktualne selektory strony. Open source, licencja ISC.
+Działająca wersja (2.2.0): obsługa okna zgody na cookies, Puppeteer 25, Node.js 22+, aktualne selektory strony oraz ludzkie pisanie z literówkami i backspace. Open source, licencja ISC.
 
 Wymaga **Node.js 22+** (testowane na Node 26) oraz przeglądarki instalowanej automatycznie przez Puppeteer.
 
@@ -41,9 +41,18 @@ Pliki `config/Config.json` i `config/SavedWords.json` są ignorowane przez git, 
 - Uruchomienie nauki słówek.
 - Udzielanie odpowiedzi na podane słówka:
   - Domyślnie 80% odpowiedzi jest poprawnych (`valid_chance: 0.8`). Możesz to zmienić w `config/Config.json` (`1` - `100%`, `0.9` - `90%`...).
+  - Gdy bot ma odpowiedzieć źle, wpisuje wiarygodną literówkę zamiast zostawiać puste pole.
   - Słówko musi być dostępne w `config/SavedWords.json`.
   - Jeśli nie jest dostępne, bot zapisuje prawidłowe tłumaczenie, aby użyć go później.
 - Gdy nauka się zakończy, **nie zamykaj okna przeglądarki** - bot sam je zamknie i zapisze poznane słówka.
+
+# Humanizacja pisania
+
+- Każda litera jest wpisywana z osobnym, losowym opóźnieniem (`delays.type_min` / `type_max`).
+- Bot robi czasem krótką pauzę w trakcie pisania (`type_pause_chance`, `type_pause_min`, `type_pause_max`).
+- Z szansą `typo_chance` bot naciska zły, sąsiedni klawisz, kasuje go backspace'em i wpisuje poprawną literę. Wartość pola jest zawsze weryfikowana, więc symulowana literówka nie psuje odpowiedzi.
+- Kliknięcia nawigacyjne (kontynuuj sesję, rozpocznij) mają krótkie, losowe pauzy (`quick_click_min` / `quick_click_max`), więc nie czekają niepotrzebnie.
+- Logowanie to wyjątek: dane są wpisywane szybko i dokładnie, a jeśli strona odrzuci formularz, bot ponawia próbę tylko raz.
 
 # Objaśnienie configu
 
@@ -55,12 +64,16 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 - `sites` - używane strony
   - `login` - strona, na której bot ma się zalogować
 - `delays` - czasy oczekiwania w milisekundach (1 s = 1000 ms); bot losuje wartość między min i max
-  - `click_min` / `click_max` - oczekiwanie po kliknięciu w przycisk
-  - `type_min` / `type_max` - czas wpisywania tekstu (na znak)
+  - `click_min` / `click_max` - domyślne opóźnienie po kliknięciu w przycisk
+  - `type_min` / `type_max` - opóźnienie na pojedynczą literę
+  - `type_pause_chance` - szansa na dodatkową pauzę w trakcie pisania (`0.12` = 12%)
+  - `type_pause_min` / `type_pause_max` - długość takiej pauzy
+  - `typo_chance` - szansa na symulowaną literówkę z backspace (`0.15` = 15%)
+  - `quick_click_min` / `quick_click_max` - krótka pauza po kliknięciach nawigacyjnych
   - `selector` - oczekiwanie na element na stronie (zwiększ, jeśli masz wolne łącze)
   - `check_min` / `check_max` - oczekiwanie na sprawdzenie odpowiedzi
   - `next_word_min` / `next_word_max` - oczekiwanie między słówkami
-- `valid_chance` - jaka część odpowiedzi ma być poprawna (`1` - `100%`, `0.8` - `80%`...)
+- `valid_chance` - jaka część odpowiedzi ma być poprawna (`1` - `100%`, `0.8` - `80%`...); przy nieudanej próbie bot wpisuje literówkę
 - `max_answers` - maksymalna liczba odpowiedzi w jednym uruchomieniu (`0` = bez limitu, przydatne do testów)
 - `show_browser` - pokazuje okno przeglądarki na żywo; ustaw `false` na serwerze bez GUI (np. Linux bez X)
 - `mute_audio` - wycisza dźwięk przeglądarki
@@ -69,19 +82,19 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 
 # Rozwiązywanie problemów
 
-- **Bot zatrzymuje się na logowaniu** - sprawdź login i hasło. Bot sam zamyka okno cookies; jeśli nakładka nadal jest widoczna, uruchom z `"show_browser": true` i sprawdź `screenshots/answer-error.png`.
+- **Bot zatrzymuje się na logowaniu** - sprawdź login i hasło. Bot wpisuje dane dokładnie i ponawia próbę raz, jeśli strona chwilowo odrzuci formularz. Nakładkę cookies bot zamyka sam; jeśli nadal jest widoczna, uruchom z `"show_browser": true` i sprawdź `screenshots/answer-error.png`.
 - **`Could not find the "start session" button`** - strona instaling.pl mogła zmienić układ. Włącz `"debug": true` i sprawdź `pages/answer-start-failed.html`.
 - **Brak Chrome** - uruchom `npx puppeteer browsers install chrome`, jeśli `npm install` nie pobrał przeglądarki.
 - Po każdej próbie bot zapisuje zrzuty strony w `pages/` i `screenshots/` - to najlepsze źródło informacji o błędzie.
 
-# Zmiany w tej wersji (2.1.0)
+# Zmiany w tej wersji (2.2.0)
 
-- Usunięto opcję `feature` (zewnętrzna baza słówek `api.crawcik.space`) oraz powiązany kod.
-- Usunięto opcje `open_devtools` i `webhook`; logi trafiają tylko do konsoli.
-- Domyślna wartość `valid_chance` to teraz `0.8`.
-- `config/Config.example.json` → `config/Config.defaults.json`, `config/SavedWords.example.json` → `config/SavedWords.defaults.json`.
-- Usunięto nieużywane opóźnienia `wait_min` / `wait_max`.
-- Usunięto zależności `discord.js`, `axios`, `strip-ansi`, `unique-random-array` - zostały tylko `chalk` i `puppeteer`.
+- Dodano ludzkie pisanie: losowe opóźnienia na każdą literę, mikro-pauzy oraz symulowane literówki poprawiane backspace'em.
+- Gdy `valid_chance` każe odpowiedzieć źle, bot wpisuje wiarygodną literówkę zamiast pustego pola.
+- Logowanie jest szybkie i dokładne: dane są weryfikowane przed wysłaniem, a nieudany submit jest ponawiany tylko raz.
+- Kliknięcia nawigacyjne (kontynuuj / rozpocznij sesję) mają krótkie pauzy i nie czekają na zbędne nawigacje.
+- Nowe opcje w `delays`: `type_pause_chance`, `type_pause_min`, `type_pause_max`, `typo_chance`, `quick_click_min`, `quick_click_max`.
+- Strona projektu została przeprojektowana w stylu retro Windows 95/98.
 
 Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
 

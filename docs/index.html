@@ -3,15 +3,15 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>instaling-bot - automatyczne rozwiązywanie słówek na instaling.pl (2026)</title>
-    <meta name="description" content="Działający bot do instaling.pl: automatyczne logowanie, rozwiązywanie słówek i zapamiętywanie tłumaczeń. Fix 2026 dla Node.js 22+ i Puppeteer 25. Open source, licencja ISC.">
-    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, puppeteer, nodejs, open source">
+    <title>instaling-bot - bot do instaling.pl z ludzkim pisaniem (2026)</title>
+    <meta name="description" content="Działający bot do instaling.pl: automatyczne logowanie, rozwiązywanie słówek i zapamiętywanie tłumaczeń. Wersja 2.2.0 dodaje ludzkie pisanie: losowe opóźnienia, literówki i backspace. Open source, licencja ISC.">
+    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, puppeteer, nodejs, open source, human like typing">
     <meta name="author" content="Bmoneczek">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://bmoneczek.github.io/instaling-bot/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="instaling-bot - działający bot do instaling.pl (2026)">
-    <meta property="og:description" content="Automatyczne logowanie i rozwiązywanie słówek na instaling.pl. Fix problemu z oknem cookies. Node.js 22+, Puppeteer 25.">
+    <meta property="og:description" content="Automatyczne logowanie i rozwiązywanie słówek na instaling.pl. Wersja 2.2.0 z ludzkim pisaniem, literówkami i szybkim logowaniem. Node.js 22+, Puppeteer 25.">
     <meta property="og:url" content="https://bmoneczek.github.io/instaling-bot/">
     <meta property="og:site_name" content="instaling-bot">
     <meta name="twitter:card" content="summary">
@@ -22,9 +22,10 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "instaling-bot",
+        "softwareVersion": "2.2.0",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Windows, Linux, macOS",
-        "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Obsługuje logowanie, sesję nauki i zapamiętywanie tłumaczeń.",
+        "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Obsługuje logowanie, sesję nauki, zapamiętywanie tłumaczeń i ludzkie pisanie z literówkami.",
         "url": "https://bmoneczek.github.io/instaling-bot/",
         "downloadUrl": "https://github.com/Bmoneczek/instaling-bot/releases/latest",
         "codeRepository": "https://github.com/Bmoneczek/instaling-bot",
@@ -35,83 +36,501 @@
     }
     </script>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8; --green: #4ade80; }
+        :root {
+            --desktop: #0f172a;
+            --window: #c0c0c0;
+            --window-light: #dfdfdf;
+            --window-dark: #808080;
+            --window-darker: #404040;
+            --title-1: #000080;
+            --title-2: #1084d0;
+            --accent: #38bdf8;
+            --ink: #000;
+            --link: #000080;
+        }
+
         * { box-sizing: border-box; }
-        body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
-        main { max-width: 860px; margin: 0 auto; padding: 48px 20px 80px; }
-        h1 { font-size: 2.4rem; line-height: 1.15; margin: 0 0 12px; }
-        h1 span { color: var(--accent); }
-        h2 { margin-top: 40px; font-size: 1.35rem; }
-        p.lead { font-size: 1.15rem; color: var(--muted); margin-top: 0; }
-        .badges { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 28px; }
-        .badge { background: #0b1220; border: 1px solid #334155; border-radius: 999px; padding: 4px 12px; font-size: .85rem; color: var(--muted); }
-        .card { background: var(--card); border: 1px solid #334155; border-radius: 12px; padding: 20px 22px; margin: 18px 0; }
-        code, pre { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
-        pre { background: #0b1220; border: 1px solid #334155; border-radius: 10px; padding: 16px; overflow-x: auto; }
-        a { color: var(--accent); }
-        ul { padding-left: 22px; }
-        .cta { display: inline-block; background: var(--accent); color: #001018; font-weight: 700; padding: 12px 20px; border-radius: 10px; text-decoration: none; margin: 6px 8px 6px 0; }
-        .cta.secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
-        .warn { border-left: 3px solid #f59e0b; background: #1c1917; padding: 14px 18px; border-radius: 8px; color: #fcd34d; }
-        footer { margin-top: 56px; color: var(--muted); font-size: .9rem; border-top: 1px solid #334155; padding-top: 18px; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            padding: 28px 16px 76px;
+            color: var(--ink);
+            font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
+            font-size: 15px;
+            line-height: 1.55;
+            background-color: var(--desktop);
+            background-image:
+                radial-gradient(circle at 50% 0%, rgba(56, 189, 248, .18), transparent 45%),
+                linear-gradient(rgba(56, 189, 248, .055) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(56, 189, 248, .055) 1px, transparent 1px);
+            background-size: auto, 8px 8px, 8px 8px;
+        }
+
+        a { color: var(--link); }
+        a:hover { color: #0000ee; }
+        a:focus-visible { outline: 2px dotted #000; outline-offset: 2px; }
+
+        .window {
+            max-width: 920px;
+            margin: 0 auto;
+            background: var(--window);
+            border: 2px solid #000;
+            box-shadow:
+                10px 10px 0 rgba(0, 0, 0, .45),
+                inset 2px 2px 0 #fff,
+                inset -2px -2px 0 var(--window-dark);
+        }
+
+        .titlebar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 6px;
+            color: #fff;
+            font-size: .9rem;
+            font-weight: 700;
+            user-select: none;
+            background: linear-gradient(90deg, var(--title-1) 0%, var(--title-2) 72%, var(--accent) 100%);
+        }
+
+        .titlebar-icon { font-size: 1rem; }
+        .titlebar-text { flex: 1; letter-spacing: .2px; }
+        .titlebar-buttons { display: flex; gap: 2px; }
+
+        .titlebar-buttons span {
+            display: grid;
+            place-items: center;
+            width: 20px;
+            height: 18px;
+            color: #000;
+            font-family: "Courier New", monospace;
+            font-size: .82rem;
+            line-height: 1;
+            background: var(--window);
+            border-top: 2px solid #fff;
+            border-left: 2px solid #fff;
+            border-right: 2px solid var(--window-dark);
+            border-bottom: 2px solid var(--window-dark);
+        }
+
+        .menubar {
+            display: flex;
+            gap: 20px;
+            padding: 3px 10px;
+            font-size: .82rem;
+            background: var(--window);
+            border-bottom: 1px solid var(--window-dark);
+        }
+
+        .menubar span { cursor: default; }
+        .menubar span:first-child { font-weight: 700; }
+
+        .content { padding: 26px 30px 30px; }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 6vw, 3rem);
+            line-height: 1.05;
+            letter-spacing: -1.5px;
+            text-shadow: 2px 2px 0 #fff;
+        }
+
+        h1 span {
+            display: inline-block;
+            padding: 0 .14em;
+            color: #fff;
+            background: var(--title-1);
+            text-shadow: none;
+        }
+
+        .lead {
+            max-width: 720px;
+            margin: 0 0 16px;
+            font-size: 1.04rem;
+        }
+
+        h2 {
+            margin: 0 0 12px;
+            font-size: 1.12rem;
+            line-height: 1.25;
+        }
+
+        h2::before { content: "▸ "; color: var(--title-1); }
+
+        p { margin: 0 0 12px; }
+        ul, ol { margin: 0 0 12px; padding-left: 24px; }
+        li { margin: 4px 0; }
+
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 16px 0 20px;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            font-size: .78rem;
+            font-weight: 700;
+            background: var(--window);
+            border-top: 2px solid #fff;
+            border-left: 2px solid #fff;
+            border-right: 2px solid var(--window-dark);
+            border-bottom: 2px solid var(--window-dark);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 0 0 8px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 7px 18px;
+            color: #000;
+            font-weight: 700;
+            text-decoration: none;
+            background: var(--window);
+            border: 2px solid;
+            border-color: #fff var(--window-darker) var(--window-darker) #fff;
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .btn:hover { color: #000; background: var(--window-light); }
+        .btn:active { transform: translate(1px, 1px); box-shadow: none; }
+
+        .btn.primary {
+            color: #fff;
+            background: var(--title-1);
+            border-color: var(--title-2) #000040 #000040 var(--title-2);
+        }
+
+        .btn.primary:hover { color: #fff; background: var(--title-2); }
+
+        .panel {
+            margin: 20px 0;
+            padding: 16px 18px;
+            background: #d4d0c8;
+            border: 2px groove #fff;
+        }
+
+        .panel.highlight {
+            background: #e8e4dc;
+            box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 var(--window-dark);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px 18px;
+        }
+
+        .grid ul { margin: 0; }
+
+        code, pre {
+            font-family: "Courier New", Consolas, monospace;
+        }
+
+        code {
+            padding: 1px 4px;
+            font-size: .9em;
+            background: #fff;
+            border: 1px solid var(--window-dark);
+        }
+
+        pre {
+            margin: 0 0 14px;
+            padding: 12px 14px;
+            overflow-x: auto;
+            font-size: .86rem;
+            line-height: 1.5;
+            background: #fff;
+            border: 2px solid;
+            border-color: var(--window-dark) #fff #fff var(--window-dark);
+        }
+
+        pre code { padding: 0; border: 0; background: transparent; }
+
+        .warn {
+            margin: 22px 0 10px;
+            padding: 15px 18px;
+            background: #ffffcc;
+            border: 2px solid #000;
+            box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 var(--window-dark);
+        }
+
+        .warn strong { color: #800000; }
+
+        footer {
+            margin-top: 26px;
+            padding-top: 14px;
+            font-size: .84rem;
+            border-top: 1px solid var(--window-dark);
+        }
+
+        footer p { margin: 4px 0; }
+
+        .statusbar {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 3px 8px;
+            font-size: .78rem;
+            border-top: 1px solid #fff;
+            background: var(--window);
+        }
+
+        .statusbar span {
+            padding: 1px 8px;
+            border: 1px solid;
+            border-color: var(--window-dark) #fff #fff var(--window-dark);
+        }
+
+        .desktop-icons {
+            position: fixed;
+            top: 96px;
+            left: 24px;
+            z-index: 1;
+            display: none;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .desktop-icon {
+            width: 88px;
+            color: #fff;
+            font-size: .74rem;
+            text-align: center;
+            text-decoration: none;
+            text-shadow: 1px 1px 0 #000;
+        }
+
+        .desktop-icon:hover { color: var(--accent); }
+        .desktop-icon span { display: block; font-size: 2rem; line-height: 1.2; filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, .45)); }
+
+        .taskbar {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            height: 46px;
+            padding: 5px 8px;
+            background: var(--window);
+            border-top: 2px solid #fff;
+            box-shadow: 0 -2px 0 var(--window-dark);
+        }
+
+        .start {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            font: inherit;
+            font-weight: 700;
+            cursor: default;
+            background: var(--window);
+            border: 2px solid;
+            border-color: #fff var(--window-darker) var(--window-darker) #fff;
+            box-shadow: 1px 1px 0 #000;
+        }
+
+        .start-icon { color: var(--title-1); }
+
+        .task {
+            padding: 4px 10px;
+            font-weight: 700;
+            background: var(--window);
+            border: 2px solid;
+            border-color: var(--window-dark) #fff #fff var(--window-dark);
+        }
+
+        .tray {
+            margin-left: auto;
+            padding: 2px 8px;
+            border: 2px solid;
+            border-color: var(--window-dark) #fff #fff var(--window-dark);
+        }
+
+        .clock {
+            min-width: 64px;
+            padding: 2px 10px;
+            font-variant-numeric: tabular-nums;
+            text-align: center;
+            border: 2px solid;
+            border-color: var(--window-dark) #fff #fff var(--window-dark);
+        }
+
+        @media (min-width: 1200px) {
+            .desktop-icons { display: flex; }
+        }
+
+        @media (max-width: 720px) {
+            body { padding: 12px 8px 76px; }
+            .content { padding: 20px 16px 24px; }
+            .grid { grid-template-columns: 1fr; }
+            .menubar { gap: 14px; }
+            .task { display: none; }
+            .titlebar-text { font-size: .82rem; }
+        }
     </style>
 </head>
 <body>
-<main>
-    <h1>instaling<span>-bot</span></h1>
-    <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Naprawiony w 2026: obsługa okna cookies, nowy Puppeteer i aktualne selektory strony.</p>
+<div class="desktop-icons" aria-hidden="true">
+    <a class="desktop-icon" href="https://github.com/Bmoneczek/instaling-bot/releases/latest">
+        <span>💾</span>
+        instaling-bot
+    </a>
+    <a class="desktop-icon" href="https://github.com/Bmoneczek/instaling-bot">
+        <span>📁</span>
+        GitHub
+    </a>
+</div>
 
-    <div class="badges">
-        <span class="badge">Node.js 22+</span>
-        <span class="badge">Puppeteer 25</span>
-        <span class="badge">v2.1.0</span>
-        <span class="badge">Licencja ISC</span>
-        <span class="badge">Open source</span>
+<div class="window">
+    <div class="titlebar">
+        <span class="titlebar-icon">🤖</span>
+        <span class="titlebar-text">instaling-bot.exe — v2.2.0</span>
+        <span class="titlebar-buttons" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
     </div>
 
-    <a class="cta" href="https://github.com/Bmoneczek/instaling-bot/releases/latest">Pobierz najnowszą wersję</a>
-    <a class="cta secondary" href="https://github.com/Bmoneczek/instaling-bot">Zobacz kod na GitHub</a>
+    <nav class="menubar" aria-label="Menu">
+        <span>Plik</span>
+        <span>Edycja</span>
+        <span>Widok</span>
+        <span>Pomoc</span>
+    </nav>
 
-    <h2>Co robi ten bot?</h2>
-    <ul>
-        <li>Loguje się na instaling.pl danymi z <code>config/Config.json</code>.</li>
-        <li>Automatycznie zamyka okno zgody Google (cookies), które blokowało formularz logowania.</li>
-        <li>Rozpoczyna sesję nauki i odpowiada na słówka.</li>
-        <li>Zapamiętuje poprawne tłumaczenia w <code>config/SavedWords.json</code>.</li>
-        <li>Domyślnie odpowiada poprawnie w 80% przypadków (<code>valid_chance: 0.8</code>).</li>
-        <li>Obsługuje języki dostępne na instaling.pl (m.in. angielski, hiszpański, niemiecki).</li>
-    </ul>
+    <main class="content">
+        <h1>instaling<span>-bot</span></h1>
+        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 2.2.0 pisze jeszcze bardziej po ludzku: losowe opóźnienia między literami, symulowane literówki i szybkie, pewne logowanie.</p>
 
-    <h2>Instalacja</h2>
+        <div class="badges">
+            <span class="badge">Node.js 22+</span>
+            <span class="badge">Puppeteer 25</span>
+            <span class="badge">v2.2.0</span>
+            <span class="badge">Human-like typing</span>
+            <span class="badge">Licencja ISC</span>
+            <span class="badge">Open source</span>
+        </div>
+
+        <p class="actions">
+            <a class="btn primary" href="https://github.com/Bmoneczek/instaling-bot/releases/latest">Pobierz v2.2.0</a>
+            <a class="btn" href="https://github.com/Bmoneczek/instaling-bot">Zobacz kod na GitHub</a>
+        </p>
+
+        <section class="panel highlight">
+            <h2>Nowość w 2.2.0: bardziej ludzkie pisanie</h2>
+            <div class="grid">
+                <ul>
+                    <li>Każda litera ma własne, losowe opóźnienie.</li>
+                    <li>Losowe mikro-pauzy w trakcie pisania.</li>
+                    <li>Czasem zły klawisz, backspace i poprawna litera.</li>
+                </ul>
+                <ul>
+                    <li>Gdy <code>valid_chance</code> każe odpowiedzieć źle, bot wpisuje wiarygodną literówkę zamiast pustego pola.</li>
+                    <li>Logowanie: szybkie, dokładne wpisanie danych i jedna automatyczna ponowna próba.</li>
+                    <li>Przyciski nawigacji (kontynuuj, rozpocznij) reagują od razu.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Co robi ten bot?</h2>
+            <ul>
+                <li>Loguje się na instaling.pl danymi z <code>config/Config.json</code>.</li>
+                <li>Automatycznie zamyka okno zgody Google (cookies), które blokowało formularz logowania.</li>
+                <li>Rozpoczyna lub kontynuuje sesję nauki i odpowiada na słówka.</li>
+                <li>Zapamiętuje poprawne tłumaczenia w <code>config/SavedWords.json</code>.</li>
+                <li>Domyślnie odpowiada poprawnie w 80% przypadków (<code>valid_chance: 0.8</code>).</li>
+                <li>Obsługuje języki dostępne na instaling.pl (m.in. angielski, hiszpański, niemiecki).</li>
+            </ul>
+        </section>
+
+        <section class="panel">
+            <h2>Instalacja</h2>
+            <ol>
+                <li>Zainstaluj Node.js 22 lub nowszy: <a href="https://nodejs.org/">nodejs.org</a>.</li>
+                <li>Sklonuj repozytorium i zainstaluj zależności:</li>
+            </ol>
 <pre><code>git clone https://github.com/Bmoneczek/instaling-bot.git
 cd instaling-bot
 npm install</code></pre>
-    <p>Następnie skopiuj <code>config/Config.defaults.json</code> do <code>config/Config.json</code> i uzupełnij:</p>
+            <p>Skopiuj <code>config/Config.defaults.json</code> do <code>config/Config.json</code> i uzupełnij dane logowania:</p>
 <pre><code>{
     "credentials": {
         "login": "twoj-login-lub-email",
         "password": "twoje-haslo"
     }
 }</code></pre>
-    <p>I uruchom:</p>
+            <p>Uruchom bota:</p>
 <pre><code>npm start</code></pre>
+        </section>
 
-    <h2>Najczęstsze problemy</h2>
-    <ul>
-        <li><strong>Bot nie przechodzi logowania</strong> - aktualna wersja naprawia nakładkę cookies Google. Upewnij się, że używasz najnowszego release'a.</li>
-        <li><strong>Brak Chrome</strong> - uruchom <code>npx puppeteer browsers install chrome</code>.</li>
-        <li><strong>Strona zmieniła układ</strong> - włącz <code>"debug": true</code> i sprawdź pliki w <code>pages/</code> oraz <code>screenshots/</code>.</li>
-    </ul>
+        <section class="panel">
+            <h2>Najważniejsze opcje</h2>
+            <ul>
+                <li><code>valid_chance</code> - jaka część odpowiedzi ma być poprawna (<code>0.8</code> = 80%).</li>
+                <li><code>max_answers</code> - limit odpowiedzi w jednym uruchomieniu (<code>0</code> = bez limitu).</li>
+                <li><code>delays.type_min</code> / <code>type_max</code> - opóźnienie na pojedynczą literę.</li>
+                <li><code>delays.typo_chance</code> - szansa na symulowaną literówkę z backspace (<code>0.15</code> = 15%).</li>
+                <li><code>delays.type_pause_chance</code> - szansa na dodatkową pauzę w trakcie pisania.</li>
+                <li><code>delays.quick_click_min</code> / <code>quick_click_max</code> - szybkie pauzy po kliknięciach nawigacyjnych.</li>
+                <li><code>show_browser</code> - pokazuje okno Chrome; ustaw <code>false</code> na serwerze bez GUI.</li>
+                <li><code>debug</code> - dodatkowe logi z przeglądarki i zrzuty stron.</li>
+            </ul>
+            <p>Pełny wzór: <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/config/Config.defaults.json"><code>config/Config.defaults.json</code></a>.</p>
+        </section>
 
-    <h2>Ważne zastrzeżenie</h2>
-    <div class="warn">
-        Projekt ma charakter <strong>edukacyjny</strong> (nauka automatyzacji przeglądarki). Nie jest powiązany z InstaLing i nie jest przeznaczony do oszukiwania w nauce. Automatyczne korzystanie z serwisu może naruszać jego regulamin - używaj odpowiedzialnie i na własną odpowiedzialność. Oprogramowanie jest dostarczane bez gwarancji (licencja ISC).
+        <section class="panel">
+            <h2>Najczęstsze problemy</h2>
+            <ul>
+                <li><strong>Bot nie przechodzi logowania</strong> - sprawdź login i hasło. Bot wpisuje je dokładnie i sam ponawia próbę raz, jeśli strona chwilowo odrzuci formularz.</li>
+                <li><strong>Brak Chrome</strong> - uruchom <code>npx puppeteer browsers install chrome</code>.</li>
+                <li><strong>Strona zmieniła układ</strong> - włącz <code>"debug": true</code> i sprawdź pliki w <code>pages/</code> oraz <code>screenshots/</code>.</li>
+                <li><strong>Chcesz szybciej / wolniej</strong> - zmień wartości w sekcji <code>delays</code> w <code>config/Config.json</code>.</li>
+            </ul>
+        </section>
+
+        <div class="warn">
+            <strong>Ważne zastrzeżenie:</strong> projekt ma charakter <strong>edukacyjny</strong> (nauka automatyzacji przeglądarki). Nie jest powiązany z InstaLing i nie jest przeznaczony do oszukiwania w nauce. Automatyczne korzystanie z serwisu może naruszać jego regulamin - używaj odpowiedzialnie i na własną odpowiedzialność. Oprogramowanie jest dostarczane bez gwarancji (licencja ISC).
+        </div>
+
+        <footer>
+            <p>Projekt jest kontynuacją <a href="https://github.com/PanSzelescik/instaling-bot">PanSzelescik/instaling-bot</a>. Licencja <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/LICENSE">ISC</a>.</p>
+            <p>Strona projektu: <a href="https://bmoneczek.github.io/instaling-bot/">bmoneczek.github.io/instaling-bot</a> · <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/CHANGELOG.md">CHANGELOG</a> · <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/PROJECT_NOTES.md">PROJECT_NOTES</a></p>
+        </footer>
+    </main>
+
+    <div class="statusbar">
+        <span>Gotowe</span>
+        <span>v2.2.0 · Node.js 22+</span>
     </div>
+</div>
 
-    <footer>
-        <p>Projekt jest kontynuacją <a href="https://github.com/PanSzelescik/instaling-bot">PanSzelescik/instaling-bot</a>. Licencja <a href="https://github.com/Bmoneczek/instaling-bot/blob/master/LICENSE">ISC</a>.</p>
-        <p>Strona projektu: <a href="https://bmoneczek.github.io/instaling-bot/">bmoneczek.github.io/instaling-bot</a></p>
-    </footer>
-</main>
+<div class="taskbar">
+    <button class="start" type="button"><span class="start-icon">▣</span> Start</button>
+    <span class="task">🤖 instaling-bot</span>
+    <span class="tray" aria-hidden="true">🔊</span>
+    <span class="clock" id="clock">--:--</span>
+</div>
+
+<script>
+    (function () {
+        var clock = document.getElementById('clock');
+        function tick() {
+            clock.textContent = new Date().toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'});
+        }
+        tick();
+        setInterval(tick, 30000);
+    })();
+</script>
 </body>
 </html>

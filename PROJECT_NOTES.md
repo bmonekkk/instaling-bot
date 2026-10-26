@@ -20,7 +20,7 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `E:\Files\OpenCode\instaling-bot` |
 | Your fork | https://github.com/Bmoneczek/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/Bmoneczek/instaling-bot/releases/latest (v2.1.0) |
+| Latest release | https://github.com/Bmoneczek/instaling-bot/releases/latest (v2.2.0) |
 | Landing page | https://bmoneczek.github.io/instaling-bot/ |
 | Remote `origin` | upstream repo |
 | Remote `fork` | your fork |
@@ -38,7 +38,7 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 ```
 src/
   main.js       entry point: launch browser, login, session, answer loop, window patch
-  helpers.js    DOM helpers: selectors, click/type, delays, cookie consent, diagnostics
+  helpers.js    DOM helpers: selectors, click/type, human typing, delays, cookie consent, diagnostics
   config.js     loads Config.json, normalizes credentials
   words.js      SavedWords.json lookup/save (local file only)
   printer.js    console logging helpers
@@ -66,20 +66,22 @@ npm start
       ├─ login()
       │   ├─ goto login page
       │   ├─ dismissConsent()           Google Funding Choices overlay
-      │   ├─ type credentials
+      │   ├─ typeExact()                fast credentials + value check
       │   ├─ click submit + wait nav
-      │   └─ detect "login failed" text
+      │   ├─ retry once if the site rejects the submit
+      │   └─ detect "login failed" text / login URL
       ├─ startSession()
-      │   ├─ close streak popup (optional)
-      │   ├─ click start-session button
+      │   ├─ close streak popup (optional, quickClick)
+      │   ├─ click start-session button (short nav timeout)
       │   ├─ continue old session OR start new one
       │   └─ wait for answer/new-word form
       ├─ loop: answerQuestion()
       │   ├─ read usage example + Polish translation
       │   ├─ getWord() from SavedWords.json
       │   ├─ if new-word screen → "don't know" → reveal answer → next
-      │   ├─ else type saved translation (respects valid_chance)
-      │   ├─ click check, read correct answer
+      │   ├─ else typeHuman() the saved translation (respects valid_chance)
+      │   ├─ if valid_chance fails → typeHuman() a plausible misspelling
+      │   ├─ click check, read correct answer (fallback to known translation)
       │   ├─ insertWord() if it was new
       │   └─ click next word
       └─ handleStop()
@@ -99,6 +101,9 @@ The loop ends when an expected element disappears (session finished), when `max_
 4. **`isVisible()` semantics** — must return `true` when visible. An older fork had this inverted.
 5. **Saved words path** — always relative to project root (`ROOT` in `helpers.js`), not to `process.cwd()`.
 6. **Config compatibility** — `src/config.js` accepts both `credentials.login/password` and old top-level `login/password`.
+7. **Login reliability** — credentials use `typeExact()` (fast, verified, direct-value fallback), and a rejected submit is retried once. Do not replace it with the humanized typer.
+8. **Typo results** — for a "Literówka" result InstaLing may leave `#word` empty. `answerQuestion()` falls back to the translation it already knows instead of throwing.
+9. **Navigation clicks** — `clickAndWait()` is called with a short timeout (2.5 s) for session buttons; the following `findSelector()` waits for the real content. Do not restore the old 8–15 s waits.
 
 ## Config cheat sheet
 
@@ -107,7 +112,11 @@ The loop ends when an expected element disappears (session finished), when `max_
   "credentials": { "login": "...", "password": "..." },
   "delays": {
     "click_min": 3500, "click_max": 6500,
-    "type_min": 120, "type_max": 240,
+    "type_min": 90, "type_max": 230,
+    "type_pause_chance": 0.12,
+    "type_pause_min": 250, "type_pause_max": 700,
+    "typo_chance": 0.15,
+    "quick_click_min": 120, "quick_click_max": 300,
     "selector": 15000,
     "check_min": 3000, "check_max": 5500,
     "next_word_min": 2000, "next_word_max": 4500
@@ -124,6 +133,8 @@ The loop ends when an expected element disappears (session finished), when `max_
 
 - Raising delays = slower and less aggressive.
 - `max_answers: 1` is the fastest safe way to test a change.
+- `type_min` / `type_max` are per character. `typo_chance` simulates a wrong key + Backspace and is verified afterwards.
+- `valid_chance` failures now type a plausible misspelling instead of leaving the field empty.
 - The canonical template is `config/Config.defaults.json`; there is no remote word database anymore.
 
 ## Common tasks
@@ -158,6 +169,7 @@ gh release create vX.Y.Z --repo Bmoneczek/instaling-bot --target master \
 - Detection is never guaranteed — no amount of delay makes a bot invisible.
 - Single account, single run, no scheduling.
 - Words are flat JSON, no dedupe beyond normalizing text.
+- Humanization reduces obvious patterns but cannot guarantee the bot is undetectable.
 - Uses Chrome for Testing, not the user's installed Chrome.
 - No tests yet (only `node --check`).
 
@@ -180,6 +192,7 @@ main/            ← Electron main process, IPC bridge
 Features that make sense for an app:
 
 - GUI for credentials, delays, `valid_chance`, `max_answers`
+- Humanization controls: per-letter delay, typo chance, pause chance, quick-click speed
 - Start / pause / stop buttons + live log panel
 - Progress bar (answered / remaining), next-word preview
 - Tray icon, minimize while running
@@ -197,8 +210,8 @@ Before building the app, separate the engine from the CLI: `src/main.js` current
 
 Copy this into a new chat:
 
-> Project: `E:\Files\OpenCode\instaling-bot` (fork of PanSzelescik/instaling-bot, v2.1.0).
+> Project: `E:\Files\OpenCode\instaling-bot` (fork of PanSzelescik/instaling-bot, v2.2.0).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `src/helpers.js`, `src/config.js` first.
-> Current state: CLI works on Windows with Puppeteer 25; cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; delays are configurable.
+> Current state: CLI works on Windows with Puppeteer 25; cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry; delays are configurable.
 > Goal: turn the CLI into a desktop app (Electron or Tauri) with a GUI for credentials/settings, start/stop, live logs and progress. Keep backwards compatibility with `config/Config.json` and do not regress the cookie or window fixes.
 > Work on a feature branch, test with `"max_answers": 1`, update `CHANGELOG.md`, and prepare a release.

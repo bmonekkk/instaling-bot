@@ -2,6 +2,23 @@
 
 All notable changes to this fork are documented here.
 
+## [2.2.0] - 2026-10-26
+
+### Added
+- Human-like typing: per-character random delays, occasional micro-pauses, and simulated typos that are corrected with Backspace.
+- When `valid_chance` decides not to answer correctly, the bot now types a plausible misspelling instead of leaving the field empty.
+- Login retry: if InstaLing rejects the first submit (for example because of a transient session issue), the bot retries once.
+- New config options: `delays.type_pause_chance`, `type_pause_min`, `type_pause_max`, `typo_chance`, `quick_click_min`, `quick_click_max`.
+
+### Changed
+- Login now uses `typeExact()`: fast, verified typing with a direct-value fallback, so a simulated typo can never cause a wrong-password error.
+- Session navigation buttons (`continue`, `start`) use a short 2.5 s navigation timeout and quick random pauses; the following selector wait handles slower pages.
+- The answer-result reader falls back to the known translation when InstaLing leaves `#word` empty (for example after a "Literówka" result).
+- The project webpage was redesigned in a retro Windows 95/98 style.
+
+### Fixed
+- The bot no longer crashes when the answer-result page does not expose the corrected word.
+
 ## [2.1.0] - 2026-10-26
 
 ### Changed
