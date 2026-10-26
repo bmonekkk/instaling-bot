@@ -4,6 +4,7 @@ const os = require('os');
 const path = require('path');
 const {
     Browser,
+    BrowserPlatform,
     BrowserTag,
     detectBrowserPlatform,
     getInstalledBrowsers,
@@ -18,6 +19,21 @@ const OUTPUT_DIR = path.join(ROOT, 'resources', 'browser');
 // the same version so the installers stay reproducible.
 const FALLBACK_CHROME_BUILD = '156.0.8078.47';
 
+// electron-builder and the Chrome download URLs use "mac-arm64" / "mac-x64",
+// but @puppeteer/browsers uses "mac_arm" / "mac" internally.
+const PLATFORMS = {
+    win32: BrowserPlatform.WIN64,
+    win64: BrowserPlatform.WIN64,
+    mac: BrowserPlatform.MAC,
+    'mac-x64': BrowserPlatform.MAC,
+    mac_arm: BrowserPlatform.MAC_ARM,
+    'mac-arm64': BrowserPlatform.MAC_ARM,
+    linux: BrowserPlatform.LINUX,
+    linux64: BrowserPlatform.LINUX,
+    linux_arm: BrowserPlatform.LINUX_ARM,
+    'linux-arm64': BrowserPlatform.LINUX_ARM
+};
+
 function argValue(name, fallback) {
     const prefix = `--${name}=`;
     const inline = process.argv.find(arg => arg.startsWith(prefix));
@@ -30,17 +46,21 @@ function argValue(name, fallback) {
 function targetPlatform() {
     const requested = argValue('platform');
     if (requested) {
-        if (!Object.values(Browser.Platform ?? {}).includes(requested) &&
-            !['win32', 'win64', 'mac-arm64', 'mac-x64', 'linux'].includes(requested)) {
+        const platform = PLATFORMS[requested];
+        if (!platform) {
             throw new Error(`Unknown Chrome platform: ${requested}`);
         }
-        return requested === 'win32' ? 'win64' : requested;
+        return platform;
     }
 
     const arch = argValue('arch', process.arch);
-    if (process.platform === 'win32') return 'win64';
-    if (process.platform === 'darwin') return arch === 'arm64' ? 'mac-arm64' : 'mac-x64';
-    if (process.platform === 'linux') return 'linux';
+    if (process.platform === 'win32') return BrowserPlatform.WIN64;
+    if (process.platform === 'darwin') {
+        return arch === 'arm64' ? BrowserPlatform.MAC_ARM : BrowserPlatform.MAC;
+    }
+    if (process.platform === 'linux') {
+        return arch === 'arm64' ? BrowserPlatform.LINUX_ARM : BrowserPlatform.LINUX;
+    }
     return detectBrowserPlatform();
 }
 
