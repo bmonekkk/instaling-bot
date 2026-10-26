@@ -15,6 +15,8 @@ Open source, licencja ISC.
 
 ## Wesprzyj rozwój projektu
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H5P529J2VO)
+
 Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli uważasz go za przydatny i chcesz wesprzeć mój czas poświęcony na rozwój, testowanie i utrzymanie kodu, możesz postawić mi wirtualną kawę.
 
 [☕ Postaw kawę na Ko-fi](https://ko-fi.com/bmonekkk)
