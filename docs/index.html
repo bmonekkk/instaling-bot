@@ -650,14 +650,19 @@ npm install --omit=dev</code></pre>
     <button class="start" type="button"><span class="start-icon">▣</span> Start</button>
     <span class="task">🤖 instaling-bot</span>
     <span class="tray" aria-hidden="true">🔊</span>
-    <span class="clock" id="clock">--:--</span>
+    <span class="clock" id="clock" title="Czas: Europa/Warszawa">--:--</span>
 </div>
 
 <script>
     (function () {
         var clock = document.getElementById('clock');
+        var formatter = new Intl.DateTimeFormat('pl-PL', {
+            timeZone: 'Europe/Warsaw',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
         function tick() {
-            clock.textContent = new Date().toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'});
+            clock.textContent = formatter.format(new Date());
         }
         tick();
         setInterval(tick, 30000);
