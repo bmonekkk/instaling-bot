@@ -7,7 +7,7 @@ Pierwsze wydanie z **aplikacją desktopową dla Windows i macOS**. CLI pozostaje
 | System | Plik | Uwagi |
 |---|---|---|
 | Windows 10/11 (x64) | `instaling-bot-3.0.0-setup.exe` | instalator NSIS, Chrome w zestawie |
-| macOS 13+ (Apple Silicon) | `instaling-bot-3.0.0-arm64.pkg` | M1–M4, Chrome w zestawie |
+| macOS 13+ (Apple Silicon) | `instaling-bot-3.0.0-arm64.pkg` | Apple Silicon, Chrome w zestawie |
 | macOS 13+ (Intel) | `instaling-bot-3.0.0-x64.pkg` | procesory Intel, Chrome w zestawie |
 | Linux / terminal | — | użyj CLI: `npm install --omit=dev && npm start` |
 

@@ -13,6 +13,14 @@ Aktualna wersja (**3.0.0**) łączy trzy rzeczy:
 
 Open source, licencja ISC.
 
+## Wesprzyj rozwój projektu
+
+Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli uważasz go za przydatny i chcesz wesprzeć mój czas poświęcony na rozwój, testowanie i utrzymanie kodu, możesz postawić mi wirtualną kawę.
+
+[☕ Postaw kawę na Ko-fi](https://ko-fi.com/bmoneczek)
+
+Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projektu. Projekt nie jest oficjalnie powiązany z InstaLing. Wpłaty nie gwarantują konkretnych funkcji ani terminów aktualizacji.
+
 ## Dwie wersje, jeden silnik
 
 | | Desktop | CLI |

@@ -292,6 +292,24 @@
     background: var(--title-1);
 }
 
+.panel.support {
+    background: #fff6d8;
+    border-color: #fff var(--window-dark) var(--window-dark) #fff;
+}
+
+.panel.support p {
+    margin: 0 0 10px;
+}
+
+.panel.support p:last-child {
+    margin-bottom: 0;
+}
+
+.panel.support .support-note {
+    font-size: .84rem;
+    color: #333;
+}
+
         code, pre {
             font-family: "Courier New", Consolas, monospace;
         }
@@ -492,6 +510,13 @@
             <a class="btn" href="https://github.com/Bmoneczek/instaling-bot">Kod na GitHub</a>
         </p>
 
+        <section class="panel support">
+            <h2>Wesprzyj rozwój projektu</h2>
+            <p><strong>Instaling Bot</strong> to niezależny projekt open source rozwijany hobbystycznie. Jeśli uważasz go za przydatny i chcesz wesprzeć mój czas poświęcony na rozwój, testowanie i utrzymanie kodu, możesz postawić mi wirtualną kawę.</p>
+            <p class="actions"><a class="btn primary" href="https://ko-fi.com/bmoneczek">☕ Postaw kawę na Ko-fi</a></p>
+            <p class="support-note">Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projektu. Projekt nie jest oficjalnie powiązany z InstaLing. Wpłaty nie gwarantują konkretnych funkcji ani terminów aktualizacji.</p>
+        </section>
+
         <section class="panel highlight">
             <h2>Nowość w 3.0.0: aplikacja desktopowa</h2>
             <div class="grid">
@@ -520,7 +545,7 @@
                 <div class="download-card">
                     <span class="platform">macOS Apple Silicon</span>
                     <span class="filename">instaling-bot-3.0.0-arm64.pkg</span>
-                    <p class="meta">macOS 13+ · M1–M4 · Chrome w zestawie</p>
+                    <p class="meta">macOS 13+ · Apple Silicon · Chrome w zestawie</p>
                     <a class="btn" href="https://github.com/Bmoneczek/instaling-bot/releases/download/v3.0.0/instaling-bot-3.0.0-arm64.pkg">Pobierz .pkg</a>
                 </div>
                 <div class="download-card">
