@@ -385,7 +385,7 @@ function wireEvents() {
         if (api) api.openDataFolder().catch(error => showToast(error.message || String(error), true));
     });
     els.github.addEventListener('click', () => {
-        if (api) api.openExternal('https://github.com/Bmoneczek/instaling-bot').catch(error => showToast(error.message || String(error), true));
+        if (api) api.openExternal('https://github.com/bmonekkk/instaling-bot').catch(error => showToast(error.message || String(error), true));
     });
 
     els.winMinimize.addEventListener('click', () => api?.minimizeWindow());

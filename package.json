@@ -22,7 +22,7 @@
     "electron",
     "desktop"
   ],
-  "author": "Bmoneczek",
+  "author": "bmonekkk",
   "contributors": [
     "PanSzelescik"
   ],
@@ -32,12 +32,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Bmoneczek/instaling-bot.git"
+    "url": "git+https://github.com/bmonekkk/instaling-bot.git"
   },
   "bugs": {
-    "url": "https://github.com/Bmoneczek/instaling-bot/issues"
+    "url": "https://github.com/bmonekkk/instaling-bot/issues"
   },
-  "homepage": "https://github.com/Bmoneczek/instaling-bot#readme",
+  "homepage": "https://github.com/bmonekkk/instaling-bot#readme",
   "dependencies": {
     "chalk": "^4.1.2",
     "puppeteer": "^25.16.0"

@@ -20,10 +20,10 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Thing | Location |
 |---|---|
 | Local repo | `E:\Files\OpenCode\instaling-bot` |
-| Your fork | https://github.com/Bmoneczek/instaling-bot |
+| Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/Bmoneczek/instaling-bot/releases/latest (v3.0.0) |
-| Landing page | https://bmoneczek.github.io/instaling-bot/ |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.0.0) |
+| Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | upstream repo |
 | Remote `fork` | your fork |
 | Release workflow | `.github/workflows/release.yml` |
@@ -272,7 +272,7 @@ npx electron-builder --win nsis --publish never   # build without browser copy
 git add -A
 git commit -m "..."
 git push fork master
-gh release create vX.Y.Z --repo Bmoneczek/instaling-bot --target master \
+gh release create vX.Y.Z --repo bmonekkk/instaling-bot --target master \
   --title "instaling-bot vX.Y.Z" --notes-file .github/RELEASE_NOTES_vX.Y.Z.md
 ```
 

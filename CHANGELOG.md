@@ -2,6 +2,11 @@
 
 All notable changes to this fork are documented here.
 
+## [Unreleased]
+
+### Changed
+- Fork owner references updated from `Bmoneczek` to `bmonekkk` (GitHub links, project page, package metadata, Ko-fi handle). No functional changes; the app ID `com.bmoneczek.instalingbot` stays the same.
+
 ## [3.0.0] - 2026-10-26
 
 ### Added

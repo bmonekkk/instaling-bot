@@ -362,8 +362,8 @@ async function handleStop(page, code = 0) {
         await saveWords().catch(e => console.error(e));
     }
 
-    green('Thanks for using InstaLing Bot by Bmoneczek');
-    green('https://github.com/Bmoneczek/instaling-bot');
+    green('Thanks for using InstaLing Bot by bmonekkk');
+    green('https://github.com/bmonekkk/instaling-bot');
     notify('finished', {code});
     return code;
 }

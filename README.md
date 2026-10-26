@@ -2,8 +2,8 @@
 
 Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) — teraz także jako **aplikacja desktopowa dla Windows i macOS**.
 
-**Strona projektu:** https://bmoneczek.github.io/instaling-bot/
-**Najnowsza wersja:** https://github.com/Bmoneczek/instaling-bot/releases/latest
+**Strona projektu:** https://bmonekkk.github.io/instaling-bot/
+**Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 
 Aktualna wersja (**3.0.0**) łączy trzy rzeczy:
 
@@ -17,7 +17,7 @@ Open source, licencja ISC.
 
 Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli uważasz go za przydatny i chcesz wesprzeć mój czas poświęcony na rozwój, testowanie i utrzymanie kodu, możesz postawić mi wirtualną kawę.
 
-[☕ Postaw kawę na Ko-fi](https://ko-fi.com/bmoneczek)
+[☕ Postaw kawę na Ko-fi](https://ko-fi.com/bmonekkk)
 
 Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projektu. Projekt nie jest oficjalnie powiązany z InstaLing. Wpłaty nie gwarantują konkretnych funkcji ani terminów aktualizacji.
 
@@ -36,7 +36,7 @@ Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i for
 
 ## Desktop: Windows i macOS
 
-Pobierz instalator z [najnowszego wydania](https://github.com/Bmoneczek/instaling-bot/releases/latest):
+Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
 - **Windows:** `instaling-bot-3.0.0-setup.exe` (NSIS, x64)
 - **macOS Apple Silicon:** `instaling-bot-3.0.0-arm64.pkg`
@@ -92,7 +92,7 @@ Wersja CLI pozostaje wspierana tak długo, jak istnieje wersja desktopowa. To za
 2. Sklonuj repozytorium:
 
 ```bash
-git clone https://github.com/Bmoneczek/instaling-bot.git
+git clone https://github.com/bmonekkk/instaling-bot.git
 cd instaling-bot
 ```
 

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://bmoneczek.github.io/instaling-bot/sitemap.xml
+Sitemap: https://bmonekkk.github.io/instaling-bot/sitemap.xml
