@@ -15,13 +15,15 @@ W 3.1.1 doszły też: natywna ikona w menu bar macOS (monochromatyczna, dopasowa
 
 Open source, licencja ISC.
 
-## 💛 Wesprzyj rozwój projektu
+
+## 💙 Wesprzyj rozwój projektu
 
 Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli uważasz go za przydatny i chcesz wesprzeć mój czas poświęcony na rozwój, testowanie i utrzymanie kodu, możesz postawić mi wirtualną kawę.
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H5P529J2VO)
 
 Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projektu. Projekt nie jest oficjalnie powiązany z InstaLing. Wpłaty nie gwarantują konkretnych funkcji ani terminów aktualizacji.
+
 
 ## ✨ Dwie wersje, jeden silnik
 
@@ -37,6 +39,7 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 | Aktualizacja | nowy instalator z GitHuba | `git pull && npm install --omit=dev` |
 
 Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i formatu `SavedWords.json`.
+
 
 ## 🖥️ Desktop: Windows i macOS
 
@@ -74,8 +77,8 @@ Oba przełączniki są w **Ustawienia → Przypomnienia i praca w tle**:
 | ✅ | ✅ | Brak okna — tylko ikona w zasobniku (Windows) / menu bar (macOS) |
 | ❌ | ✅ | Normalne okno przy ręcznym starcie; zamknięcie chowa do zasobnika |
 
-- Autostart działa w zainstalowanej aplikacji (nie w trybie deweloperskim) i jest **domyślnie wyłączony**.
-- Aby aplikacja startowała po cichu, włącz **oba** przełączniki. Sam autostart otworzy okno.
+- Autostart działa w zainstalowanej aplikacji (nie w trybie CLI) i jest **domyślnie wyłączony**.
+- Aby aplikacja startowała po cichu, włącz **oba** przełączniki. Sam autostart otworzy okno na pulpicie.
 - Na macOS tryb zasobnika chowa ikonę z Docka i przełącza aplikację w tryb akcesoriów — zostaje tylko ikona w menu bar, która dopasowuje się do jasnego/ciemnego motywu.
 - Po zamknięciu okna w trybie zasobnika aplikacja niszczy okno (a nie tylko je ukrywa), żeby w tle zużywać mniej RAM. Interfejs odtworzy się po kliknięciu ikony.
 - Sesję możesz uruchomić z menu ikony (**Start**). Gdy się skończy, dostaniesz powiadomienie systemowe z liczbą odpowiedzi — okno nie musi być otwarte.
@@ -116,6 +119,7 @@ logs/last-run.log         pełny log ostatniego uruchomienia
 ```
 
 Pliki można edytować także ręcznie — aplikacja używa tego samego formatu co CLI.
+
 
 ## ⌨️ CLI: Linux i terminal
 
@@ -182,6 +186,7 @@ Jeśli Puppeteer nie pobrał przeglądarki podczas instalacji:
 npx puppeteer browsers install chrome
 ```
 
+
 ## ⚙️ Jak działa bot
 
 - Loguje się na instaling.pl danymi z konfiguracji.
@@ -236,6 +241,7 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 
 Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 
+
 ## 🆘 Rozwiązywanie problemów
 
 ### Desktop
@@ -254,6 +260,7 @@ Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 - **Brak Chrome** — uruchom `npx puppeteer browsers install chrome`.
 - Po każdej próbie bot zapisuje zrzuty strony w `pages/` i `screenshots/`.
 
+
 ## 🧱 Budowanie ze źródeł
 
 ```bash
@@ -267,6 +274,7 @@ npm run dist:mac         # macOS .pkg (tylko na macOS)
 Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm run prepare:browser`, które kopiuje Chrome for Testing do `resources/browser/` i tworzy manifest.
 
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
+
 
 ## 📦 Zmiany w wersji 3.1.1
 
@@ -298,6 +306,7 @@ Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow Git
 
 Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
 
+
 ## Disclaimer / Zastrzeżenia
 
 Projekt ma charakter **edukacyjny** — powstał jako ćwiczenie z automatyzacji przeglądarki (Puppeteer), obsługi cookies, selektorów i logiki aplikacji webowej. **Nie jest przeznaczony do oszukiwania w nauce** ani do obchodzenia zasad szkoły czy nauczyciela. Używaj go odpowiedzialnie, najlepiej do nauki i testowania własnych umiejętności.
@@ -309,9 +318,11 @@ Projekt ma charakter **edukacyjny** — powstał jako ćwiczenie z automatyzacji
 
 This project is for **educational purposes** only (browser automation practice). It is **not affiliated with InstaLing** and is **not intended to cheat** in language learning. Use it responsibly and at your own risk; automated use may violate the service's terms.
 
+
 ## Licencja
 
 ISC — zobacz plik [LICENSE](LICENSE). Projekt jest kontynuacją [PanSzelescik/instaling-bot](https://github.com/PanSzelescik/instaling-bot).
+
 
 ## Dla deweloperów
 
