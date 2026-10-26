@@ -14,6 +14,8 @@ contextBridge.exposeInMainWorld('instaling', {
     openDataFolder: () => ipcRenderer.invoke('app:open-data-folder'),
     openLogFile: () => ipcRenderer.invoke('app:open-log-file'),
     openExternal: url => ipcRenderer.invoke('app:open-external', url),
+    checkUpdates: () => ipcRenderer.invoke('app:check-updates'),
+    updateStatus: () => ipcRenderer.invoke('app:update-status'),
     minimizeWindow: () => ipcRenderer.invoke('window:minimize'),
     toggleMaximize: () => ipcRenderer.invoke('window:toggle-maximize'),
     closeWindow: () => ipcRenderer.invoke('window:close'),
@@ -21,5 +23,7 @@ contextBridge.exposeInMainWorld('instaling', {
     onLog: callback => subscribe('bot:log', callback),
     onStatus: callback => subscribe('bot:status', callback),
     onClearLog: callback => subscribe('bot:clear-log', callback),
-    onMaximized: callback => subscribe('window:maximized', callback)
+    onMaximized: callback => subscribe('window:maximized', callback),
+    onUpdateAvailable: callback => subscribe('app:update-available', callback),
+    onReminder: callback => subscribe('app:reminder', callback)
 });

@@ -22,12 +22,12 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `E:\Files\OpenCode\instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.0.0) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.1.0) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | upstream repo |
 | Remote `fork` | your fork |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-3.0.0-setup.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-3.1.0-setup.exe` (gitignored) |
 
 ## Stack
 
@@ -49,6 +49,9 @@ src/
   config.js     loads Config.json (INSTALING_CONFIG aware), normalizes credentials
   words.js      SavedWords.json lookup/save (INSTALING_ROOT aware, lazy load)
   control.js    stop-request flag shared by the runner and the engine
+  mistakes.js   wrong-answer strategies: blank / wrong saved word / misspelling
+  reminder.js   daily reminder state, schedule check and native notifications
+  update.js     GitHub release check and version comparison
   printer.js    console logging helpers
 desktop/
   main.js       Electron main process: paths, config migration, IPC, child bot process, logs
@@ -58,6 +61,8 @@ desktop/
 scripts/
   prepare-browser.js   copies Chrome for Testing into resources/browser + manifest.json
   ensure-electron.js   postinstall fallback that downloads the Electron runtime
+  remind.js            CLI reminder loop (shares config and state with the desktop app)
+  check-updates.js     CLI update check against GitHub releases
   generate-icon.ps1    Windows-only icon generator for build/icon.png
 config/
   Config.json             real CLI config (gitignored, contains credentials)
@@ -83,6 +88,7 @@ electron-builder.yml
 ```
 config/Config.json        settings + credentials (merged with new defaults on upgrade)
 config/SavedWords.json    learned translations
+reminder-state.json       lastSession / lastNotified used by the daily reminder
 logs/last-run.log         full log of the last run
 pages/                    diagnostic HTML
 screenshots/              diagnostic PNG
@@ -120,18 +126,21 @@ npm start
       │   ├─ getWord() from SavedWords.json
       │   ├─ if new-word screen → "don't know" → reveal answer → next
       │   ├─ else type() the saved translation (respects valid_chance)
-      │   ├─ if valid_chance fails → type() a plausible misspelling
+      │   ├─ 1/3 blank answer
+      │   ├─ 1/3 wrong saved translation (fallback: misspelling)
+      │   ├─ 1/3 plausible misspelling
       │   ├─ click check, read correct answer (fallback to known translation)
       │   ├─ insertWord() if it was new
       │   └─ click next word
       └─ handleStop()
           ├─ return to main page (optional)
           ├─ saveWords()
+          ├─ markSessionDone()          reminder state: today counts as done
           ├─ close browser
           └─ emit finished + resolve exit code
 ```
 
-`src/main.js` exports the completion promise. When run directly (`require.main === module`) it exits with that code; when required by `desktop/runner.js` it lets the runner exit.
+`src/main.js` exports the completion promise. When run directly (`require.main === module`) it exits with that code; when required by `desktop/runner.js` it lets the runner exit. The CLI also prints a one-line update notice on start by calling `src/update.js`.
 
 ### Desktop
 
@@ -141,8 +150,11 @@ npm run desktop
       └─ desktop/main.js
           ├─ initPaths()                userData/config, logs, defaults
           ├─ ensureDataFiles()          copy defaults, merge new config keys
-          ├─ registerIpc()              get-state, save-settings, start, stop, folders, window
+          ├─ registerIpc()              get-state, save-settings, start, stop, folders, window, updates
           ├─ createWindow()             frameless retro BrowserWindow + preload API
+          ├─ updateTray()               optional tray icon + context menu
+          ├─ startReminderLoop()        check every 60 s, notify once per day
+          ├─ startUpdateChecks()        GitHub release check on start + every 6 h
           └─ bot:start
               ├─ saveSettings()         validate + clamp values, write Config.json
               ├─ resolveBundledBrowser() read resources/browser/manifest.json
@@ -157,9 +169,11 @@ IPC/event flow:
 
 - The engine calls `notify(event, payload)` → `process.send({type: 'bot-event', ...})`.
 - `desktop/main.js` turns `answer`, `answered`, `new-word`, `phase`, `error` and `finished` into counters/status, writes `logs/last-run.log`, and broadcasts `bot:status`.
-- Renderer receives `bot:log`, `bot:status`, `bot:clear-log` and `window:maximized`.
+- Renderer receives `bot:log`, `bot:status`, `bot:clear-log`, `window:maximized`, `app:update-available` and `app:reminder`.
 - Stop: renderer → `bot:stop` → `requestStop()` sends `{type: 'stop'}` to the child → `src/control.js` flag → engine saves words, closes Chrome and exits. A 15 s watchdog kills the child if it does not stop.
-- Closing the window while the bot runs triggers `before-quit`: request stop, wait up to 12 s, then kill the child.
+- Closing the window while the bot runs triggers `before-quit`: request stop, wait up to 12 s, then kill the child. With `background.run_in_tray` the window is hidden instead of closed and `window-all-closed` keeps the app alive.
+- Reminder: `src/reminder.js` owns `reminder-state.json`. `checkReminder()` compares `reminder.time` with local time, skips when `lastSession` or `lastNotified` is today, shows an OS notification plus `app:reminder`, then calls `markNotified()`. `markSessionDone()` runs when a bot process ends with code 0 and at least one answer (the CLI does the same in `handleStop()`).
+- Updates: `src/update.js` `checkLatestRelease()` calls the GitHub API. The result is exposed through `app:check-updates` / `app:update-status`; the renderer shows a banner whose **Pobierz** button opens `html_url`. Nothing is downloaded or installed automatically.
 
 ## The important fixes (don't regress these)
 
@@ -176,6 +190,9 @@ IPC/event flow:
 11. **asar disabled** — `electron-builder.yml` uses `asar: false` because `desktop/runner.js` and `src/` are loaded as normal files by the forked child process. Do not turn asar on without testing the packaged app.
 12. **Packaged dependencies** — electron-builder must not include Electron/electron-builder dev dependencies. The `package.json` file list keeps runtime deps only; `dist/win-unpacked/resources/app/node_modules` should stay small.
 13. **IPC safety** — `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`; every handler calls `assertSender()` and external links are restricted to `https://`.
+14. **Randomized errors** — `valid_chance` failure must stay an equal 1/3 split between blank, wrong saved word and misspelling (`src/mistakes.js`). `pickWrongTranslation()` must skip the correct answer and return `null` when there is no other word so the caller can fall back to a misspelling.
+15. **Reminder state** — never mark a reminder as sent before the notification is attempted, and never remind when `lastSession` is today. Desktop state lives in `userData`, the CLI uses the project root; both call the same helpers in `src/reminder.js`.
+16. **Updates stay manual** — installers are unsigned, so `src/update.js` only reports the latest release and its URL. Do not add silent download/install without also adding code signing and testing it on both platforms.
 
 ## Config cheat sheet
 
@@ -183,7 +200,7 @@ IPC/event flow:
 {
   "credentials": { "login": "...", "password": "..." },
   "delays": {
-    "click_min": 3500, "click_max": 6500,
+    "click_min": 2000, "click_max": 4500,
     "type_min": 90, "type_max": 230,
     "type_pause_chance": 0.12,
     "type_pause_min": 250, "type_pause_max": 700,
@@ -199,14 +216,18 @@ IPC/event flow:
   "mute_audio": true,
   "window_width": 1366,
   "window_height": 900,
-  "debug": false
+  "debug": false,
+  "reminder": { "enabled": true, "time": "17:00" },
+  "background": { "run_in_tray": false, "start_at_login": false }
 }
 ```
 
 - Raising delays = slower and less aggressive.
 - `max_answers: 1` is the fastest safe way to test a change.
 - `type_min` / `type_max` are per character. `typo_chance` simulates a wrong key + Backspace and is verified afterwards.
-- `valid_chance` failures type a plausible misspelling instead of leaving the field empty.
+- `valid_chance` failures pick one of three errors with equal probability: blank, wrong saved translation (fallback: misspelling), misspelling.
+- `reminder.time` is local `HH:MM`; the desktop checks every minute while running, the CLI via `npm run remind`.
+- `background.*` only affects the desktop app (tray icon and OS login item).
 - The canonical template is `config/Config.defaults.json`; there is no remote word database.
 - Desktop clamps GUI values (0–1 for chances, 0–10000 for `max_answers`) before writing the file.
 
@@ -259,6 +280,8 @@ Release checklist:
 
 ```bash
 npm start                                  # CLI run
+npm run remind                             # CLI daily reminder loop
+npm run update-check                       # compare with the latest GitHub release
 npm run desktop                            # Electron app
 npm run check                              # syntax check only
 npm install --omit=dev                     # CLI-only install (skips Electron/electron-builder)
@@ -298,11 +321,11 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 
 - Selectors are tied to the current HTML; InstaLing can change them any time.
 - Detection is never guaranteed — no amount of delay makes a bot invisible.
-- Single account, single run, no scheduling.
+- Single account, single run; the reminder only works while the desktop app or `npm run remind` is running.
 - Words are flat JSON, no dedupe beyond normalizing text.
 - Humanization reduces obvious patterns but cannot guarantee the bot is undetectable.
 - Uses Chrome for Testing, not the user's installed Chrome.
-- Installers are unsigned; macOS builds require CI or a Mac.
+- Installers are unsigned; macOS builds require CI or a Mac. Updates are manual (download + run installer).
 - Credentials are stored in plain text in the local config file (same as the CLI). The UI says so; use full-disk encryption and do not share the data folder.
 - No automated tests yet (only `node --check` and manual smoke tests).
 
@@ -315,22 +338,30 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Windows NSIS installer and macOS PKG builds for arm64/x64 via GitHub Actions.
 - Shared engine/config/words with the CLI, including graceful stop and IPC events.
 
+## What changed in 3.1.0
+
+- Wrong answers are randomized: blank field, another saved translation, or a misspelling (equal chance), still gated by `valid_chance`.
+- Daily reminder shared by the desktop app and the CLI (`src/reminder.js`, `scripts/remind.js`), with `reminder-state.json`.
+- Optional tray mode and start-at-login in the desktop app.
+- Update checking in both variants (`src/update.js`, `scripts/check-updates.js`) — notify only, never install.
+- Ko-fi support box and author footer in the app; faster default click pause (2000–4500 ms).
+
 ## Future ideas
 
-- Signed installers and auto-update (`electron-updater`).
+- Signed installers and real auto-update (`electron-updater`) once a certificate exists.
 - Encrypted credential storage (Windows Credential Manager / macOS Keychain via `keytar`).
 - SQLite for words with import/export and search.
 - Session history and statistics.
 - PL/EN interface.
 - Regression tests using saved HTML fixtures instead of hitting the live site.
-- Tray icon and minimize-while-running.
+- OS-level scheduled reminder that fires even when the app is closed (Task Scheduler / launchd).
 
 ## Starter prompt for a new session
 
 Copy this into a new chat:
 
-> Project: `E:\Files\OpenCode\instaling-bot` (fork of PanSzelescik/instaling-bot, v3.0.0).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.1.0).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
-> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry.
-> Do not regress: cookie handling, `isVisible()` semantics, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks.
+> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. Daily reminder and update checking are shared by desktop and CLI (`npm run remind`, `npm run update-check`).
+> Do not regress: cookie handling, `isVisible()` semantics, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state, manual-only updates.
 > Test with `"max_answers": 1`, update `CHANGELOG.md`, and prepare a release.

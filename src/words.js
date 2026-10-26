@@ -34,6 +34,10 @@ function normalize(text) {
     return String(text ?? '').trim().toLowerCase();
 }
 
+async function getAllWords() {
+    return loadWords();
+}
+
 async function getWord(polish, sentence) {
     if (!polish || !sentence) {
         console.error(new TypeError('Tried to get word using nullish value! Aborting!'));
@@ -72,6 +76,7 @@ async function saveWords() {
 
 module.exports = {
     SAVED_WORDS_PATH,
+    getAllWords,
     getWord,
     insertWord,
     saveWords

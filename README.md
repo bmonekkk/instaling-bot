@@ -5,11 +5,13 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 
-Aktualna wersja (**3.0.0**) łączy trzy rzeczy:
+Aktualna wersja (**3.1.0**) łączy trzy rzeczy:
 
 - aplikację desktopową z GUI, logiem na żywo i wbudowaną przeglądarką Chrome,
 - nadal w pełni działającą wersję CLI (`npm start`) dla Linuksa i terminala,
-- humanizację pisania: losowe opóźnienia, mikro-pauzy i literówki poprawiane backspace'em.
+- humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
+
+W 3.1.0 doszły też: przypomnienie o codziennej sesji (desktop i CLI), opcjonalna praca w zasobniku systemowym, uruchamianie przy logowaniu oraz sprawdzanie nowych wydań na GitHubie.
 
 Open source, licencja ISC.
 
@@ -30,7 +32,9 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 | Interfejs | Okno aplikacji, ustawienia, live log | Terminal |
 | Przeglądarka | Chrome for Testing dołączony do instalatora | Pobierany przez Puppeteer |
 | Dane | `%APPDATA%\instaling-bot` lub `~/Library/Application Support/instaling-bot` | `config/` w katalogu projektu |
-| Aktualizacje | nowy instalator z GitHuba | `git pull && npm install --omit=dev` |
+| Przypomnienia | powiadomienie systemowe + toast w aplikacji | `npm run remind` w tle |
+| Aktualizacje | sprawdzanie wydań + przycisk **Pobierz** | `npm run update-check` i komunikat przy starcie |
+| Aktualizacja | nowy instalator z GitHuba | `git pull && npm install --omit=dev` |
 
 Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i formatu `SavedWords.json`.
 
@@ -38,9 +42,9 @@ Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i for
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.0.0-setup.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.0.0-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.0.0-x64.pkg`
+- **Windows:** `instaling-bot-3.1.0-setup.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.1.0-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.1.0-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -53,6 +57,16 @@ Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie tr
 5. Naciśnij **Start**.
 
 Bot otworzy osobne okno Chrome, zaloguje się, rozpocznie lub kontynuuje sesję i będzie odpowiadał na słówka. Postęp, licznik odpowiedzi i błędy widać w konsoli aplikacji.
+
+### Przypomnienie o codziennej sesji
+
+W ustawieniach włącz **Przypominaj o codziennej sesji** i wybierz godzinę (domyślnie `17:00`). Gdy aplikacja działa — również ukryta w zasobniku — o wybranej porze pojawi się powiadomienie systemowe i toast w oknie. Przypomnienie jest pomijane, jeśli danego dnia bot zdążył już odpowiedzieć na co najmniej jedno słówko.
+
+Opcjonalnie możesz włączyć **Działaj w zasobniku po zamknięciu okna** (okno chowa się zamiast zamykać) oraz **Uruchamiaj przy logowaniu systemu**. Bez tych opcji aplikacja musi być po prostu otwarta.
+
+### Aktualizacje
+
+Aplikacja sprawdza [najnowsze wydanie na GitHubie](https://github.com/bmonekkk/instaling-bot/releases/latest) przy starcie i co kilka godzin. Gdy pojawi się nowsza wersja, u góry okna wyświetli się banner z przyciskiem **Pobierz**, który otwiera stronę wydania. Instalatory są niepodpisane, więc aktualizacja polega na pobraniu i uruchomieniu nowego instalatora — aplikacja nie pobiera ani nie instaluje niczego samodzielnie. Sprawdzenie można też wywołać ręcznie przyciskiem **Sprawdź aktualizacje** w konsoli.
 
 ### Instalatory są niepodpisane
 
@@ -123,6 +137,24 @@ npm start
 
 Pliki `config/Config.json` i `config/SavedWords.json` są ignorowane przez git, więc dane logowania i słówka nie trafią do repozytorium.
 
+### Przypomnienie w CLI
+
+Ta sama sekcja `reminder` w `Config.json` steruje przypomnieniem w CLI. Aby otrzymywać powiadomienie o codziennej sesji, zostaw w tle:
+
+```bash
+npm run remind
+```
+
+Proces sprawdza co minutę, czy minęła wybrana godzina i czy dzisiejsza sesja nie została jeszcze odhaczona. Powiadomienie wysyła się najwyżej raz dziennie; stan trafia do `reminder-state.json` w katalogu projektu i jest wspólny z `npm start`. Zatrzymanie: `Ctrl+C`.
+
+### Sprawdzanie aktualizacji w CLI
+
+```bash
+npm run update-check   # porównuje lokalną wersję z najnowszym wydaniem na GitHubie
+```
+
+`npm start` dodatkowo wypisuje na starcie krótką informację, gdy dostępna jest nowsza wersja. Aktualizacja to `git pull && npm install --omit=dev`.
+
 Jeśli Puppeteer nie pobrał przeglądarki podczas instalacji:
 
 ```bash
@@ -136,7 +168,7 @@ npx puppeteer browsers install chrome
 - Rozpoczyna nową sesję albo kontynuuje poprzednią.
 - Odczytuje zdanie, polskie słowo i zapisane tłumaczenie.
 - Odpowiada poprawnie w `valid_chance` przypadków (domyślnie 80%).
-- Gdy ma odpowiedzieć źle, wpisuje wiarygodną literówkę zamiast pustego pola.
+- Gdy ma odpowiedzieć źle, losuje jeden z trzech błędów: puste pole, inne zapisane tłumaczenie albo wiarygodną literówkę.
 - Zapisuje nowo poznane tłumaczenia w `SavedWords.json`.
 - Sam zamyka Chrome i zapisuje słówka po zakończeniu.
 
@@ -168,12 +200,20 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
   - `selector` — oczekiwanie na element na stronie (zwiększ, jeśli masz wolne łącze)
   - `check_min` / `check_max` — oczekiwanie na sprawdzenie odpowiedzi
   - `next_word_min` / `next_word_max` — oczekiwanie między słówkami
-- `valid_chance` — jaka część odpowiedzi ma być poprawna (`1` = 100%, `0.8` = 80%); przy nieudanej próbie bot wpisuje literówkę
+- `valid_chance` — jaka część odpowiedzi ma być poprawna (`1` = 100%, `0.8` = 80%); przy nieudanej próbie bot losuje jeden z trzech błędów: puste pole, inne zapisane tłumaczenie (fallback: literówka) lub literówkę
 - `max_answers` — maksymalna liczba odpowiedzi w jednym uruchomieniu (`0` = bez limitu, przydatne do testów)
 - `show_browser` — pokazuje okno Chrome; ustaw `false` na serwerze bez GUI
 - `mute_audio` — wycisza dźwięk przeglądarki
 - `window_width` / `window_height` — rozmiar okna Chrome
 - `debug` — dodatkowe logi z przeglądarki i zrzuty stron
+- `reminder` — przypomnienie o codziennej sesji (desktop i CLI)
+  - `enabled` — `true` / `false`
+  - `time` — godzina w formacie `HH:MM`, domyślnie `17:00` (czas lokalny)
+- `background` — tylko desktop
+  - `run_in_tray` — zamknięcie okna chowa aplikację do zasobnika zamiast ją zamykać
+  - `start_at_login` — uruchamiaj aplikację przy logowaniu systemu
+
+Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 
 ## Rozwiązywanie problemów
 
@@ -204,6 +244,16 @@ npm run dist:mac         # macOS .pkg (tylko na macOS)
 Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm run prepare:browser`, które kopiuje Chrome for Testing do `resources/browser/` i tworzy manifest.
 
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
+
+## Zmiany w wersji 3.1.0
+
+- Błędne odpowiedzi są losowane równo między trzy typy: puste pole, inne zapisane tłumaczenie i literówka. `valid_chance` nadal decyduje, jak często bot odpowiada źle.
+- Domyślna pauza po kliknięciu skrócona z 3500–6500 ms do **2000–4500 ms**.
+- Przypomnienie o codziennej sesji: godzina konfigurowana w aplikacji (domyślnie 17:00), powiadomienie systemowe + toast, pomijane po wykonanej sesji. W CLI odpowiada za to `npm run remind`.
+- Opcjonalna praca w zasobniku systemowym i uruchamianie przy logowaniu (desktop).
+- Sprawdzanie nowych wydań na GitHubie w aplikacji i w CLI (`npm run update-check`); przycisk **Pobierz** otwiera stronę wydania.
+- W aplikacji dodano informację o wsparciu przez Ko-fi oraz podpis autora (`bmonekkk`).
+- Ujednolicono nazwę autora i adresy projektu w całym repozytorium oraz na stronie projektu.
 
 ## Zmiany w wersji 3.0.0
 

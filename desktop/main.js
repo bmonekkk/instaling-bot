@@ -1,9 +1,18 @@
-const {app, BrowserWindow, ipcMain, shell, Menu} = require('electron');
+const {app, BrowserWindow, ipcMain, shell, Menu, Tray, nativeImage, Notification} = require('electron');
 const {fork} = require('child_process');
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const readline = require('readline');
+const {checkLatestRelease} = require('../src/update.js');
+const {
+    dateKey,
+    isReminderDue,
+    loadState: loadReminderState,
+    markNotified,
+    markSessionDone,
+    parseTime
+} = require('../src/reminder.js');
 
 const APP_ID = 'com.bmoneczek.instalingbot';
 const IS_DEV = !app.isPackaged;
@@ -15,6 +24,12 @@ let botProcess = null;
 let logStream = null;
 let stopTimer = null;
 let shuttingDown = false;
+let isQuitting = false;
+let tray = null;
+let configCache = null;
+let reminderTimer = null;
+let updateTimer = null;
+let updateInfo = null;
 
 let DATA_DIR = '';
 let CONFIG_DIR = '';
@@ -137,7 +152,12 @@ function normalizeConfig(raw) {
 
 async function loadConfig() {
     await ensureDataFiles();
-    return normalizeConfig(await readJson(CONFIG_PATH));
+    configCache = normalizeConfig(await readJson(CONFIG_PATH));
+    return configCache;
+}
+
+function validReminderTime(value) {
+    return parseTime(value)?.text ?? null;
 }
 
 function clampNumber(value, fallback, min, max, integer = false) {
@@ -162,6 +182,26 @@ function applySettings(current, payload) {
     next.mute_audio = Boolean(payload?.mute_audio ?? current.mute_audio);
     next.debug = Boolean(payload?.debug ?? current.debug);
 
+    const reminder = payload?.reminder ?? {};
+    next.reminder = {
+        enabled: reminder.enabled === undefined
+            ? current.reminder?.enabled !== false
+            : Boolean(reminder.enabled),
+        time: validReminderTime(reminder.time)
+            ?? validReminderTime(current.reminder?.time)
+            ?? '17:00'
+    };
+
+    const background = payload?.background ?? {};
+    next.background = {
+        run_in_tray: background.run_in_tray === undefined
+            ? Boolean(current.background?.run_in_tray)
+            : Boolean(background.run_in_tray),
+        start_at_login: background.start_at_login === undefined
+            ? Boolean(current.background?.start_at_login)
+            : Boolean(background.start_at_login)
+    };
+
     const delays = payload?.delays ?? {};
     next.delays = {
         ...(current.delays ?? {}),
@@ -169,8 +209,8 @@ function applySettings(current, payload) {
         type_max: clampNumber(delays.type_max, current.delays?.type_max ?? 230, 0, 5000, true),
         type_pause_chance: clampNumber(delays.type_pause_chance, current.delays?.type_pause_chance ?? 0.12, 0, 1),
         typo_chance: clampNumber(delays.typo_chance, current.delays?.typo_chance ?? 0.15, 0, 1),
-        click_min: clampNumber(delays.click_min, current.delays?.click_min ?? 3500, 0, 120000, true),
-        click_max: clampNumber(delays.click_max, current.delays?.click_max ?? 6500, 0, 120000, true)
+        click_min: clampNumber(delays.click_min, current.delays?.click_min ?? 2000, 0, 120000, true),
+        click_max: clampNumber(delays.click_max, current.delays?.click_max ?? 4500, 0, 120000, true)
     };
     if (next.delays.type_max < next.delays.type_min) {
         next.delays.type_max = next.delays.type_min;
@@ -190,6 +230,8 @@ async function saveSettings(payload) {
     const current = await loadConfig();
     const next = applySettings(current, payload);
     await writeJson(CONFIG_PATH, next);
+    configCache = next;
+    applyBackgroundSettings();
     return next;
 }
 
@@ -224,8 +266,16 @@ function configForRenderer(config) {
             type_max: config.delays?.type_max ?? 230,
             type_pause_chance: config.delays?.type_pause_chance ?? 0.12,
             typo_chance: config.delays?.typo_chance ?? 0.15,
-            click_min: config.delays?.click_min ?? 3500,
-            click_max: config.delays?.click_max ?? 6500
+            click_min: config.delays?.click_min ?? 2000,
+            click_max: config.delays?.click_max ?? 4500
+        },
+        reminder: {
+            enabled: config.reminder?.enabled !== false,
+            time: validReminderTime(config.reminder?.time) ?? '17:00'
+        },
+        background: {
+            run_in_tray: Boolean(config.background?.run_in_tray),
+            start_at_login: Boolean(config.background?.start_at_login)
         }
     };
 }
@@ -411,6 +461,9 @@ async function startBot() {
         botState.phase = 'idle';
         botState.exitCode = code;
         botState.finishedAt = Date.now();
+        if (code === 0 && botState.answers > 0) {
+            markSessionDone(new Date(), DATA_DIR).catch(() => {});
+        }
         if (code !== 0 && !stopped) {
             botState.lastError = `Proces zakończył się kodem ${code}${signal ? ` (${signal})` : ''}.`;
         }
@@ -460,7 +513,128 @@ function requestStop() {
     return {ok: true};
 }
 
-function createWindow() {
+function trayIcon() {
+    const iconPath = path.join(app.getAppPath(), 'build', 'icon.png');
+    const image = nativeImage.createFromPath(iconPath);
+    return image.isEmpty() ? image : image.resize({width: 16, height: 16});
+}
+
+function showWindow() {
+    if (!mainWindow) {
+        createWindow(true);
+        return;
+    }
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+}
+
+function updateTray() {
+    const enabled = Boolean(configCache?.background?.run_in_tray);
+    if (!enabled) {
+        if (tray) {
+            tray.destroy();
+            tray = null;
+        }
+        return;
+    }
+    if (tray) return;
+
+    tray = new Tray(trayIcon());
+    tray.setToolTip('instaling-bot');
+    tray.setContextMenu(Menu.buildFromTemplate([
+        {label: 'Pokaż okno', click: showWindow},
+        {type: 'separator'},
+        {
+            label: 'Start',
+            click: () => {
+                showWindow();
+                startBot().catch(error => appendLog(`[APP] ${error.message}`));
+            }
+        },
+        {label: 'Stop', click: () => requestStop()},
+        {type: 'separator'},
+        {
+            label: 'Zakończ',
+            click: () => {
+                isQuitting = true;
+                app.quit();
+            }
+        }
+    ]));
+    tray.on('click', showWindow);
+}
+
+function applyLoginItem(enabled) {
+    if (!app.isPackaged) return;
+    try {
+        app.setLoginItemSettings({
+            openAtLogin: Boolean(enabled),
+            openAsHidden: true,
+            args: ['--hidden']
+        });
+    } catch (error) {
+        console.error('Could not update login item:', error);
+    }
+}
+
+function applyBackgroundSettings() {
+    updateTray();
+    applyLoginItem(configCache?.background?.start_at_login);
+    if (!configCache?.background?.run_in_tray && mainWindow && !mainWindow.isVisible()) {
+        mainWindow.show();
+    }
+}
+
+async function checkReminder() {
+    const config = configCache ?? await loadConfig();
+    if (!config.reminder || config.reminder.enabled === false) return;
+
+    const state = await loadReminderState(DATA_DIR);
+    const now = new Date();
+    if (!isReminderDue(config, state, now)) return;
+
+    if (Notification.isSupported()) {
+        const notification = new Notification({
+            title: 'instaling-bot',
+            body: 'Nie zapomnij o dzisiejszej sesji na InstaLing.',
+            silent: false
+        });
+        notification.on('click', showWindow);
+        notification.show();
+    }
+
+    send('app:reminder', {date: dateKey(now)});
+    await markNotified(now, DATA_DIR);
+    appendLog('[APP] Wysłano przypomnienie o codziennej sesji.');
+}
+
+function startReminderLoop() {
+    if (reminderTimer) clearInterval(reminderTimer);
+    reminderTimer = setInterval(() => checkReminder().catch(() => {}), 60 * 1000);
+    setTimeout(() => checkReminder().catch(() => {}), 5000);
+}
+
+async function checkUpdates() {
+    try {
+        updateInfo = {...await checkLatestRelease(app.getVersion()), checkedAt: Date.now()};
+        if (updateInfo.available) {
+            send('app:update-available', updateInfo);
+            appendLog(`[APP] Dostępna nowa wersja ${updateInfo.latest}.`);
+        }
+    } catch (error) {
+        updateInfo = {available: false, error: error.message, checkedAt: Date.now()};
+    }
+    return updateInfo;
+}
+
+function startUpdateChecks() {
+    setTimeout(() => checkUpdates().catch(() => {}), 4000);
+    if (updateTimer) clearInterval(updateTimer);
+    updateTimer = setInterval(() => checkUpdates().catch(() => {}), 6 * 60 * 60 * 1000);
+}
+
+function createWindow(show = true) {
     mainWindow = new BrowserWindow({
         width: 1180,
         height: 860,
@@ -479,7 +653,9 @@ function createWindow() {
         }
     });
 
-    mainWindow.once('ready-to-show', () => mainWindow.show());
+    mainWindow.once('ready-to-show', () => {
+        if (show) mainWindow.show();
+    });
     mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 
     mainWindow.webContents.setWindowOpenHandler(({url}) => {
@@ -491,6 +667,12 @@ function createWindow() {
 
     mainWindow.on('maximize', () => send('window:maximized', true));
     mainWindow.on('unmaximize', () => send('window:maximized', false));
+    mainWindow.on('close', event => {
+        if (!isQuitting && configCache?.background?.run_in_tray) {
+            event.preventDefault();
+            mainWindow.hide();
+        }
+    });
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
@@ -510,6 +692,16 @@ function registerIpc() {
             ...publicState(),
             config: configForRenderer(config)
         };
+    });
+
+    ipcMain.handle('app:check-updates', async event => {
+        assertSender(event);
+        return checkUpdates();
+    });
+
+    ipcMain.handle('app:update-status', async event => {
+        assertSender(event);
+        return updateInfo;
     });
 
     ipcMain.handle('app:save-settings', async (event, payload) => {
@@ -592,10 +784,18 @@ if (!gotLock) {
 
     app.whenReady().then(async () => {
         initPaths();
-        await ensureDataFiles();
+        configCache = await ensureDataFiles();
         registerIpc();
         Menu.setApplicationMenu(null);
-        createWindow();
+        updateTray();
+        applyLoginItem(configCache.background?.start_at_login);
+
+        const openedHidden = app.getLoginItemSettings().wasOpenedAsHidden
+            || process.argv.includes('--hidden');
+        const startHidden = Boolean(configCache.background?.run_in_tray) && openedHidden;
+        createWindow(!startHidden);
+        startReminderLoop();
+        startUpdateChecks();
 
         if (IS_DEV && process.env.INSTALING_DEVTOOLS === '1') {
             mainWindow.webContents.openDevTools({mode: 'detach'});
@@ -607,10 +807,13 @@ if (!gotLock) {
 }
 
 app.on('window-all-closed', () => {
-    app.quit();
+    if (!configCache?.background?.run_in_tray) {
+        app.quit();
+    }
 });
 
 app.on('before-quit', event => {
+    isQuitting = true;
     if (!botProcess || shuttingDown) return;
     event.preventDefault();
     shuttingDown = true;

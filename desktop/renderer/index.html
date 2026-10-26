@@ -11,7 +11,7 @@
 <div class="app" id="app">
     <header class="titlebar" id="titlebar">
         <span class="titlebar-icon" aria-hidden="true">🤖</span>
-        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v3.0.0</span></span>
+        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v3.1.0</span></span>
         <div class="window-controls">
             <button class="window-button" id="win-minimize" type="button" title="Minimalizuj" aria-label="Minimalizuj">_</button>
             <button class="window-button" id="win-maximize" type="button" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
@@ -26,6 +26,12 @@
         <span class="menu-spacer"></span>
         <span class="menu-note">DESKTOP EDITION</span>
     </nav>
+
+    <div class="update-banner" id="update-banner" hidden>
+        <span class="update-text">Dostępna nowa wersja <strong id="update-version"></strong>.</span>
+        <button class="btn mini primary" id="update-download" type="button">Pobierz</button>
+        <button class="btn mini" id="update-dismiss" type="button">Później</button>
+    </div>
 
     <main class="workspace">
         <section class="panel settings-panel" aria-labelledby="settings-heading">
@@ -72,6 +78,22 @@
                         </div>
                     </fieldset>
 
+                    <fieldset>
+                        <legend>Przypomnienia i praca w tle</legend>
+                        <div class="row two">
+                            <label class="check"><input id="reminder-enabled" type="checkbox" checked> <span>Przypominaj o codziennej sesji</span></label>
+                            <label class="field" for="reminder-time">
+                                <span>Godzina przypomnienia</span>
+                                <input id="reminder-time" type="time" value="17:00">
+                            </label>
+                        </div>
+                        <div class="check-stack">
+                            <label class="check"><input id="run-in-tray" type="checkbox"> <span>Działaj w zasobniku po zamknięciu okna</span></label>
+                            <label class="check"><input id="start-at-login" type="checkbox"> <span>Uruchamiaj przy logowaniu systemu</span></label>
+                        </div>
+                        <p class="hint">Przypomnienie działa, gdy aplikacja jest uruchomiona — także ukryta w zasobniku. Sesja wykonana tego dnia nie wywołuje przypomnienia.</p>
+                    </fieldset>
+
                     <details class="advanced">
                         <summary>Zaawansowane: humanizacja pisania</summary>
                         <div class="advanced-body">
@@ -98,11 +120,11 @@
                             <div class="row two">
                                 <label class="field" for="click-min">
                                     <span>Pauza po kliknięciu min (ms)</span>
-                                    <input id="click-min" type="number" min="0" max="120000" step="100" value="3500">
+                                    <input id="click-min" type="number" min="0" max="120000" step="100" value="2000">
                                 </label>
                                 <label class="field" for="click-max">
                                     <span>Pauza po kliknięciu max (ms)</span>
-                                    <input id="click-max" type="number" min="0" max="120000" step="100" value="6500">
+                                    <input id="click-max" type="number" min="0" max="120000" step="100" value="4500">
                                 </label>
                             </div>
                             <label class="check"><input id="debug" type="checkbox"> <span>Logi debug i zrzuty stron</span></label>
@@ -119,6 +141,13 @@
                         <p>Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer.</p>
                     </div>
                 </form>
+
+                <div class="support-box">
+                    <strong>Wesprzyj rozwój projektu</strong>
+                    <p>Instaling Bot rozwijam hobbystycznie. Jeśli projekt jest dla Ciebie przydatny, możesz postawić mi wirtualną kawę — wsparcie jest całkowicie dobrowolne.</p>
+                    <button class="btn mini" id="open-kofi" type="button">☕ Postaw kawę na Ko-fi</button>
+                    <span class="hint inline">Autor: bmonekkk</span>
+                </div>
             </div>
 
             <div class="panel-actions">
@@ -172,6 +201,7 @@
                 <div class="console-actions">
                     <button class="btn mini" id="clear-log" type="button">Wyczyść</button>
                     <button class="btn mini" id="open-log" type="button">Otwórz log</button>
+                    <button class="btn mini" id="check-updates" type="button">Sprawdź aktualizacje</button>
                     <span class="head-spacer"></span>
                     <button class="link-button" id="github-link" type="button">GitHub ↗</button>
                 </div>
@@ -182,7 +212,8 @@
     <footer class="statusbar">
         <span class="status-cell" id="footer-status">Gotowy</span>
         <span class="status-cell grow" id="footer-path" title="Folder danych">—</span>
-        <span class="status-cell" id="footer-version">v3.0.0</span>
+        <button class="status-cell link" id="footer-author" type="button" title="Profil autora na GitHubie">by bmonekkk</button>
+        <span class="status-cell" id="footer-version">v3.1.0</span>
     </footer>
 </div>
 

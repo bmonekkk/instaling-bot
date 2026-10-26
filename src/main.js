@@ -35,7 +35,11 @@ const {
 } = require('./helpers.js');
 const {green, yellow, red, blue, error} = require('./printer.js');
 const chalk = require('chalk');
-const {insertWord, getWord, saveWords} = require('./words.js');
+const {getAllWords, insertWord, getWord, saveWords} = require('./words.js');
+const {chooseErrorMode, pickWrongTranslation} = require('./mistakes.js');
+const {markSessionDone} = require('./reminder.js');
+const {checkLatestRelease} = require('./update.js');
+const {version: APP_VERSION} = require('../package.json');
 
 const blockedHosts = [
     'googletagmanager.com',
@@ -252,6 +256,30 @@ async function startSession(page) {
     green('[START] Started!');
 }
 
+async function typeWrongAnswer(page, english) {
+    const mode = chooseErrorMode();
+
+    if (mode === 'blank') {
+        yellow(`[ANSWER ${i}] Deliberate error: leaving the answer blank`);
+        await type(page, SELECTORS.answer, '');
+        return 'blank';
+    }
+
+    if (mode === 'wrong-word') {
+        const wrongWord = pickWrongTranslation(await getAllWords(), english);
+        if (wrongWord) {
+            yellow(`[ANSWER ${i}] Deliberate wrong translation: \`${chalk.cyan(wrongWord)}\` (was: \`${chalk.white(english)}\`)`);
+            await type(page, SELECTORS.answer, wrongWord);
+            return 'wrong-word';
+        }
+    }
+
+    const wrong = misspell(english);
+    yellow(`[ANSWER ${i}] Deliberate misspelling: \`${chalk.cyan(wrong)}\` (was: \`${chalk.white(english)}\`)`);
+    await type(page, SELECTORS.answer, wrong);
+    return 'misspelling';
+}
+
 async function answerQuestion(page) {
     i++;
     notify('answer', {index: i});
@@ -274,6 +302,7 @@ async function answerQuestion(page) {
         return newWord(page);
     }
 
+    let mistake = null;
     if (english) {
         green(`[ANSWER ${i}] Found translation for: \`${chalk.white(polish)}\`: \`${chalk.cyan(english)}\``);
         const random = Math.random();
@@ -281,9 +310,7 @@ async function answerQuestion(page) {
             green(`[ANSWER ${i}] Typing!`);
             await type(page, SELECTORS.answer, english);
         } else {
-            const wrong = misspell(english);
-            yellow(`[ANSWER ${i}] Deliberate misspelling: \`${chalk.cyan(wrong)}\` (was: \`${chalk.white(english)}\`)`);
-            await type(page, SELECTORS.answer, wrong);
+            mistake = await typeWrongAnswer(page, english);
         }
     } else {
         red(`[ANSWER ${i}] Not found translation for: \`${chalk.white(polish)}\``);
@@ -317,7 +344,8 @@ async function answerQuestion(page) {
         polish,
         typed: english || null,
         valid: validEnglish || null,
-        correct: Boolean(validEnglish && english === validEnglish)
+        correct: Boolean(validEnglish && english === validEnglish),
+        mistake
     });
 
     blue(`[ANSWER ${i}] Next word!`);
@@ -360,6 +388,12 @@ async function handleStop(page, code = 0) {
     } else {
         blue('[STOP] Saving words...');
         await saveWords().catch(e => console.error(e));
+    }
+
+    // Used by the daily reminder: a run with at least one answer counts as the
+    // session done for today (desktop and CLI share the same state file).
+    if (i > 0) {
+        await markSessionDone().catch(e => console.error(e));
     }
 
     green('Thanks for using InstaLing Bot by bmonekkk');
@@ -439,6 +473,15 @@ async function run() {
 const done = run();
 
 if (require.main === module) {
+    checkLatestRelease(APP_VERSION)
+        .then(result => {
+            if (result.available) {
+                yellow(`[UPDATE] Dostępna nowa wersja ${result.latest} (uruchomiona: ${APP_VERSION}).`);
+                yellow(`[UPDATE] Pobierz: ${result.url}`);
+            }
+        })
+        .catch(() => {});
+
     done
         .then(code => process.exit(code))
         .catch(err => {

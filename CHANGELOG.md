@@ -4,8 +4,27 @@ All notable changes to this fork are documented here.
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-10-26
+
+### Added
+- Randomized wrong answers: when `valid_chance` is missed, the bot now picks one of three strategies with equal probability — a blank field, another translation from `SavedWords.json` (falling back to a misspelling), or the existing human-like misspelling.
+- Daily-session reminder shared by the desktop app and the CLI: configurable time (`reminder.time`, default `17:00`), OS notification plus an in-app toast, and automatic skip when a session was already completed that day.
+- `reminder-state.json`, written under the desktop data folder or the project root for the CLI, tracks `lastSession` and `lastNotified` so the reminder fires at most once per day.
+- `npm run remind` (CLI) runs a lightweight background loop with the same reminder settings and state file.
+- Optional tray mode (`background.run_in_tray`) and start-at-login (`background.start_at_login`) in the desktop app.
+- Update checking for both variants: the desktop app checks GitHub releases on launch and every 6 hours, shows a banner with the new version and a **Pobierz** button that opens the release page; the CLI exposes `npm run update-check` and prints an update note on `npm start`.
+- Ko-fi support box inside the desktop settings panel and an author signature (`bmonekkk`) in the status bar that opens the GitHub profile.
+- Reminder and background controls in the desktop settings panel, plus a manual **Sprawdź aktualizacje** button in the console.
+
 ### Changed
+- Default click pause shortened from 3500–6500 ms to **2000–4500 ms** (`delays.click_min` / `click_max`, GUI defaults and `Config.defaults.json`).
+- Version bumped to 3.1.0 in `package.json`, `package-lock.json`, docs and release notes.
 - Fork owner references updated from `Bmoneczek` to `bmonekkk` (GitHub links, project page, package metadata, Ko-fi handle). No functional changes; the app ID `com.bmoneczek.instalingbot` stays the same.
+
+### Compatibility
+- Existing user configs keep their current `click_min` / `click_max` values; only new installs get the faster defaults.
+- The `reminder` and `background` sections are added to existing desktop configs automatically without touching other values.
+- Updates remain manual (download and run the new installer) because builds are unsigned.
 
 ## [3.0.0] - 2026-10-26
 

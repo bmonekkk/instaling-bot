@@ -7,8 +7,8 @@
         "login": "https://instaling.pl/teacher.php?page=login"
     },
     "delays": {
-        "click_min": 3500,
-        "click_max": 6500,
+        "click_min": 2000,
+        "click_max": 4500,
         "type_min": 90,
         "type_max": 230,
         "type_pause_chance": 0.12,
@@ -29,5 +29,13 @@
     "mute_audio": true,
     "window_width": 1366,
     "window_height": 900,
-    "debug": false
+    "debug": false,
+    "reminder": {
+        "enabled": true,
+        "time": "17:00"
+    },
+    "background": {
+        "run_in_tray": false,
+        "start_at_login": false
+    }
 }

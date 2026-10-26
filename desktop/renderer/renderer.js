@@ -21,6 +21,10 @@ const els = {
     clickMin: $('click-min'),
     clickMax: $('click-max'),
     debug: $('debug'),
+    reminderEnabled: $('reminder-enabled'),
+    reminderTime: $('reminder-time'),
+    runInTray: $('run-in-tray'),
+    startAtLogin: $('start-at-login'),
     start: $('start'),
     stop: $('stop'),
     save: $('save'),
@@ -28,6 +32,13 @@ const els = {
     openLog: $('open-log'),
     clearLog: $('clear-log'),
     github: $('github-link'),
+    openKofi: $('open-kofi'),
+    checkUpdates: $('check-updates'),
+    footerAuthor: $('footer-author'),
+    updateBanner: $('update-banner'),
+    updateVersion: $('update-version'),
+    updateDownload: $('update-download'),
+    updateDismiss: $('update-dismiss'),
     log: $('log'),
     autoscroll: $('autoscroll'),
     statusBadge: $('status-badge'),
@@ -77,9 +88,13 @@ function fillForm(config) {
     els.typeMax.value = String(config.delays?.type_max ?? 230);
     els.typoChance.value = String(Math.round((config.delays?.typo_chance ?? 0.15) * 100));
     els.pauseChance.value = String(Math.round((config.delays?.type_pause_chance ?? 0.12) * 100));
-    els.clickMin.value = String(config.delays?.click_min ?? 3500);
-    els.clickMax.value = String(config.delays?.click_max ?? 6500);
+    els.clickMin.value = String(config.delays?.click_min ?? 2000);
+    els.clickMax.value = String(config.delays?.click_max ?? 4500);
     els.debug.checked = Boolean(config.debug);
+    els.reminderEnabled.checked = config.reminder?.enabled !== false;
+    els.reminderTime.value = config.reminder?.time ?? '17:00';
+    els.runInTray.checked = Boolean(config.background?.run_in_tray);
+    els.startAtLogin.checked = Boolean(config.background?.start_at_login);
     updateRangeLabels();
 }
 
@@ -94,13 +109,21 @@ function collectSettings() {
         show_browser: els.showBrowser.checked,
         mute_audio: els.muteAudio.checked,
         debug: els.debug.checked,
+        reminder: {
+            enabled: els.reminderEnabled.checked,
+            time: els.reminderTime.value || '17:00'
+        },
+        background: {
+            run_in_tray: els.runInTray.checked,
+            start_at_login: els.startAtLogin.checked
+        },
         delays: {
             type_min: Math.max(0, Math.round(toNumber(els.typeMin, 90))),
             type_max: Math.max(0, Math.round(toNumber(els.typeMax, 230))),
             typo_chance: toNumber(els.typoChance, 15) / 100,
             type_pause_chance: toNumber(els.pauseChance, 12) / 100,
-            click_min: Math.max(0, Math.round(toNumber(els.clickMin, 3500))),
-            click_max: Math.max(0, Math.round(toNumber(els.clickMax, 6500)))
+            click_min: Math.max(0, Math.round(toNumber(els.clickMin, 2000))),
+            click_max: Math.max(0, Math.round(toNumber(els.clickMax, 4500)))
         }
     };
 }
@@ -217,7 +240,7 @@ async function loadState() {
         appState = state;
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v3.0.0';
+        const version = state.version ? `v${state.version}` : 'v3.1.0';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;
@@ -226,6 +249,27 @@ async function loadState() {
     } catch (error) {
         showToast(error.message || String(error), true);
         appendLog(`[APP] Nie udało się wczytać ustawień: ${error.message || error}`, 'error');
+    }
+}
+
+function showUpdate(info) {
+    if (!info?.available) return;
+    els.updateVersion.textContent = `v${info.latest}`;
+    els.updateBanner.dataset.url = info.url || '';
+    els.updateBanner.hidden = false;
+}
+
+async function checkForUpdates({silent = false} = {}) {
+    if (!api) return;
+    try {
+        const result = await api.checkUpdates();
+        if (result?.available) {
+            showUpdate(result);
+        } else if (!silent) {
+            showToast(result?.error ? 'Nie udało się sprawdzić aktualizacji.' : 'Masz najnowszą wersję.', Boolean(result?.error));
+        }
+    } catch (error) {
+        if (!silent) showToast(error.message || 'Nie udało się sprawdzić aktualizacji.', true);
     }
 }
 
@@ -387,6 +431,20 @@ function wireEvents() {
     els.github.addEventListener('click', () => {
         if (api) api.openExternal('https://github.com/bmonekkk/instaling-bot').catch(error => showToast(error.message || String(error), true));
     });
+    els.openKofi.addEventListener('click', () => {
+        if (api) api.openExternal('https://ko-fi.com/bmonekkk').catch(error => showToast(error.message || String(error), true));
+    });
+    els.footerAuthor.addEventListener('click', () => {
+        if (api) api.openExternal('https://github.com/bmonekkk').catch(error => showToast(error.message || String(error), true));
+    });
+    els.checkUpdates.addEventListener('click', () => checkForUpdates());
+    els.updateDownload.addEventListener('click', () => {
+        const url = els.updateBanner.dataset.url;
+        if (api && url) api.openExternal(url).catch(error => showToast(error.message || String(error), true));
+    });
+    els.updateDismiss.addEventListener('click', () => {
+        els.updateBanner.hidden = true;
+    });
 
     els.winMinimize.addEventListener('click', () => api?.minimizeWindow());
     els.winMaximize.addEventListener('click', async () => {
@@ -418,6 +476,8 @@ function wireEvents() {
         });
         api.onClearLog(clearLog);
         api.onMaximized(updateMaximizeButton);
+        api.onUpdateAvailable(showUpdate);
+        api.onReminder(() => showToast('Nie zapomnij o dzisiejszej sesji na InstaLing.'));
         api.isMaximized().then(updateMaximizeButton).catch(() => {});
     }
 }
@@ -425,4 +485,4 @@ function wireEvents() {
 clearLog();
 wireEvents();
 updateRangeLabels();
-loadState();
+loadState().then(() => checkForUpdates({silent: true}));
