@@ -223,6 +223,7 @@ npm run dist:mac               # macOS .pkg (current arch; must run on macOS)
 
 - `dist:win` / `dist:mac` run `prepare:browser` automatically.
 - `prepare:browser` uses the local Puppeteer cache; if Chrome is absent it downloads stable. `--arch=arm64|x64` selects the macOS Chrome build.
+- If the Chrome for Testing release metadata endpoint is unavailable, `prepare:browser` falls back to the pinned build `156.0.8078.47`. Override it with `--build=<version>` or `CHROME_BUILD_ID=<version>`.
 - The Windows installer is about 288 MB because it contains Chrome and Electron.
 - `dist/win-unpacked/` is useful for testing the packaged app without installing it.
 - `scripts/ensure-electron.js` exists because Electron's own postinstall can be skipped by npm's allow-scripts policy. It is wired as `postinstall`.

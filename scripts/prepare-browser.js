@@ -5,7 +5,6 @@ const path = require('path');
 const {
     Browser,
     BrowserTag,
-    computeExecutablePath,
     detectBrowserPlatform,
     getInstalledBrowsers,
     install,
@@ -14,6 +13,10 @@ const {
 
 const ROOT = path.resolve(__dirname, '..');
 const OUTPUT_DIR = path.join(ROOT, 'resources', 'browser');
+// Chrome for Testing version used when the release metadata endpoint is
+// unavailable (for example on a restricted CI runner). All desktop builds use
+// the same version so the installers stay reproducible.
+const FALLBACK_CHROME_BUILD = '156.0.8078.47';
 
 function argValue(name, fallback) {
     const prefix = `--${name}=`;
@@ -45,6 +48,22 @@ function compareBuildIds(a, b) {
     return String(a).localeCompare(String(b), undefined, {numeric: true});
 }
 
+async function stableBuildId(platform) {
+    const requested = argValue('build', process.env.CHROME_BUILD_ID || '');
+    if (requested) {
+        console.log(`[browser] Using requested Chrome build ${requested}`);
+        return requested;
+    }
+
+    try {
+        return await resolveBuildId(Browser.CHROME, platform, BrowserTag.STABLE);
+    } catch (error) {
+        console.log(`[browser] Could not resolve the latest stable Chrome: ${error.message}`);
+        console.log(`[browser] Falling back to pinned build ${FALLBACK_CHROME_BUILD}`);
+        return FALLBACK_CHROME_BUILD;
+    }
+}
+
 async function ensureChrome(cacheDir, platform) {
     const browsers = await getInstalledBrowsers({cacheDir});
     const chrome = browsers
@@ -55,8 +74,8 @@ async function ensureChrome(cacheDir, platform) {
         return chrome[chrome.length - 1];
     }
 
-    console.log(`[browser] Chrome for ${platform} is not cached, downloading stable...`);
-    const buildId = await resolveBuildId(Browser.CHROME, platform, BrowserTag.STABLE);
+    console.log(`[browser] Chrome for ${platform} is not cached, downloading...`);
+    const buildId = await stableBuildId(platform);
     let lastPercent = -1;
 
     return install({
