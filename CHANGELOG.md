@@ -4,6 +4,30 @@ All notable changes to this fork are documented here.
 
 ## [Unreleased]
 
+## [3.1.1] - 2026-10-26
+
+### Added
+- Native session-end notification for bot runs started from the tray menu. It shows the answer/correct counts (or the error) and opens the window when clicked; it is skipped when the window is already visible.
+- Offline and error modal in the desktop app. It detects `navigator.onLine`, lost connections and bot failures, and links to the site FAQ (`#faq`) and the README troubleshooting section.
+- macOS template tray icon drawn at runtime (16×16 plus a 32×32 representation) so the menu-bar glyph adapts to light and dark mode.
+- Autostart and tray behavior documentation in the README and directly in the settings panel.
+
+### Changed
+- Closing the window in tray mode now **destroys** the renderer instead of hiding it. The main process keeps the bot, reminder and update loops, and recreates the window with replayed logs on demand. Background footprint measured at roughly **50 MB** on a cold hidden start and stayed below 100 MB after opening and closing the window.
+- On macOS, tray mode switches the app to the `accessory` activation policy and hides the Dock icon; opening the window restores it. The menu-bar icon is the only entry point while closed.
+- Ko-fi support box moved above the login form so it is visible without scrolling.
+- README rewritten with section emojis and a clearer startup/autostart table.
+- Version bumped to 3.1.1 in `package.json`, `package-lock.json`, docs, app titlebar and release notes.
+
+### Fixed
+- The console log is preserved when the window is destroyed and reopened (main-process log buffer with sequence numbers, cleared together with the DOM).
+- Tray **Start** no longer opens the window; failures are reported through the tray notification.
+- `second-instance` now reopens a destroyed window instead of doing nothing.
+
+### Compatibility
+- No config or data migration needed; `Config.json`, `SavedWords.json` and `reminder-state.json` are unchanged.
+- Updates remain manual (download and run the new installer) because builds are unsigned.
+
 ## [3.1.0] - 2026-10-26
 
 ### Added

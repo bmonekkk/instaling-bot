@@ -39,6 +39,12 @@ const els = {
     updateVersion: $('update-version'),
     updateDownload: $('update-download'),
     updateDismiss: $('update-dismiss'),
+    errorModal: $('error-modal'),
+    errorModalTitle: $('error-modal-title'),
+    errorMessage: $('error-modal-message'),
+    errorFaq: $('error-modal-faq'),
+    errorReadme: $('error-modal-readme'),
+    errorClose: $('error-modal-close'),
     log: $('log'),
     autoscroll: $('autoscroll'),
     statusBadge: $('status-badge'),
@@ -65,6 +71,13 @@ let finishedAt = null;
 let elapsedTimer = null;
 let toastTimer = null;
 let busy = false;
+let lastLogSeq = 0;
+let lastErrorShown = '';
+let replayingLogs = false;
+let pendingLogs = [];
+
+const FAQ_URL = 'https://bmonekkk.github.io/instaling-bot/#faq';
+const README_FAQ_URL = 'https://github.com/bmonekkk/instaling-bot/blob/master/README.md#rozwiązywanie-problemów';
 
 function toNumber(input, fallback = 0) {
     const value = Number(input.value);
@@ -147,6 +160,17 @@ function showToast(message, isError = false) {
     }, isError ? 7000 : 3000);
 }
 
+function showErrorModal(title, message, kind = 'error') {
+    els.errorModalTitle.textContent = title;
+    els.errorMessage.textContent = message;
+    els.errorModal.dataset.kind = kind;
+    els.errorModal.hidden = false;
+}
+
+function openHelp(url) {
+    if (api) api.openExternal(url).catch(error => showToast(error.message || String(error), true));
+}
+
 function setBusy(next) {
     busy = next;
     updateButtons();
@@ -224,6 +248,25 @@ function applyBotState(bot) {
     els.phaseText.title = phaseLabel(bot);
     els.footerStatus.textContent = statusLabel(status);
 
+    if ((status === 'error' || (bot.lastError && !bot.running)) && bot.lastError && bot.lastError !== lastErrorShown) {
+        lastErrorShown = bot.lastError;
+        const offline = navigator.onLine === false
+            || /offline|internet|ENOTFOUND|ERR_NAME|ERR_INTERNET|net::/i.test(bot.lastError);
+        if (offline) {
+            showErrorModal(
+                'Brak połączenia z internetem 📡',
+                `Bot nie mógł połączyć się z instaling.pl.\n\nSzczegóły: ${bot.lastError}\n\nSprawdź sieć i spróbuj ponownie. Pomoc znajdziesz w FAQ.`,
+                'offline'
+            );
+        } else {
+            showErrorModal(
+                'Bot zatrzymał się z błędem ⚠️',
+                `${bot.lastError}\n\nZajrzyj do FAQ lub README — najczęstsze przyczyny to zmiana układu strony, brak Chrome albo odrzucone logowanie.`,
+                'error'
+            );
+        }
+    }
+
     startedAt = bot.startedAt ?? null;
     finishedAt = bot.finishedAt ?? null;
     scheduleElapsed();
@@ -240,12 +283,33 @@ async function loadState() {
         appState = state;
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v3.1.0';
+        const version = state.version ? `v${state.version}` : 'v3.1.1';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;
         els.footerPath.textContent = state.paths?.data ?? '—';
         els.footerPath.title = state.paths?.data ?? '';
+
+        const buffered = await api.getLogBuffer().catch(() => []);
+        lastLogSeq = 0;
+        replayingLogs = true;
+        for (const entry of Array.isArray(buffered) ? buffered : []) {
+            appendLog(entry?.line ?? '', '', entry?.seq ?? 0);
+        }
+        replayingLogs = false;
+        const queued = pendingLogs;
+        pendingLogs = [];
+        for (const entry of queued) {
+            appendLog(entry?.line ?? '', '', entry?.seq ?? 0);
+        }
+
+        if (navigator.onLine === false) {
+            showErrorModal(
+                'Brak połączenia z internetem 📡',
+                'Aplikacja nie widzi połączenia z siecią. Bot nie zaloguje się do instaling.pl, dopóki internet nie wróci.',
+                'offline'
+            );
+        }
     } catch (error) {
         showToast(error.message || String(error), true);
         appendLog(`[APP] Nie udało się wczytać ustawień: ${error.message || error}`, 'error');
@@ -301,8 +365,17 @@ async function saveSettings({silent = false} = {}) {
 
 async function startBot() {
     if (!api || busy) return;
+    if (navigator.onLine === false) {
+        showErrorModal(
+            'Brak połączenia z internetem 📡',
+            'Nie można rozpocząć sesji bez internetu. Sprawdź sieć, a potem naciśnij Start ponownie.',
+            'offline'
+        );
+        return;
+    }
     if (!validateCredentials()) return;
 
+    lastErrorShown = '';
     setBusy(true);
     clearLog();
     appendLog('[APP] Startowanie...', 'dim');
@@ -364,7 +437,11 @@ function timeString(date = new Date()) {
     return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
 }
 
-function appendLog(line, forcedClass = '') {
+function appendLog(line, forcedClass = '', seq = 0) {
+    if (seq) {
+        if (seq <= lastLogSeq) return;
+        lastLogSeq = seq;
+    }
     const clean = String(line ?? '').replace(/\u001b\[[0-9;]*m/g, '').replace(/\r/g, '');
     if (!clean.trim()) return;
 
@@ -424,7 +501,10 @@ function wireEvents() {
             showToast(error.message || String(error), true);
         }
     });
-    els.clearLog.addEventListener('click', clearLog);
+    els.clearLog.addEventListener('click', () => {
+        clearLog();
+        api?.clearLogBuffer().catch(() => {});
+    });
     els.footerPath.addEventListener('click', () => {
         if (api) api.openDataFolder().catch(error => showToast(error.message || String(error), true));
     });
@@ -444,6 +524,26 @@ function wireEvents() {
     });
     els.updateDismiss.addEventListener('click', () => {
         els.updateBanner.hidden = true;
+    });
+
+    els.errorClose.addEventListener('click', () => {
+        els.errorModal.hidden = true;
+    });
+    els.errorModal.addEventListener('click', event => {
+        if (event.target === els.errorModal) els.errorModal.hidden = true;
+    });
+    els.errorFaq.addEventListener('click', () => openHelp(FAQ_URL));
+    els.errorReadme.addEventListener('click', () => openHelp(README_FAQ_URL));
+    window.addEventListener('offline', () => {
+        showErrorModal(
+            'Brak połączenia z internetem 📡',
+            'Połączenie z siecią zostało utracone. Bot nie będzie mógł odpowiadać na słówka, dopóki internet nie wróci.',
+            'offline'
+        );
+    });
+    window.addEventListener('online', () => {
+        showToast('Połączenie z internetem wróciło.');
+        if (els.errorModal.dataset.kind === 'offline') els.errorModal.hidden = true;
     });
 
     els.winMinimize.addEventListener('click', () => api?.minimizeWindow());
@@ -469,12 +569,21 @@ function wireEvents() {
     });
 
     if (api) {
-        api.onLog(({line}) => appendLog(line));
+        api.onLog(({line, seq}) => {
+            if (replayingLogs) {
+                pendingLogs.push({line, seq});
+                return;
+            }
+            appendLog(line, '', seq);
+        });
         api.onStatus(state => {
             appState = state;
             applyBotState(state.bot);
         });
-        api.onClearLog(clearLog);
+        api.onClearLog(() => {
+            clearLog();
+            lastErrorShown = '';
+        });
         api.onMaximized(updateMaximizeButton);
         api.onUpdateAvailable(showUpdate);
         api.onReminder(() => showToast('Nie zapomnij o dzisiejszej sesji na InstaLing.'));

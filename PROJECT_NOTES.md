@@ -19,15 +19,15 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 
 | Thing | Location |
 |---|---|
-| Local repo | `E:\Files\OpenCode\instaling-bot` |
+| Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.1.0) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.1.1) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
-| Remote `origin` | upstream repo |
-| Remote `fork` | your fork |
+| Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
+| Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-3.1.0-setup.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-3.1.1-setup.exe` (gitignored) |
 
 ## Stack
 
@@ -152,7 +152,9 @@ npm run desktop
           ├─ ensureDataFiles()          copy defaults, merge new config keys
           ├─ registerIpc()              get-state, save-settings, start, stop, folders, window, updates
           ├─ createWindow()             frameless retro BrowserWindow + preload API
-          ├─ updateTray()               optional tray icon + context menu
+          ├─ updateTray()               tray icon + context menu (template glyph on macOS)
+          ├─ hideToTray()               destroy the renderer, keep the main process alive
+          ├─ setDockVisible()           switch macOS Dock icon on/off
           ├─ startReminderLoop()        check every 60 s, notify once per day
           ├─ startUpdateChecks()        GitHub release check on start + every 6 h
           └─ bot:start
@@ -169,9 +171,10 @@ IPC/event flow:
 
 - The engine calls `notify(event, payload)` → `process.send({type: 'bot-event', ...})`.
 - `desktop/main.js` turns `answer`, `answered`, `new-word`, `phase`, `error` and `finished` into counters/status, writes `logs/last-run.log`, and broadcasts `bot:status`.
-- Renderer receives `bot:log`, `bot:status`, `bot:clear-log`, `window:maximized`, `app:update-available` and `app:reminder`.
+- Renderer receives `bot:log`, `bot:status`, `bot:clear-log`, `window:maximized`, `app:update-available` and `app:reminder`. Log lines carry an increasing `seq`; the main process keeps the last 2000 in `logBuffer` and a recreated window replays them via `app:get-log-buffer`, so closing to tray does not lose the console.
 - Stop: renderer → `bot:stop` → `requestStop()` sends `{type: 'stop'}` to the child → `src/control.js` flag → engine saves words, closes Chrome and exits. A 15 s watchdog kills the child if it does not stop.
-- Closing the window while the bot runs triggers `before-quit`: request stop, wait up to 12 s, then kill the child. With `background.run_in_tray` the window is hidden instead of closed and `window-all-closed` keeps the app alive.
+- Closing the window while the bot runs triggers `before-quit`: request stop, wait up to 12 s, then kill the child. With `background.run_in_tray` the window is **destroyed** (not hidden) by `hideToTray()` and `window-all-closed` keeps the app alive; the tray icon recreates the window on demand. On macOS this also calls `app.setActivationPolicy('accessory')` + `app.dock.hide()`, and the window path restores the Dock icon.
+- Tray notifications: a bot run that finishes while no window is visible (for example started from the tray menu) shows a native notification with the answer/correct counts (or the error). Clicking it opens the window. The notification is skipped when the window is visible or when the same run was already announced.
 - Reminder: `src/reminder.js` owns `reminder-state.json`. `checkReminder()` compares `reminder.time` with local time, skips when `lastSession` or `lastNotified` is today, shows an OS notification plus `app:reminder`, then calls `markNotified()`. `markSessionDone()` runs when a bot process ends with code 0 and at least one answer (the CLI does the same in `handleStop()`).
 - Updates: `src/update.js` `checkLatestRelease()` calls the GitHub API. The result is exposed through `app:check-updates` / `app:update-status`; the renderer shows a banner whose **Pobierz** button opens `html_url`. Nothing is downloaded or installed automatically.
 
@@ -193,6 +196,11 @@ IPC/event flow:
 14. **Randomized errors** — `valid_chance` failure must stay an equal 1/3 split between blank, wrong saved word and misspelling (`src/mistakes.js`). `pickWrongTranslation()` must skip the correct answer and return `null` when there is no other word so the caller can fall back to a misspelling.
 15. **Reminder state** — never mark a reminder as sent before the notification is attempted, and never remind when `lastSession` is today. Desktop state lives in `userData`, the CLI uses the project root; both call the same helpers in `src/reminder.js`.
 16. **Updates stay manual** — installers are unsigned, so `src/update.js` only reports the latest release and its URL. Do not add silent download/install without also adding code signing and testing it on both platforms.
+17. **Destroy, don't hide, in tray mode** — `hideToTray()` destroys the BrowserWindow and nulls it so the renderer process exits (the shared GPU/network processes stay at idle). Do not replace it with `mainWindow.hide()`; that was the ~150 MB background footprint. The main process must keep the bot child, reminder loop and tray alive, and `showWindow()` must recreate the window and replay the log buffer.
+18. **Log replay after window recreation** — every log line gets a `seq`; the renderer ignores out-of-order/duplicate sequences. `clear log` clears both the DOM and the main-process buffer, otherwise old lines come back when the window reopens.
+19. **macOS tray glyph** — `templateTrayIcon()` paints `TRAY_GLYPH` into a 16×16/32×32 bitmap and calls `setTemplateImage(true)`. Do not go back to the coloured `build/icon.png` on macOS; a template image is what makes the icon readable in light and dark menu bars.
+20. **Dock visibility** — in tray mode macOS uses `setActivationPolicy('accessory')` + `dock.hide()`; showing the window restores `regular` + `dock.show()`. Keep both calls paired, otherwise the app either stays in the Dock or cannot get focus.
+21. **Isolated testing** — set `INSTALING_DESKTOP_DATA=/tmp/whatever` to redirect the whole Electron profile (config, cache, `reminder-state.json`) away from the real user data. Do not test by overriding `HOME`; Electron ignores it for `userData`.
 
 ## Config cheat sheet
 
@@ -227,7 +235,7 @@ IPC/event flow:
 - `type_min` / `type_max` are per character. `typo_chance` simulates a wrong key + Backspace and is verified afterwards.
 - `valid_chance` failures pick one of three errors with equal probability: blank, wrong saved translation (fallback: misspelling), misspelling.
 - `reminder.time` is local `HH:MM`; the desktop checks every minute while running, the CLI via `npm run remind`.
-- `background.*` only affects the desktop app (tray icon and OS login item).
+- `background.*` only affects the desktop app (tray icon and OS login item). Hidden startup requires **both** `run_in_tray` and `start_at_login`; autostart alone opens the window.
 - The canonical template is `config/Config.defaults.json`; there is no remote word database.
 - Desktop clamps GUI values (0–1 for chances, 0–10000 for `max_answers`) before writing the file.
 
@@ -270,9 +278,9 @@ Release checklist:
 2. Update `CHANGELOG.md`, `README.md`, `docs/index.html`, `PROJECT_NOTES.md`, `NOTICE`, and add `.github/RELEASE_NOTES_vX.Y.Z.md`.
 3. Run `npm ci`, `npm run check`, and a CLI `max_answers: 1` smoke test.
 4. Test the desktop Stop button and reset local test config to production defaults.
-5. Commit, push to `fork master`.
+5. Commit, push to `origin master`.
 6. Optionally trigger the workflow with `workflow_dispatch` and verify the artifacts.
-7. Push the tag (`git tag vX.Y.Z && git push fork vX.Y.Z`) and wait for the workflow.
+7. Push the tag (`git tag vX.Y.Z && git push origin vX.Y.Z`) and wait for the workflow.
 8. Open the draft release, verify `.exe` + both `.pkg` files, then publish.
 9. Check that GitHub Pages reflects the new version and the asset links resolve.
 
@@ -294,7 +302,7 @@ npx electron-builder --win nsis --publish never   # build without browser copy
 ```bash
 git add -A
 git commit -m "..."
-git push fork master
+git push origin master
 gh release create vX.Y.Z --repo bmonekkk/instaling-bot --target master \
   --title "instaling-bot vX.Y.Z" --notes-file .github/RELEASE_NOTES_vX.Y.Z.md
 ```
@@ -346,6 +354,16 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Update checking in both variants (`src/update.js`, `scripts/check-updates.js`) — notify only, never install.
 - Ko-fi support box and author footer in the app; faster default click pause (2000–4500 ms).
 
+## What changed in 3.1.1
+
+- macOS tray icon is generated as a monochrome template bitmap, so the menu bar renders it correctly in light and dark mode.
+- Closing to the tray destroys the renderer; on macOS the Dock icon is hidden (`accessory` activation policy) and the menu-bar icon is the only entry point.
+- A session started from the tray shows a native notification when it finishes (success or error); clicking it opens the app. No notification when the window is already visible.
+- Close-to-tray memory dropped from roughly 150 MB to ~50 MB at a cold hidden start (main ~34 MB + GPU ~10 MB + network ~7 MB); after opening and closing a window the measured total stayed below 100 MB (~84 MB).
+- Offline/error modal in the renderer: detects `navigator.onLine`, bot errors and connection failures, with buttons to the site FAQ (`#faq`) and the README troubleshooting section.
+- Ko-fi support box moved above the login form; macOS/autostart behavior documented in the app and README.
+- `INSTALING_DESKTOP_DATA` env var added for isolated testing of the Electron profile.
+
 ## Future ideas
 
 - Signed installers and real auto-update (`electron-updater`) once a certificate exists.
@@ -360,7 +378,7 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 
 Copy this into a new chat:
 
-> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.1.0).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.1.1).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
 > Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. Daily reminder and update checking are shared by desktop and CLI (`npm run remind`, `npm run update-check`).
 > Do not regress: cookie handling, `isVisible()` semantics, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state, manual-only updates.

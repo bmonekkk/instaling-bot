@@ -1,21 +1,21 @@
-# instaling-bot
+# instaling-bot 🤖
 
 Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) — teraz także jako **aplikacja desktopowa dla Windows i macOS**.
 
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 
-Aktualna wersja (**3.1.0**) łączy trzy rzeczy:
+Aktualna wersja (**3.1.1**) łączy trzy rzeczy:
 
 - aplikację desktopową z GUI, logiem na żywo i wbudowaną przeglądarką Chrome,
 - nadal w pełni działającą wersję CLI (`npm start`) dla Linuksa i terminala,
 - humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-W 3.1.0 doszły też: przypomnienie o codziennej sesji (desktop i CLI), opcjonalna praca w zasobniku systemowym, uruchamianie przy logowaniu oraz sprawdzanie nowych wydań na GitHubie.
+W 3.1.1 doszły też: natywna ikona w menu bar macOS (monochromatyczna, dopasowana do motywu), ukrywanie aplikacji z Docka w trybie zasobnika, powiadomienie o zakończeniu sesji uruchomionej z ikony, okno pomocy przy błędzie lub braku internetu oraz dużo lżejsza praca w tle (okno jest niszczone po zamknięciu).
 
 Open source, licencja ISC.
 
-## Wesprzyj rozwój projektu
+## 💛 Wesprzyj rozwój projektu
 
 Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli uważasz go za przydatny i chcesz wesprzeć mój czas poświęcony na rozwój, testowanie i utrzymanie kodu, możesz postawić mi wirtualną kawę.
 
@@ -23,7 +23,7 @@ Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli
 
 Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projektu. Projekt nie jest oficjalnie powiązany z InstaLing. Wpłaty nie gwarantują konkretnych funkcji ani terminów aktualizacji.
 
-## Dwie wersje, jeden silnik
+## ✨ Dwie wersje, jeden silnik
 
 | | Desktop | CLI |
 |---|---|---|
@@ -38,13 +38,13 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 
 Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i formatu `SavedWords.json`.
 
-## Desktop: Windows i macOS
+## 🖥️ Desktop: Windows i macOS
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.1.0-setup.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.1.0-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.1.0-x64.pkg`
+- **Windows:** `instaling-bot-3.1.1-setup.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.1.1-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.1.1-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -64,6 +64,23 @@ W ustawieniach włącz **Przypominaj o codziennej sesji** i wybierz godzinę (do
 
 Opcjonalnie możesz włączyć **Działaj w zasobniku po zamknięciu okna** (okno chowa się zamiast zamykać) oraz **Uruchamiaj przy logowaniu systemu**. Bez tych opcji aplikacja musi być po prostu otwarta.
 
+### 🚀 Autostart i praca w tle
+
+Oba przełączniki są w **Ustawienia → Przypomnienia i praca w tle**:
+
+| Autostart | Tryb zasobnika | Co się dzieje po logowaniu |
+|---|---|---|
+| ✅ | ❌ | Otwiera się normalne okno aplikacji |
+| ✅ | ✅ | Brak okna — tylko ikona w zasobniku (Windows) / menu bar (macOS) |
+| ❌ | ✅ | Normalne okno przy ręcznym starcie; zamknięcie chowa do zasobnika |
+
+- Autostart działa w zainstalowanej aplikacji (nie w trybie deweloperskim) i jest **domyślnie wyłączony**.
+- Aby aplikacja startowała po cichu, włącz **oba** przełączniki. Sam autostart otworzy okno.
+- Na macOS tryb zasobnika chowa ikonę z Docka i przełącza aplikację w tryb akcesoriów — zostaje tylko ikona w menu bar, która dopasowuje się do jasnego/ciemnego motywu.
+- Po zamknięciu okna w trybie zasobnika aplikacja niszczy okno (a nie tylko je ukrywa), żeby w tle zużywać mniej RAM. Interfejs odtworzy się po kliknięciu ikony.
+- Sesję możesz uruchomić z menu ikony (**Start**). Gdy się skończy, dostaniesz powiadomienie systemowe z liczbą odpowiedzi — okno nie musi być otwarte.
+- Ikona w zasobniku daje też **Stop**, **Pokaż okno** i **Zakończ**.
+
 ### Aktualizacje
 
 Aplikacja sprawdza [najnowsze wydanie na GitHubie](https://github.com/bmonekkk/instaling-bot/releases/latest) przy starcie i co kilka godzin. Gdy pojawi się nowsza wersja, u góry okna wyświetli się banner z przyciskiem **Pobierz**, który otwiera stronę wydania. Instalatory są niepodpisane, więc aktualizacja polega na pobraniu i uruchomieniu nowego instalatora — aplikacja nie pobiera ani nie instaluje niczego samodzielnie. Sprawdzenie można też wywołać ręcznie przyciskiem **Sprawdź aktualizacje** w konsoli.
@@ -76,6 +93,10 @@ Na razie nie ma certyfikatu code signing, więc system może ostrzec przy pierws
 - **macOS:** kliknij instalator prawym przyciskiem → **Open**, albo zatwierdź aplikację w **System Settings → Privacy & Security**.
 
 To normalne dla niepodpisanych buildów. Późniejsze wersje mogą dostać podpis, jeśli pojawi się certyfikat.
+
+### 📡 Offline i błędy
+
+Gdy aplikacja nie widzi internetu, pokazuje okno z wyjaśnieniem i dwoma skrótami: **FAQ na stronie** oraz **README**. To samo okno pojawia się przy błędzie bota (np. zmiana układu strony, odrzucone logowanie) — z linkiem do sekcji pomocy, żeby nie trzeba było szukać jej ręcznie.
 
 ### Gdzie aplikacja trzyma dane?
 
@@ -96,7 +117,7 @@ logs/last-run.log         pełny log ostatniego uruchomienia
 
 Pliki można edytować także ręcznie — aplikacja używa tego samego formatu co CLI.
 
-## CLI: Linux i terminal
+## ⌨️ CLI: Linux i terminal
 
 Wersja CLI pozostaje wspierana tak długo, jak istnieje wersja desktopowa. To zalecany wariant dla Linuksa i wszystkich osób, które wolą terminal.
 
@@ -161,7 +182,7 @@ Jeśli Puppeteer nie pobrał przeglądarki podczas instalacji:
 npx puppeteer browsers install chrome
 ```
 
-## Jak działa bot
+## ⚙️ Jak działa bot
 
 - Loguje się na instaling.pl danymi z konfiguracji.
 - Automatycznie zamyka okno zgody Google (cookies), które zasłania formularz logowania.
@@ -172,7 +193,7 @@ npx puppeteer browsers install chrome
 - Zapisuje nowo poznane tłumaczenia w `SavedWords.json`.
 - Sam zamyka Chrome i zapisuje słówka po zakończeniu.
 
-## Humanizacja pisania
+## 🧠 Humanizacja pisania
 
 - Każda litera ma osobne, losowe opóźnienie (`delays.type_min` / `type_max`).
 - Bot robi czasem krótką pauzę w trakcie pisania (`type_pause_chance`, `type_pause_min`, `type_pause_max`).
@@ -181,7 +202,7 @@ npx puppeteer browsers install chrome
 - Kliknięcia nawigacyjne (kontynuuj sesję, rozpocznij) mają krótkie pauzy (`quick_click_min` / `quick_click_max`).
 - Logowanie to wyjątek: dane są wpisywane szybko i dokładnie, a odrzucony formularz jest ponawiany tylko raz.
 
-## Konfiguracja
+## 🛠️ Konfiguracja
 
 Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.json). Desktop pokazuje najważniejsze z nich w GUI, ale pełny plik można edytować ręcznie.
 
@@ -215,14 +236,16 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 
 Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 
-## Rozwiązywanie problemów
+## 🆘 Rozwiązywanie problemów
 
 ### Desktop
 
+- **📡 Brak internetu** — aplikacja pokaże okno z linkiem do FAQ. Sprawdź sieć i naciśnij **Start** ponownie.
 - **Brak przeglądarki Chrome w instalatorze** — zainstaluj aplikację ponownie z oficjalnego wydania.
 - **Bot nie przechodzi logowania** — sprawdź login i hasło w aplikacji. Bot wpisuje dane dokładnie i ponawia próbę raz, jeśli strona chwilowo odrzuci formularz.
 - **Chcę zobaczyć, co robi bot** — włącz **Pokaż okno Chrome** i **Logi debug**, a potem zajrzyj do `pages/` i `screenshots/` w folderze danych.
 - **Antywirus / SmartScreen ostrzega** — instalatory są niepodpisane; to oczekiwane. Kod źródłowy jest publiczny.
+- **Za dużo RAM w tle** — włącz tryb zasobnika; zamknięcie okna zwalnia proces renderowania i zostaje lekki proces główny z ikoną.
 
 ### CLI
 
@@ -231,7 +254,7 @@ Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 - **Brak Chrome** — uruchom `npx puppeteer browsers install chrome`.
 - Po każdej próbie bot zapisuje zrzuty strony w `pages/` i `screenshots/`.
 
-## Budowanie ze źródeł
+## 🧱 Budowanie ze źródeł
 
 ```bash
 npm install
@@ -244,6 +267,15 @@ npm run dist:mac         # macOS .pkg (tylko na macOS)
 Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm run prepare:browser`, które kopiuje Chrome for Testing do `resources/browser/` i tworzy manifest.
 
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
+
+## 📦 Zmiany w wersji 3.1.1
+
+- **Lżejszy tryb zasobnika.** Zamknięcie okna niszczy renderer, a nie tylko go ukrywa — w tle zostaje około **50 MB** przy starcie do zasobnika i poniżej 100 MB po otwarciu i zamknięciu okna. Okno i logi wracają po kliknięciu ikony.
+- **Natywny menu bar macOS.** Monochromatyczna ikona dopasowuje się do motywu; po zamknięciu okna aplikacja znika z Docka i działa tylko z menu bar.
+- **Powiadomienie o końcu sesji** uruchomionej z ikony (na każdym systemie), z liczbą odpowiedzi lub treścią błędu. Kliknięcie otwiera aplikację.
+- **Okno pomocy** przy braku internetu i błędzie bota, z linkami do FAQ i README.
+- **Ko-fi nad formularzem logowania**, żeby wsparcie było widoczne od razu.
+- **Dokumentacja autostartu** w README i w ustawieniach aplikacji — po cichy start wymaga obu przełączników.
 
 ## Zmiany w wersji 3.1.0
 

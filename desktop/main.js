@@ -17,6 +17,12 @@ const {
 const APP_ID = 'com.bmoneczek.instalingbot';
 const IS_DEV = !app.isPackaged;
 
+// Testing/portable hook: point the whole Electron profile (config, cache, logs)
+// at another directory before Chromium starts.
+if (process.env.INSTALING_DESKTOP_DATA) {
+    app.setPath('userData', path.resolve(process.env.INSTALING_DESKTOP_DATA));
+}
+
 app.setAppUserModelId(APP_ID);
 
 let mainWindow = null;
@@ -30,6 +36,31 @@ let configCache = null;
 let reminderTimer = null;
 let updateTimer = null;
 let updateInfo = null;
+let logBuffer = [];
+let logSeq = 0;
+let lastNotifiedRun = null;
+
+// The tray renders this pixel glyph as a template image on macOS so the menu bar
+// can recolour it for light/dark mode. Other platforms keep the coloured icon.
+const TRAY_GLYPH = [
+    '................',
+    '.......##.......',
+    '.......##.......',
+    '....########....',
+    '...##########...',
+    '..############..',
+    '..###..##..###..',
+    '..###..##..###..',
+    '..############..',
+    '..############..',
+    '..####.##.####..',
+    '...##########...',
+    '....########....',
+    '....##.##.##....',
+    '...#...##...#...',
+    '................'
+];
+const LOG_BUFFER_LIMIT = 2000;
 
 let DATA_DIR = '';
 let CONFIG_DIR = '';
@@ -294,7 +325,17 @@ function appendLog(line) {
     if (logStream) {
         logStream.write(line + '\n');
     }
-    send('bot:log', {line});
+    logSeq += 1;
+    logBuffer.push({seq: logSeq, line});
+    if (logBuffer.length > LOG_BUFFER_LIMIT) {
+        logBuffer.splice(0, logBuffer.length - LOG_BUFFER_LIMIT);
+    }
+    send('bot:log', {line, seq: logSeq});
+}
+
+function resetLogBuffer() {
+    logBuffer = [];
+    send('bot:clear-log');
 }
 
 function closeLogStream() {
@@ -398,7 +439,7 @@ async function startBot() {
     botState.startedAt = Date.now();
 
     startLogFile();
-    send('bot:clear-log');
+    resetLogBuffer();
     broadcastState();
     appendLog(`[APP] Uruchamianie bota ${app.getVersion()}...`);
     if (browser.executable) {
@@ -470,6 +511,7 @@ async function startBot() {
         appendLog(`[APP] Bot zakończył pracę (kod ${code ?? 'brak'}).`);
         closeLogStream();
         broadcastState();
+        notifySessionFinished();
     });
 
     return {ok: true};
@@ -514,12 +556,56 @@ function requestStop() {
 }
 
 function trayIcon() {
+    if (process.platform === 'darwin') {
+        return templateTrayIcon();
+    }
     const iconPath = path.join(app.getAppPath(), 'build', 'icon.png');
     const image = nativeImage.createFromPath(iconPath);
     return image.isEmpty() ? image : image.resize({width: 16, height: 16});
 }
 
+function bitmapFromGlyph(size) {
+    const buffer = Buffer.alloc(size * size * 4);
+    const scale = size / 16;
+    for (let y = 0; y < size; y++) {
+        const row = TRAY_GLYPH[Math.min(15, Math.floor(y / scale))] ?? '';
+        for (let x = 0; x < size; x++) {
+            const on = row[Math.min(15, Math.floor(x / scale))] === '#';
+            if (!on) continue;
+            buffer[(y * size + x) * 4 + 3] = 255;
+        }
+    }
+    return buffer;
+}
+
+function templateTrayIcon() {
+    const image = nativeImage.createFromBitmap(bitmapFromGlyph(16), {width: 16, height: 16});
+    image.addRepresentation({
+        scaleFactor: 2,
+        width: 32,
+        height: 32,
+        buffer: bitmapFromGlyph(32)
+    });
+    image.setTemplateImage(true);
+    return image;
+}
+
+function setDockVisible(visible) {
+    if (process.platform !== 'darwin' || !app.dock) return;
+    try {
+        app.setActivationPolicy(visible ? 'regular' : 'accessory');
+        if (visible) {
+            app.dock.show();
+        } else {
+            app.dock.hide();
+        }
+    } catch (error) {
+        console.error('Could not update dock visibility:', error);
+    }
+}
+
 function showWindow() {
+    setDockVisible(true);
     if (!mainWindow) {
         createWindow(true);
         return;
@@ -527,6 +613,43 @@ function showWindow() {
     if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.show();
     mainWindow.focus();
+}
+
+/**
+ * Closing the window in tray mode destroys the renderer instead of keeping it
+ * hidden. The main process keeps the reminder/update loops and the bot child
+ * alive, which keeps background memory well below a full browser window.
+ */
+function hideToTray() {
+    if (mainWindow) {
+        mainWindow.destroy();
+        mainWindow = null;
+    }
+    setDockVisible(false);
+}
+
+function notifySessionFinished() {
+    if (!Notification.isSupported() || lastNotifiedRun === botState.finishedAt) return;
+    if (mainWindow && mainWindow.isVisible()) return;
+    lastNotifiedRun = botState.finishedAt;
+
+    const failed = botState.status === 'error';
+    const body = failed
+        ? `Sesja zakończona błędem: ${botState.lastError ?? 'nieznany błąd'}`
+        : `Sesja zakończona. Odpowiedzi: ${botState.answers}, poprawne: ${botState.correct}.`;
+    notifyTrayMessage(body);
+}
+
+function notifyTrayMessage(body) {
+    if (!Notification.isSupported()) return;
+    const notification = new Notification({title: 'instaling-bot', body});
+    notification.on('click', showWindow);
+    notification.show();
+}
+
+function notifyTrayError(message) {
+    if (mainWindow && mainWindow.isVisible()) return;
+    notifyTrayMessage(`Nie udało się uruchomić sesji: ${message}`);
 }
 
 function updateTray() {
@@ -548,8 +671,10 @@ function updateTray() {
         {
             label: 'Start',
             click: () => {
-                showWindow();
-                startBot().catch(error => appendLog(`[APP] ${error.message}`));
+                startBot().catch(error => {
+                    appendLog(`[APP] ${error.message}`);
+                    notifyTrayError(error.message);
+                });
             }
         },
         {label: 'Stop', click: () => requestStop()},
@@ -670,7 +795,7 @@ function createWindow(show = true) {
     mainWindow.on('close', event => {
         if (!isQuitting && configCache?.background?.run_in_tray) {
             event.preventDefault();
-            mainWindow.hide();
+            setImmediate(hideToTray);
         }
     });
     mainWindow.on('closed', () => {
@@ -692,6 +817,17 @@ function registerIpc() {
             ...publicState(),
             config: configForRenderer(config)
         };
+    });
+
+    ipcMain.handle('app:get-log-buffer', async event => {
+        assertSender(event);
+        return logBuffer;
+    });
+
+    ipcMain.handle('app:clear-log-buffer', async event => {
+        assertSender(event);
+        logBuffer = [];
+        return true;
     });
 
     ipcMain.handle('app:check-updates', async event => {
@@ -777,9 +913,7 @@ if (!gotLock) {
     app.quit();
 } else {
     app.on('second-instance', () => {
-        if (!mainWindow) return;
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.focus();
+        showWindow();
     });
 
     app.whenReady().then(async () => {
@@ -793,11 +927,15 @@ if (!gotLock) {
         const openedHidden = app.getLoginItemSettings().wasOpenedAsHidden
             || process.argv.includes('--hidden');
         const startHidden = Boolean(configCache.background?.run_in_tray) && openedHidden;
-        createWindow(!startHidden);
+        if (startHidden) {
+            setDockVisible(false);
+        } else {
+            createWindow(true);
+        }
         startReminderLoop();
         startUpdateChecks();
 
-        if (IS_DEV && process.env.INSTALING_DEVTOOLS === '1') {
+        if (IS_DEV && process.env.INSTALING_DEVTOOLS === '1' && mainWindow) {
             mainWindow.webContents.openDevTools({mode: 'detach'});
         }
     }).catch(error => {
@@ -810,6 +948,12 @@ app.on('window-all-closed', () => {
     if (!configCache?.background?.run_in_tray) {
         app.quit();
     }
+});
+
+// macOS Dock icon (only when the window is normally visible). Hidden startup
+// and tray mode never create a window here, so the menu-bar icon stays in charge.
+app.on('activate', () => {
+    if (mainWindow) showWindow();
 });
 
 app.on('before-quit', event => {
