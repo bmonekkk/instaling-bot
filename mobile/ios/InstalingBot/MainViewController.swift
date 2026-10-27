@@ -20,6 +20,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private var updateButton: UIButton!
 
     private var language = "pl"
+    /// A secret shared with the injected engine so only it can drive the bridge.
+    private let bridgeToken = UUID().uuidString
     private var pageReady = false
     private var pendingStart = false
     private var lastStatus = "idle"
@@ -49,7 +51,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        language = UserDefaults.standard.string(forKey: "language") ?? "pl"
+        language = UserDefaults.standard.string(forKey: "language") == "en" ? "en" : "pl"
         buildUI()
         configureWebView()
         refreshLanguage()
@@ -192,7 +194,10 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                 language: '\(escapedLanguage)',
                 onEvent: function (event) {
                     try {
-                        window.webkit.messageHandlers.instalingBot.postMessage(JSON.stringify(event));
+                        window.webkit.messageHandlers.instalingBot.postMessage({
+                            token: '\(bridgeToken)',
+                            event: JSON.stringify(event)
+                        });
                     } catch (error) {}
                 }
             });
@@ -232,7 +237,9 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     ) {
         guard message.name == "instalingBot",
               let pageURL = webView.url, Self.isBotURL(pageURL),
-              let body = message.body as? String,
+              let payload = message.body as? [String: Any],
+              let token = payload["token"] as? String, token == bridgeToken,
+              let body = payload["event"] as? String,
               let data = body.data(using: .utf8),
               let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else { return }

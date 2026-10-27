@@ -60,6 +60,7 @@ public class MainActivity extends Activity {
     private boolean pendingStart = false;
     private boolean pageReady = false;
     private String language = "pl";
+    private volatile String bridgeToken = "";
     private String lastStatus = "idle";
     private int answers = 0;
     private int correct = 0;
@@ -333,14 +334,18 @@ public class MainActivity extends Activity {
             showStatus(label(7));
             return;
         }
+        // A fresh secret per injection: only the engine created here can drive the
+        // bridge, so an ad iframe that reaches postEvent cannot fake UI events.
+        bridgeToken = java.util.UUID.randomUUID().toString();
         String boot = "(function(){"
                 + "if(!window.InstalingBot){return;}"
                 + "var host=location.hostname.toLowerCase();"
                 + "if(host!=='instaling.pl'&&host.slice(-13)!=='.instaling.pl'){return;}"
                 + "if(window.__instalingBotEngine){window.__instalingBotEngine.resume();return;}"
+                + "var token='" + bridgeToken + "';"
                 + "window.__instalingBotEngine=InstalingBot.create({"
                 + "language:'" + ("en".equals(language) ? "en" : "pl") + "',"
-                + "onEvent:function(e){try{InstalingBotNative.postEvent(JSON.stringify(e));}catch(err){}}"
+                + "onEvent:function(e){try{InstalingBotNative.postEvent(token,JSON.stringify(e));}catch(err){}}"
                 + "});"
                 + (pendingStart ? "window.__instalingBotEngine.start();" : "window.__instalingBotEngine.resume();")
                 + "})();";
@@ -398,7 +403,8 @@ public class MainActivity extends Activity {
 
     private class NativeBridge {
         @JavascriptInterface
-        public void postEvent(String json) {
+        public void postEvent(String token, String json) {
+            if (token == null || !token.equals(bridgeToken)) return;
             runOnUiThread(() -> handleEvent(json));
         }
     }
