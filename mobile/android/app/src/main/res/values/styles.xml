@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="android:Theme.Material.NoActionBar">
-        <item name="android:statusBarColor">#111827</item>
-        <item name="android:navigationBarColor">#111827</item>
-        <item name="android:windowBackground">#111827</item>
-        <item name="android:colorAccent">#22c55e</item>
+    <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#c0c0c0</item>
+        <item name="android:navigationBarColor">#c0c0c0</item>
+        <item name="android:windowBackground">#c0c0c0</item>
+        <item name="android:colorAccent">#000080</item>
+        <item name="android:colorPrimary">#000080</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Classic gray dialog so the settings sheet matches the window chrome. -->
+    <style name="ClassicDialog" parent="android:Theme.Material.Light.Dialog.Alert">
+        <item name="android:windowBackground">#c0c0c0</item>
+        <item name="android:colorAccent">#000080</item>
+        <item name="android:textColorPrimary">#000000</item>
+        <item name="android:textColorSecondary">#4a4a4a</item>
     </style>
 </resources>

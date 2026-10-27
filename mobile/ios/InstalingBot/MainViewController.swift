@@ -22,12 +22,12 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private var statusLabel: UILabel!
     private var countsLabel: UILabel!
     private var statsLabel: UILabel!
-    private var startButton: UIButton!
-    private var stopButton: UIButton!
-    private var languageButton: UIButton!
-    private var reminderButton: UIButton!
-    private var settingsButton: UIButton!
-    private var updateButton: UIButton!
+    private var startButton: ClassicButton!
+    private var stopButton: ClassicButton!
+    private var languageButton: ClassicButton!
+    private var reminderButton: ClassicButton!
+    private var settingsButton: ClassicButton!
+    private var updateButton: ClassicButton!
 
     private var language = "pl"
     /// A secret shared with the injected engine so only it can drive the bridge.
@@ -82,85 +82,99 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         checkForUpdate()
     }
 
+    // The chrome is a light gray title bar, so keep the status bar text dark
+    // even when the device is in dark mode.
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .darkContent
+    }
+
     // MARK: - UI
 
     private func buildUI() {
-        view.backgroundColor = UIColor(red: 0.067, green: 0.094, blue: 0.153, alpha: 1)
+        view.backgroundColor = ClassicPalette.window
 
-        let toolbar = UIStackView()
-        toolbar.axis = .horizontal
-        toolbar.alignment = .center
-        toolbar.spacing = 6
-        toolbar.backgroundColor = UIColor(red: 0.122, green: 0.161, blue: 0.216, alpha: 1)
-        toolbar.isLayoutMarginsRelativeArrangement = true
-        toolbar.layoutMargins = UIEdgeInsets(top: 8, left: 10, bottom: 8, right: 10)
-        toolbar.distribution = .fillEqually
+        // Navy title bar with the wordmark and small beveled controls, matching
+        // the desktop window chrome.
+        let titleBar = GradientBar(frame: .zero)
+        titleBar.translatesAutoresizingMaskIntoConstraints = false
 
         let title = UILabel()
         title.text = "instaling-bot"
-        title.textColor = UIColor(red: 0.42, green: 0.45, blue: 0.5, alpha: 1)
-        title.font = .boldSystemFont(ofSize: 11)
-        title.setContentHuggingPriority(.required, for: .horizontal)
-        title.setContentCompressionResistancePriority(.required, for: .horizontal)
+        title.textColor = .white
+        title.font = .boldSystemFont(ofSize: 13)
+        title.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        title.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
-        languageButton = makeButton("PL", background: UIColor(red: 0.216, green: 0.255, blue: 0.318, alpha: 1))
+        languageButton = makeButton("PL", background: ClassicPalette.window, foreground: .black)
         languageButton.addTarget(self, action: #selector(toggleLanguage), for: .touchUpInside)
-        toolbar.addArrangedSubview(languageButton)
 
-        reminderButton = makeButton("⏰", background: UIColor(red: 0.216, green: 0.255, blue: 0.318, alpha: 1))
+        reminderButton = makeButton("⏰", background: ClassicPalette.window, foreground: .black)
         reminderButton.addTarget(self, action: #selector(toggleReminder), for: .touchUpInside)
-        toolbar.addArrangedSubview(reminderButton)
 
-        settingsButton = makeButton("⚙", background: UIColor(red: 0.216, green: 0.255, blue: 0.318, alpha: 1))
+        settingsButton = makeButton("⚙", background: ClassicPalette.window, foreground: .black)
         settingsButton.accessibilityLabel = label(10)
         settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
-        toolbar.addArrangedSubview(settingsButton)
 
-        startButton = makeButton(label(0), background: UIColor(red: 0.133, green: 0.773, blue: 0.369, alpha: 1), foreground: .black)
+        let titleRow = UIStackView(arrangedSubviews: [title, languageButton, reminderButton, settingsButton])
+        titleRow.axis = .horizontal
+        titleRow.alignment = .center
+        titleRow.spacing = 4
+        titleRow.translatesAutoresizingMaskIntoConstraints = false
+        titleBar.addSubview(titleRow)
+
+        NSLayoutConstraint.activate([
+            titleRow.leadingAnchor.constraint(equalTo: titleBar.leadingAnchor, constant: 8),
+            titleRow.trailingAnchor.constraint(equalTo: titleBar.trailingAnchor, constant: -6),
+            titleRow.topAnchor.constraint(equalTo: titleBar.topAnchor, constant: 4),
+            titleRow.bottomAnchor.constraint(equalTo: titleBar.bottomAnchor, constant: -4)
+        ])
+
+        // Primary actions on the gray body, like the desktop panel.
+        startButton = makeButton(label(0), background: ClassicPalette.title1, foreground: .white)
         startButton.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
-        toolbar.addArrangedSubview(startButton)
 
-        stopButton = makeButton(label(1), background: UIColor(red: 0.937, green: 0.267, blue: 0.267, alpha: 1))
+        stopButton = makeButton(label(1), background: ClassicPalette.red, foreground: .white)
         stopButton.isEnabled = false
         stopButton.addTarget(self, action: #selector(stopTapped), for: .touchUpInside)
-        toolbar.addArrangedSubview(stopButton)
+
+        let actionRow = UIStackView(arrangedSubviews: [startButton, stopButton])
+        actionRow.axis = .horizontal
+        actionRow.spacing = 6
+        actionRow.distribution = .fillEqually
+        actionRow.isLayoutMarginsRelativeArrangement = true
+        actionRow.layoutMargins = UIEdgeInsets(top: 6, left: 8, bottom: 4, right: 8)
+        actionRow.backgroundColor = ClassicPalette.window
 
         let statusBar = UIStackView()
         statusBar.axis = .vertical
         statusBar.spacing = 2
         statusBar.isLayoutMarginsRelativeArrangement = true
-        statusBar.layoutMargins = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
-        // Opaque status surface: no transparency that could make text unreadable
-        // over the dark navy window during load.
-        statusBar.backgroundColor = view.backgroundColor
+        statusBar.layoutMargins = UIEdgeInsets(top: 2, left: 10, bottom: 6, right: 10)
+        statusBar.backgroundColor = ClassicPalette.window
 
         statusLabel = UILabel()
         statusLabel.text = statusText("idle")
-        statusLabel.textColor = UIColor(red: 0.576, green: 0.773, blue: 0.992, alpha: 1)
+        statusLabel.textColor = ClassicPalette.ink
         statusLabel.font = .boldSystemFont(ofSize: 14)
-
-        let statusRow = UIStackView(arrangedSubviews: [title, statusLabel])
-        statusRow.axis = .horizontal
-        statusRow.alignment = .center
-        statusRow.spacing = 8
-        statusBar.addArrangedSubview(statusRow)
 
         countsLabel = UILabel()
         countsLabel.text = "0 / 0"
-        countsLabel.textColor = UIColor(red: 0.82, green: 0.835, blue: 0.859, alpha: 1)
+        countsLabel.textColor = ClassicPalette.muted
         countsLabel.font = .systemFont(ofSize: 12)
-        statusBar.addArrangedSubview(countsLabel)
 
         statsLabel = UILabel()
-        statsLabel.textColor = UIColor(red: 0.61, green: 0.639, blue: 0.686, alpha: 1)
+        statsLabel.textColor = ClassicPalette.muted
         statsLabel.font = .systemFont(ofSize: 11)
         statsLabel.numberOfLines = 0
         statsLabel.isHidden = true
-        statusBar.addArrangedSubview(statsLabel)
 
-        updateButton = makeButton(label(9), background: UIColor(red: 0.114, green: 0.306, blue: 0.847, alpha: 1))
+        updateButton = makeButton(label(9), background: ClassicPalette.title1, foreground: .white)
         updateButton.isHidden = true
         updateButton.addTarget(self, action: #selector(openReleases), for: .touchUpInside)
+
+        statusBar.addArrangedSubview(statusLabel)
+        statusBar.addArrangedSubview(countsLabel)
+        statusBar.addArrangedSubview(statsLabel)
         statusBar.addArrangedSubview(updateButton)
 
         webView = WKWebView(frame: .zero, configuration: makeConfiguration())
@@ -168,11 +182,11 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         // Opaque, matching background: no transparent flash or dark navy bleed
         // through the page while it loads.
         webView.isOpaque = true
-        webView.backgroundColor = view.backgroundColor
-        webView.scrollView.backgroundColor = view.backgroundColor
+        webView.backgroundColor = ClassicPalette.window
+        webView.scrollView.backgroundColor = ClassicPalette.window
         webView.translatesAutoresizingMaskIntoConstraints = false
 
-        let root = UIStackView(arrangedSubviews: [toolbar, statusBar, webView])
+        let root = UIStackView(arrangedSubviews: [titleBar, actionRow, statusBar, webView])
         root.axis = .vertical
         root.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(root)
@@ -190,14 +204,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         _ text: String,
         background: UIColor,
         foreground: UIColor = .white
-    ) -> UIButton {
-        let button = UIButton(type: .system)
-        button.setTitle(text, for: .normal)
-        button.setTitleColor(foreground, for: .normal)
-        button.titleLabel?.font = .boldSystemFont(ofSize: 13)
-        button.backgroundColor = background
-        button.layer.cornerRadius = 8
-        button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 10, bottom: 8, right: 10)
+    ) -> ClassicButton {
+        let button = ClassicButton(title: text, fill: background, foreground: foreground)
         button.setContentHuggingPriority(.required, for: .horizontal)
         return button
     }
@@ -489,7 +497,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     /// desktop Advanced section, the reminder time and its repeat interval.
     @objc private func openSettings() {
         let controller = UIViewController()
-        controller.view.backgroundColor = UIColor(red: 0.067, green: 0.094, blue: 0.153, alpha: 1)
+        controller.view.backgroundColor = ClassicPalette.window
         controller.title = label(10)
 
         let scroll = UIScrollView()
@@ -504,7 +512,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
         let heading = UILabel()
         heading.text = label(10)
-        heading.textColor = .white
+        heading.textColor = ClassicPalette.ink
         heading.font = .boldSystemFont(ofSize: 18)
         stack.addArrangedSubview(heading)
 
@@ -535,6 +543,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         let timePicker = UIDatePicker()
         timePicker.datePickerMode = .time
         timePicker.preferredDatePickerStyle = .compact
+        timePicker.tintColor = ClassicPalette.title1
         var components = DateComponents()
         components.hour = reminderHour
         components.minute = reminderMinute
@@ -553,19 +562,11 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         buttons.spacing = 10
         buttons.distribution = .fillEqually
 
-        let cancel = UIButton(type: .system)
-        cancel.setTitle(label(15), for: .normal)
-        cancel.setTitleColor(.white, for: .normal)
-        cancel.backgroundColor = UIColor(red: 0.216, green: 0.255, blue: 0.318, alpha: 1)
-        cancel.layer.cornerRadius = 8
+        let cancel = ClassicButton(title: label(15), fill: ClassicPalette.window, foreground: .black)
         cancel.heightAnchor.constraint(equalToConstant: 44).isActive = true
         cancel.addAction(UIAction { _ in controller.dismiss(animated: true) }, for: .touchUpInside)
 
-        let save = UIButton(type: .system)
-        save.setTitle(label(14), for: .normal)
-        save.setTitleColor(.white, for: .normal)
-        save.backgroundColor = UIColor(red: 0.114, green: 0.306, blue: 0.847, alpha: 1)
-        save.layer.cornerRadius = 8
+        let save = ClassicButton(title: label(14), fill: ClassicPalette.title1, foreground: .white)
         save.heightAnchor.constraint(equalToConstant: 44).isActive = true
         save.addAction(UIAction { [weak self] _ in
             guard let self else { return }
@@ -619,9 +620,12 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         let field = UITextField()
         field.text = value
         field.keyboardType = .numberPad
-        field.textColor = .white
-        field.backgroundColor = UIColor(red: 0.122, green: 0.161, blue: 0.216, alpha: 1)
-        field.layer.cornerRadius = 8
+        field.textColor = ClassicPalette.ink
+        field.font = .systemFont(ofSize: 15)
+        field.backgroundColor = .white
+        field.layer.cornerRadius = 0
+        field.layer.borderWidth = 2
+        field.layer.borderColor = ClassicPalette.windowDarker.cgColor
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 1))
         field.leftViewMode = .always
         field.heightAnchor.constraint(equalToConstant: 44).isActive = true
@@ -631,15 +635,15 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private func makeFieldLabel(_ text: String) -> UILabel {
         let view = UILabel()
         view.text = text
-        view.textColor = UIColor(red: 0.82, green: 0.835, blue: 0.859, alpha: 1)
-        view.font = .systemFont(ofSize: 13)
+        view.textColor = ClassicPalette.ink
+        view.font = .boldSystemFont(ofSize: 13)
         return view
     }
 
     private func makeSectionLabel(_ text: String) -> UILabel {
         let view = UILabel()
         view.text = text
-        view.textColor = .white
+        view.textColor = ClassicPalette.title1
         view.font = .boldSystemFont(ofSize: 15)
         return view
     }
@@ -760,10 +764,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
     private func refreshReminderButton() {
         let enabled = UserDefaults.standard.bool(forKey: "reminder")
-        reminderButton.backgroundColor = enabled
-            ? UIColor(red: 0.059, green: 0.463, blue: 0.431, alpha: 1)
-            : UIColor(red: 0.216, green: 0.255, blue: 0.318, alpha: 1)
-        reminderButton.alpha = enabled ? 1 : 0.7
+        reminderButton.fillColor = enabled ? ClassicPalette.green : ClassicPalette.window
+        reminderButton.setTitleColor(enabled ? .white : .black, for: .normal)
     }
 
     // MARK: - Updates

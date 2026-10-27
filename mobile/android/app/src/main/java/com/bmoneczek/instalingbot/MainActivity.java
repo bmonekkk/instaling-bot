@@ -12,9 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,6 +61,18 @@ public class MainActivity extends Activity {
     private static final int NOTIFICATION_PERMISSION = 41;
     private static final int DEFAULT_REMINDER_HOUR = 17;
     private static final int DEFAULT_REMINDER_MINUTE = 0;
+
+    // Classic theme shared with the desktop window, website and userscript.
+    private static final int C_WINDOW = 0xFFC0C0C0;
+    private static final int C_WINDOW_LIGHT = 0xFFDFDFDF;
+    private static final int C_WINDOW_DARK = 0xFF808080;
+    private static final int C_WINDOW_DARKER = 0xFF404040;
+    private static final int C_TITLE_1 = 0xFF000080;
+    private static final int C_TITLE_2 = 0xFF1084D0;
+    private static final int C_INK = 0xFF000000;
+    private static final int C_MUTED = 0xFF4A4A4A;
+    private static final int C_GREEN = 0xFF006400;
+    private static final int C_RED = 0xFF800000;
 
     private WebView webView;
     private TextView statusView;
@@ -134,97 +150,96 @@ public class MainActivity extends Activity {
     }
 
     private void buildUi() {
-        int dark = Color.parseColor("#111827");
-        int bar = Color.parseColor("#1f2937");
-        int primary = Color.parseColor("#22c55e");
-        int danger = Color.parseColor("#ef4444");
-        int muted = Color.parseColor("#93c5fd");
-
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(dark);
+        GradientDrawable frame = new GradientDrawable();
+        frame.setColor(C_WINDOW);
+        frame.setStroke(dp(2), C_INK);
+        root.setBackground(frame);
 
-        LinearLayout toolbar = new LinearLayout(this);
-        toolbar.setOrientation(LinearLayout.HORIZONTAL);
-        toolbar.setGravity(Gravity.CENTER_VERTICAL);
-        toolbar.setBackgroundColor(bar);
-        toolbar.setPadding(dp(8), dp(6), dp(8), dp(6));
-
-        languageButton = smallButton(language.toUpperCase(), Color.parseColor("#374151"), Color.WHITE);
-        languageButton.setOnClickListener(view -> toggleLanguage());
-        toolbar.addView(languageButton);
-
-        reminderButton = smallButton("⏰", Color.parseColor("#374151"), Color.WHITE);
-        reminderButton.setOnClickListener(view -> toggleReminder());
-        toolbar.addView(reminderButton);
-
-        settingsButton = smallButton("⚙", Color.parseColor("#374151"), Color.WHITE);
-        settingsButton.setOnClickListener(view -> openSettings());
-        toolbar.addView(settingsButton);
-
-        startButton = smallButton(label(0), primary, Color.BLACK);
-        startButton.setOnClickListener(view -> requestStart());
-        toolbar.addView(startButton);
-
-        stopButton = smallButton(label(1), danger, Color.WHITE);
-        stopButton.setEnabled(false);
-        stopButton.setOnClickListener(view -> stopBot());
-        toolbar.addView(stopButton);
-
-        // The wordmark lives in the status bar, so the five controls can share
-        // the full toolbar width evenly on narrow phones.
-        for (int index = 0; index < toolbar.getChildCount(); index++) {
-            View child = toolbar.getChildAt(index);
-            child.setMinimumWidth(0);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-            params.setMargins(index == 0 ? 0 : dp(4), 0, 0, 0);
-            child.setLayoutParams(params);
-        }
-
-        root.addView(toolbar);
-
-        LinearLayout statusBar = new LinearLayout(this);
-        statusBar.setOrientation(LinearLayout.VERTICAL);
-        statusBar.setPadding(dp(12), dp(6), dp(12), dp(6));
-        statusBar.setBackgroundColor(dark);
-
-        LinearLayout statusRow = new LinearLayout(this);
-        statusRow.setOrientation(LinearLayout.HORIZONTAL);
-        statusRow.setGravity(Gravity.CENTER_VERTICAL);
+        // Classic navy title bar: wordmark on the left, small beveled controls
+        // on the right, exactly like the desktop window chrome.
+        LinearLayout titleBar = new LinearLayout(this);
+        titleBar.setOrientation(LinearLayout.HORIZONTAL);
+        titleBar.setGravity(Gravity.CENTER_VERTICAL);
+        titleBar.setPadding(dp(8), dp(5), dp(6), dp(5));
+        titleBar.setBackground(new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT, new int[]{C_TITLE_1, C_TITLE_2}));
 
         TextView title = new TextView(this);
         title.setText("instaling-bot");
-        title.setTextColor(Color.parseColor("#6b7280"));
-        title.setTextSize(11);
-        title.setTypeface(Typeface.DEFAULT_BOLD);
-        title.setPadding(0, 0, dp(8), 0);
-        statusRow.addView(title);
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(13);
+        title.setTypeface(classicTypeface(Typeface.BOLD));
+        title.setShadowLayer(1f, 1f, 1f, 0x59000000);
+        title.setPadding(0, 0, dp(6), 0);
+        title.setLayoutParams(new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        titleBar.addView(title);
+
+        languageButton = classicButton(language.toUpperCase(), C_WINDOW, C_INK);
+        languageButton.setOnClickListener(view -> toggleLanguage());
+        titleBar.addView(languageButton);
+
+        reminderButton = classicButton("\u23F0", C_WINDOW, C_INK);
+        reminderButton.setOnClickListener(view -> toggleReminder());
+        titleBar.addView(reminderButton);
+
+        settingsButton = classicButton("\u2699", C_WINDOW, C_INK);
+        settingsButton.setOnClickListener(view -> openSettings());
+        titleBar.addView(settingsButton);
+
+        root.addView(titleBar);
+
+        // Primary actions sit on the gray body, like the desktop panel.
+        LinearLayout actionBar = new LinearLayout(this);
+        actionBar.setOrientation(LinearLayout.HORIZONTAL);
+        actionBar.setPadding(dp(6), dp(6), dp(6), dp(4));
+
+        startButton = classicButton(label(0), C_TITLE_1, Color.WHITE);
+        startButton.setOnClickListener(view -> requestStart());
+        LinearLayout.LayoutParams startParams = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        startParams.setMargins(0, 0, dp(3), 0);
+        startButton.setLayoutParams(startParams);
+        actionBar.addView(startButton);
+
+        stopButton = classicButton(label(1), C_RED, Color.WHITE);
+        stopButton.setEnabled(false);
+        stopButton.setOnClickListener(view -> stopBot());
+        LinearLayout.LayoutParams stopParams = new LinearLayout.LayoutParams(
+                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        stopParams.setMargins(dp(3), 0, 0, 0);
+        stopButton.setLayoutParams(stopParams);
+        actionBar.addView(stopButton);
+
+        root.addView(actionBar);
+
+        LinearLayout statusBar = new LinearLayout(this);
+        statusBar.setOrientation(LinearLayout.VERTICAL);
+        statusBar.setPadding(dp(8), dp(2), dp(8), dp(6));
+        statusBar.setBackgroundColor(C_WINDOW);
 
         statusView = new TextView(this);
         statusView.setText(statusLabel("idle"));
-        statusView.setTextColor(muted);
+        statusView.setTextColor(C_INK);
         statusView.setTextSize(14);
-        statusView.setTypeface(Typeface.DEFAULT_BOLD);
-        statusView.setLayoutParams(new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-        statusRow.addView(statusView);
-
-        statusBar.addView(statusRow);
+        statusView.setTypeface(classicTypeface(Typeface.BOLD));
+        statusBar.addView(statusView);
 
         countsView = new TextView(this);
         countsView.setText("0 / 0");
-        countsView.setTextColor(Color.parseColor("#d1d5db"));
+        countsView.setTextColor(C_MUTED);
         countsView.setTextSize(12);
         statusBar.addView(countsView);
 
         statsView = new TextView(this);
-        statsView.setTextColor(Color.parseColor("#9ca3af"));
+        statsView.setTextColor(C_MUTED);
         statsView.setTextSize(11);
         statsView.setVisibility(View.GONE);
         statusBar.addView(statsView);
 
-        updateButton = smallButton(label(12), Color.parseColor("#1d4ed8"), Color.WHITE);
+        updateButton = classicButton(label(12), C_TITLE_1, Color.WHITE);
         updateButton.setVisibility(View.GONE);
         updateButton.setOnClickListener(view -> openUrl(RELEASES_URL));
         statusBar.addView(updateButton);
@@ -234,7 +249,7 @@ public class MainActivity extends Activity {
         webView = new WebView(this);
         webView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
-        webView.setBackgroundColor(dark);
+        webView.setBackgroundColor(C_WINDOW);
         root.addView(webView);
 
         setContentView(root);
@@ -256,20 +271,42 @@ public class MainActivity extends Activity {
         });
     }
 
-    private Button smallButton(String text, int background, int foreground) {
+    private Button classicButton(String text, int fill, int foreground) {
         Button button = new Button(this);
         button.setText(text);
         button.setTextSize(13);
-        button.setTextColor(foreground);
         button.setAllCaps(false);
-        button.setBackgroundColor(background);
-        button.setMinWidth(dp(48));
-        button.setMinHeight(dp(42));
+        button.setTypeface(classicTypeface(Typeface.BOLD));
+        button.setTextColor(new ColorStateList(
+                new int[][]{new int[]{-android.R.attr.state_enabled}, new int[]{}},
+                new int[]{C_WINDOW_DARK, foreground}));
+        button.setBackgroundTintList(null);
+        button.setBackground(bevel(fill));
+        button.setPadding(dp(8), dp(5), dp(8), dp(5));
+        button.setMinWidth(dp(32));
+        button.setMinHeight(dp(32));
+        button.setStateListAnimator(null);
+        button.setElevation(0f);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(dp(4), 0, 0, 0);
         button.setLayoutParams(params);
         return button;
+    }
+
+    /** Raised by default, sunken while pressed, gray while disabled. */
+    private Drawable bevel(int fill) {
+        StateListDrawable states = new StateListDrawable();
+        states.addState(new int[]{android.R.attr.state_pressed, android.R.attr.state_enabled},
+                new BevelDrawable(fill, false));
+        states.addState(new int[]{-android.R.attr.state_enabled},
+                new BevelDrawable(C_WINDOW, true));
+        states.addState(new int[]{}, new BevelDrawable(fill, true));
+        return states;
+    }
+
+    private Typeface classicTypeface(int style) {
+        return Typeface.create("Tahoma", style);
     }
 
     private int dp(int value) {
@@ -465,6 +502,8 @@ public class MainActivity extends Activity {
     private void openSettings() {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
+        content.setBackgroundColor(C_WINDOW);
+        content.setPadding(dp(16), dp(4), dp(16), dp(8));
 
         final EditText validity = numberField(Math.round(prefs.getFloat("valid_chance", 0.8f) * 100));
         content.addView(fieldLabel(label(14)));
@@ -491,9 +530,8 @@ public class MainActivity extends Activity {
         content.addView(pauseChance);
 
         final int[] time = {reminderHour(), reminderMinute()};
-        final Button timeButton = new Button(this);
-        timeButton.setAllCaps(false);
-        timeButton.setText(label(18) + ": " + formatTime(time[0], time[1]));
+        final Button timeButton = classicButton(
+                label(18) + ": " + formatTime(time[0], time[1]), C_WINDOW, C_INK);
         timeButton.setOnClickListener(view -> new TimePickerDialog(this,
                 (picker, hour, minute) -> {
                     time[0] = hour;
@@ -514,7 +552,7 @@ public class MainActivity extends Activity {
         ScrollView scroll = new ScrollView(this);
         scroll.addView(content);
 
-        new AlertDialog.Builder(this)
+        new AlertDialog.Builder(this, R.style.ClassicDialog)
                 .setTitle(label(13))
                 .setView(scroll)
                 .setPositiveButton(label(16), (dialog, which) -> saveSettings(
@@ -529,22 +567,33 @@ public class MainActivity extends Activity {
         field.setInputType(InputType.TYPE_CLASS_NUMBER);
         field.setText(String.valueOf(value));
         field.setSelectAllOnFocus(true);
+        field.setTextColor(C_INK);
+        field.setTextSize(13);
+        field.setTypeface(classicTypeface(Typeface.NORMAL));
+        GradientDrawable background = new GradientDrawable();
+        background.setColor(Color.WHITE);
+        background.setStroke(dp(2), C_WINDOW_DARKER);
+        field.setBackground(background);
+        field.setPadding(dp(6), dp(4), dp(6), dp(4));
         return field;
     }
 
     private TextView fieldLabel(String text) {
         TextView labelView = new TextView(this);
         labelView.setText(text);
-        labelView.setTextSize(13);
-        labelView.setPadding(0, dp(8), 0, 0);
+        labelView.setTextColor(C_INK);
+        labelView.setTextSize(12);
+        labelView.setTypeface(classicTypeface(Typeface.BOLD));
+        labelView.setPadding(0, dp(8), 0, dp(2));
         return labelView;
     }
 
     private TextView sectionLabel(String text) {
         TextView labelView = new TextView(this);
         labelView.setText(text);
-        labelView.setTextSize(13);
-        labelView.setTypeface(Typeface.DEFAULT_BOLD);
+        labelView.setTextColor(C_TITLE_1);
+        labelView.setTextSize(12);
+        labelView.setTypeface(classicTypeface(Typeface.BOLD));
         labelView.setPadding(0, dp(14), 0, dp(2));
         return labelView;
     }
@@ -750,7 +799,9 @@ public class MainActivity extends Activity {
 
     private void refreshReminderButton() {
         boolean enabled = prefs.getBoolean("reminder", false);
-        reminderButton.setBackgroundColor(Color.parseColor(enabled ? "#0f766e" : "#374151"));
+        reminderButton.setBackgroundTintList(null);
+        reminderButton.setBackground(bevel(enabled ? C_GREEN : C_WINDOW));
+        reminderButton.setTextColor(enabled ? Color.WHITE : C_INK);
         reminderButton.setAlpha(enabled ? 1f : 0.7f);
     }
 
