@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.concurrent.Executors;
@@ -344,7 +345,7 @@ public class MainActivity extends Activity {
                 + (pendingStart ? "window.__instalingBotEngine.start();" : "window.__instalingBotEngine.resume();")
                 + "})();";
         pendingStart = false;
-        view.evaluateJavascript(core, result -> view.evaluateJavascript(boot, null));
+        view.evaluateJavascript(core + "\n" + boot, null);
     }
 
     private String readAsset(String name) {
@@ -517,7 +518,7 @@ public class MainActivity extends Activity {
         Executors.newSingleThreadExecutor().execute(() -> {
             HttpURLConnection connection = null;
             try {
-                connection = (HttpURLConnection) new URL(API_URL).openConnection();
+                connection = (HttpURLConnection) URI.create(API_URL).toURL().openConnection();
                 connection.setRequestProperty("Accept", "application/vnd.github+json");
                 connection.setRequestProperty("User-Agent", "instaling-bot-mobile");
                 connection.setConnectTimeout(8000);
