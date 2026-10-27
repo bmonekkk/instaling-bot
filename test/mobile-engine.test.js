@@ -95,8 +95,8 @@ const fastConfig = {
         typo_chance: 0,
         check_min: 1,
         check_max: 2,
-        next_word_min: 1,
-        next_word_max: 2
+        nav_min: 1,
+        nav_max: 2
     }
 };
 
@@ -288,6 +288,8 @@ test('setConfig persists the user-facing settings', () => {
         delays: {
             click_min: 1,
             click_max: 3,
+            nav_min: 2000,
+            nav_max: 4500,
             type_min: 90,
             type_max: 230,
             type_pause_chance: 0.12,
@@ -353,4 +355,10 @@ test('getStats aggregates days and exposes today, total, session and streak', ()
     assert.equal(stats.session.accuracy, 75);
     assert.equal(stats.savedWords, 1);
     assert.equal(stats.streak, 2);
+
+    // Period summaries mirror the desktop panel (week/month/year/all).
+    assert.equal(stats.periods.week.answers, 10);
+    assert.equal(stats.periods.all.answers, 10);
+    assert.equal(stats.periods.all.activeDays, 2);
+    assert.equal(stats.periods.all.percent, 90);
 });

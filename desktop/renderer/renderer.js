@@ -21,6 +21,8 @@ const els = {
     pauseChanceValue: $('pause-chance-value'),
     clickMin: $('click-min'),
     clickMax: $('click-max'),
+    navMin: $('nav-min'),
+    navMax: $('nav-max'),
     debug: $('debug'),
     reminderEnabled: $('reminder-enabled'),
     reminderTime: $('reminder-time'),
@@ -31,6 +33,7 @@ const els = {
     start: $('start'),
     stop: $('stop'),
     save: $('save'),
+    reset: $('reset'),
     openData: $('open-data'),
     openLog: $('open-log'),
     clearLog: $('clear-log'),
@@ -181,6 +184,8 @@ function fillForm(config) {
     els.pauseChance.value = String(Math.round((config.delays?.type_pause_chance ?? 0.12) * 100));
     els.clickMin.value = String(config.delays?.click_min ?? 2000);
     els.clickMax.value = String(config.delays?.click_max ?? 4500);
+    els.navMin.value = String(config.delays?.nav_min ?? 2000);
+    els.navMax.value = String(config.delays?.nav_max ?? 4500);
     els.debug.checked = Boolean(config.debug);
     els.reminderEnabled.checked = config.reminder?.enabled !== false;
     els.reminderTime.value = config.reminder?.time ?? '17:00';
@@ -222,7 +227,9 @@ function collectSettings() {
             typo_chance: toNumber(els.typoChance, 15) / 100,
             type_pause_chance: toNumber(els.pauseChance, 12) / 100,
             click_min: Math.max(0, Math.round(toNumber(els.clickMin, 2000))),
-            click_max: Math.max(0, Math.round(toNumber(els.clickMax, 4500)))
+            click_max: Math.max(0, Math.round(toNumber(els.clickMax, 4500))),
+            nav_min: Math.max(0, Math.round(toNumber(els.navMin, 2000))),
+            nav_max: Math.max(0, Math.round(toNumber(els.navMax, 4500)))
         }
     };
 }
@@ -270,6 +277,7 @@ function updateButtons() {
     els.start.disabled = busy || running;
     els.stop.disabled = busy || !running;
     els.save.disabled = busy;
+    if (els.reset) els.reset.disabled = busy;
 }
 
 function statusLabel(status) {
@@ -375,7 +383,7 @@ async function loadState() {
         applyLanguage(state.config?.language ?? language);
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v4.2.0';
+        const version = state.version ? `v${state.version}` : 'v4.2.1';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;
@@ -503,6 +511,52 @@ async function saveSettings({silent = false} = {}) {
     } catch (error) {
         showToast(error.message || String(error), true);
         return false;
+    } finally {
+        setBusy(false);
+    }
+}
+
+// Default settings used by the "Defaults" button. Credentials and the
+// interface language are deliberately left untouched.
+function defaultSettings() {
+    return {
+        credentials: {
+            login: els.login.value.trim(),
+            password: els.password.value
+        },
+        valid_chance: 0.8,
+        show_browser: true,
+        mute_audio: true,
+        debug: false,
+        reminder: {enabled: true, time: '17:00', repeat_minutes: 0},
+        background: {run_in_tray: false, start_at_login: false},
+        notifications: {session_finished: true},
+        delays: {
+            type_min: 90,
+            type_max: 230,
+            typo_chance: 0.15,
+            type_pause_chance: 0.12,
+            click_min: 2000,
+            click_max: 4500,
+            nav_min: 2000,
+            nav_max: 4500
+        }
+    };
+}
+
+async function resetSettings() {
+    if (!api || busy) return;
+    setBusy(true);
+    try {
+        const result = await api.saveSettings(defaultSettings());
+        if (result?.config) fillForm(result.config);
+        if (result?.state) {
+            appState = result.state;
+            applyBotState(result.state.bot);
+        }
+        showToast(tr('toast.reset'));
+    } catch (error) {
+        showToast(error.message || String(error), true);
     } finally {
         setBusy(false);
     }
@@ -652,6 +706,7 @@ function wireEvents() {
 
     els.start.addEventListener('click', startBot);
     els.stop.addEventListener('click', stopBot);
+    els.reset.addEventListener('click', resetSettings);
     els.openData.addEventListener('click', () => api?.openDataFolder());
     els.openLog.addEventListener('click', async () => {
         if (!api) return;

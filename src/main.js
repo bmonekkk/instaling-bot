@@ -350,7 +350,12 @@ async function answerQuestion(page) {
     });
 
     blue(`[ANSWER ${i}] Next word!`);
-    await clickWait(page, SELECTORS.nextWord, config.delays?.next_word_min, config.delays?.next_word_max);
+    await clickWait(
+        page,
+        SELECTORS.nextWord,
+        config.delays?.nav_min ?? config.delays?.next_word_min,
+        config.delays?.nav_max ?? config.delays?.next_word_max
+    );
 }
 
 async function newWord(page) {
@@ -362,7 +367,12 @@ async function newWord(page) {
     await clickWait(page, SELECTORS.dontKnowNew, config.delays?.check_min, config.delays?.check_max);
     await savePage(page, `${i}_new_word_1`);
     blue(`[ANSWER ${i}] Next word!`);
-    await clickWait(page, SELECTORS.nextWord, config.delays?.next_word_min, config.delays?.next_word_max);
+    await clickWait(
+        page,
+        SELECTORS.nextWord,
+        config.delays?.nav_min ?? config.delays?.next_word_min,
+        config.delays?.nav_max ?? config.delays?.next_word_max
+    );
 }
 
 async function isSessionFinished(page) {

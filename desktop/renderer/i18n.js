@@ -72,11 +72,14 @@
             'advanced.pauseChance': 'Szansa na pauzę',
             'advanced.clickMin': 'Pauza po kliknięciu min (ms)',
             'advanced.clickMax': 'Pauza po kliknięciu max (ms)',
+            'advanced.navMin': 'Szybkość klikania przycisków min (ms)',
+            'advanced.navMax': 'Szybkość klikania przycisków max (ms)',
             'advanced.debug': 'Logi debug i zrzuty stron',
 
             'actions.start': '▶ Start',
             'actions.stop': '■ Stop',
             'actions.save': 'Zapisz',
+            'actions.reset': 'Domyślne',
             'actions.dataFolder': 'Folder danych',
 
             'console.title': 'Konsola',
@@ -134,6 +137,7 @@
 
             'toast.loginRequired': 'Podaj login i hasło do InstaLing.',
             'toast.saved': 'Ustawienia zapisane.',
+            'toast.reset': 'Przywrócono ustawienia domyślne.',
             'toast.savedRestart': 'Zapisano. Zmiany zadziałają po następnym uruchomieniu bota.',
             'toast.latest': 'Masz najnowszą wersję.',
             'toast.updateCheckFailed': 'Nie udało się sprawdzić aktualizacji.',
@@ -255,11 +259,14 @@
             'advanced.pauseChance': 'Pause chance',
             'advanced.clickMin': 'Min delay after a click (ms)',
             'advanced.clickMax': 'Max delay after a click (ms)',
+            'advanced.navMin': 'Min button click speed (ms)',
+            'advanced.navMax': 'Max button click speed (ms)',
             'advanced.debug': 'Debug logs and page screenshots',
 
             'actions.start': '▶ Start',
             'actions.stop': '■ Stop',
             'actions.save': 'Save',
+            'actions.reset': 'Defaults',
             'actions.dataFolder': 'Data folder',
 
             'console.title': 'Console',
@@ -317,6 +324,7 @@
 
             'toast.loginRequired': 'Enter your InstaLing login and password.',
             'toast.saved': 'Settings saved.',
+            'toast.reset': 'Defaults restored.',
             'toast.savedRestart': 'Saved. Changes take effect the next time the bot starts.',
             'toast.latest': 'You have the latest version.',
             'toast.updateCheckFailed': 'Could not check for updates.',

@@ -11,7 +11,7 @@
 <div class="app" id="app">
     <header class="titlebar" id="titlebar">
         <span class="titlebar-icon" aria-hidden="true">🤖</span>
-        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.2.0</span></span>
+        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.2.1</span></span>
         <div class="window-controls">
             <button class="window-button" id="win-minimize" type="button" data-i18n-title="window.minimize" data-i18n-aria-label="window.minimize" title="Minimalizuj" aria-label="Minimalizuj">_</button>
             <button class="window-button" id="win-maximize" type="button" data-i18n-title="window.maximize" data-i18n-aria-label="window.maximize" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
@@ -157,6 +157,16 @@
                                     <input id="click-max" type="number" min="0" max="120000" step="100" value="4500">
                                 </label>
                             </div>
+                            <div class="row two">
+                                <label class="field" for="nav-min">
+                                    <span data-i18n="advanced.navMin">Szybkość klikania przycisków min (ms)</span>
+                                    <input id="nav-min" type="number" min="0" max="120000" step="100" value="2000">
+                                </label>
+                                <label class="field" for="nav-max">
+                                    <span data-i18n="advanced.navMax">Szybkość klikania przycisków max (ms)</span>
+                                    <input id="nav-max" type="number" min="0" max="120000" step="100" value="4500">
+                                </label>
+                            </div>
                             <label class="check"><input id="debug" type="checkbox"> <span data-i18n="advanced.debug">Logi debug i zrzuty stron</span></label>
                         </div>
                     </details>
@@ -168,6 +178,7 @@
                 <button class="btn primary" id="start" type="button" data-i18n="actions.start">▶ Start</button>
                 <button class="btn danger" id="stop" type="button" disabled data-i18n="actions.stop">■ Stop</button>
                 <span class="action-spacer"></span>
+                <button class="btn" id="reset" type="button" data-i18n="actions.reset">Domyślne</button>
                 <button class="btn" id="save" type="submit" form="settings-form" data-i18n="actions.save">Zapisz</button>
                 <button class="btn" id="open-data" type="button" data-i18n="actions.dataFolder">Folder danych</button>
             </div>
@@ -228,7 +239,7 @@
         <span class="status-cell" id="footer-status" data-i18n="footer.ready">Gotowy</span>
         <span class="status-cell grow" id="footer-path" data-i18n-title="footer.dataFolder" title="Folder danych">—</span>
         <button class="status-cell link" id="footer-author" type="button" data-i18n-title="footer.author" title="Profil autora na GitHubie">by bmonekkk</button>
-        <span class="status-cell" id="footer-version">v4.2.0</span>
+        <span class="status-cell" id="footer-version">v4.2.1</span>
     </footer>
 </div>
 

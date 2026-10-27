@@ -29,11 +29,22 @@ const DEFAULT_CONFIG = {
         type_pause_min: 250,
         type_pause_max: 700,
         typo_chance: 0.15,
+        // How quickly the bot clicks navigation buttons: "next word", "start /
+        // continue session" and login. One shared min/max pair, like the desktop
+        // Advanced section.
+        nav_min: 2000,
+        nav_max: 4500,
         check_min: 3000,
-        check_max: 5500,
-        next_word_min: 2000,
-        next_word_max: 4500
+        check_max: 5500
     }
+};
+
+// Period buckets for the statistics panel, mirroring the desktop app.
+const PERIOD_DAYS = {
+    week: 7,
+    month: 30,
+    year: 365,
+    all: null
 };
 
 const FINISHED_PATTERN = /koniec|zakończ|gratulacje|wyniki|podsumowanie|nie ma już|finished|completed|results/i;
@@ -46,6 +57,8 @@ const PERSISTED_CONFIG_KEYS = ['valid_chance'];
 const USER_DELAY_KEYS = [
     'click_min',
     'click_max',
+    'nav_min',
+    'nav_max',
     'type_min',
     'type_max',
     'type_pause_chance',
@@ -56,6 +69,8 @@ const USER_DELAY_KEYS = [
 const DELAY_BOUNDS = {
     click_min: [0, 120000, true],
     click_max: [0, 120000, true],
+    nav_min: [0, 120000, true],
+    nav_max: [0, 120000, true],
     type_min: [0, 5000, true],
     type_max: [0, 5000, true],
     type_pause_chance: [0, 1, false],
@@ -97,6 +112,7 @@ function sanitizeConfig(value = {}) {
             delays[key] = integer ? Math.round(clamped) : clamped;
         }
         if (delays.click_max < delays.click_min) delays.click_max = delays.click_min;
+        if (delays.nav_max < delays.nav_min) delays.nav_max = delays.nav_min;
         if (delays.type_max < delays.type_min) delays.type_max = delays.type_min;
         out.delays = delays;
     }
@@ -105,6 +121,65 @@ function sanitizeConfig(value = {}) {
 
 function accuracy(correct, answers) {
     return answers > 0 ? Math.round((correct / answers) * 100) : 0;
+}
+
+function asCount(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) && parsed > 0 ? Math.round(parsed) : 0;
+}
+
+/**
+ * Sums the per-day buckets for one period, mirroring the desktop stats model
+ * (week/month/year/all) so the mobile shells can show the same panel.
+ */
+function summarizePeriod(stats, period, now = new Date()) {
+    const bucketDays = Object.prototype.hasOwnProperty.call(PERIOD_DAYS, period)
+        ? PERIOD_DAYS[period]
+        : PERIOD_DAYS.week;
+    const to = todayKey(now);
+    let from = null;
+    if (bucketDays) {
+        const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (bucketDays - 1));
+        from = todayKey(start);
+    }
+
+    const summary = {
+        period,
+        days: bucketDays,
+        from,
+        to,
+        sessions: 0,
+        answers: 0,
+        correct: 0,
+        wrong: 0,
+        newWords: 0,
+        durationMs: 0,
+        activeDays: 0
+    };
+
+    for (const [key, day] of Object.entries(stats)) {
+        if (!day || typeof day !== 'object') continue;
+        if (from && key < from) continue;
+        summary.sessions += asCount(day.sessions);
+        summary.answers += asCount(day.answers);
+        summary.correct += asCount(day.correct);
+        summary.wrong += asCount(day.wrong);
+        summary.newWords += asCount(day.newWords);
+        summary.durationMs += asCount(day.durationMs);
+        if (asCount(day.sessions) > 0 || asCount(day.answers) > 0) summary.activeDays += 1;
+    }
+
+    if (!from) {
+        summary.from = Object.keys(stats).sort()[0] ?? to;
+    }
+    summary.percent = accuracy(summary.correct, summary.answers);
+    summary.averageAnswers = summary.sessions > 0
+        ? Math.round(summary.answers / summary.sessions)
+        : 0;
+    summary.averageMinutes = summary.sessions > 0
+        ? Math.round((summary.durationMs / summary.sessions / 60000) * 10) / 10
+        : 0;
+    return summary;
 }
 
 function hasActivity(day) {
@@ -158,7 +233,7 @@ function createEngine({
     onEvent = () => {},
     language = 'pl',
     config: initialConfig = {},
-    version = '4.2.0'
+    version = '4.2.1'
 } = {}) {
     const state = {
         version,
@@ -207,6 +282,8 @@ function createEngine({
     const log = (message, level = 'info') => emit({type: 'log', level, message});
     const shouldContinue = () => state.running;
     const randomBetween = (min, max) => Math.round(min + Math.random() * (max - min));
+    // Shared delay before/after navigation clicks ("next", login/start, continue).
+    const navWait = () => randomBetween(config.delays.nav_min, config.delays.nav_max);
 
     function setStatus(status) {
         state.status = status;
@@ -280,11 +357,16 @@ function createEngine({
         if (state.answers === 0 && state.newWords === 0) return;
         const stats = storage.get('stats', {});
         const key = todayKey();
-        const day = stats[key] ?? {answers: 0, correct: 0, wrong: 0, newWords: 0};
+        const day = stats[key] ?? {answers: 0, correct: 0, wrong: 0, newWords: 0, sessions: 0, durationMs: 0};
         day.answers += state.answers;
         day.correct += state.correct;
         day.wrong += state.wrong;
         day.newWords += state.newWords;
+        // A "session" is a finished run with at least one answer, matching the
+        // desktop recorder so the statistics panel shows the same numbers.
+        if (state.answers > 0) day.sessions = asCount(day.sessions) + 1;
+        day.durationMs = asCount(day.durationMs)
+            + (state.startedAt ? Math.max(0, Date.now() - state.startedAt) : 0);
         stats[key] = day;
         storage.set('stats', stats);
         storage.set('lastSession', {
@@ -320,7 +402,7 @@ function createEngine({
     async function startSession() {
         log(t('log.starting'));
         if (await clickFirst(SELECTORS.startSession, 3000)) {
-            await dom.wait(randomBetween(1500, 2500));
+            await dom.wait(navWait());
         }
         let continued = await clickFirst(SELECTORS.continueSession, 5000);
         if (!continued) continued = await clickFirst(SELECTORS.newSession, 4000);
@@ -335,11 +417,11 @@ function createEngine({
             const startText = await dom.findByText(TEXT.start, 2500, shouldContinue);
             if (startText) {
                 dom.click(startText);
-                await dom.wait(randomBetween(1500, 2500));
+                await dom.wait(navWait());
                 await clickFirst(SELECTORS.newSession, 4000);
             }
         }
-        await dom.wait(randomBetween(config.delays.click_min, config.delays.click_max));
+        await dom.wait(navWait());
     }
 
     async function handleNewWord() {
@@ -358,7 +440,7 @@ function createEngine({
             const next = await dom.findByText(TEXT.next, 2500, shouldContinue);
             if (next) dom.click(next);
         }
-        await dom.wait(randomBetween(config.delays.next_word_min, config.delays.next_word_max));
+        await dom.wait(navWait());
         emit({type: 'progress'});
     }
 
@@ -402,7 +484,7 @@ function createEngine({
             const fallback = await dom.findByText(TEXT.next, 2000, shouldContinue);
             if (fallback) dom.click(fallback);
         }
-        await dom.wait(randomBetween(config.delays.next_word_min, config.delays.next_word_max));
+        await dom.wait(navWait());
         log(t('log.next'));
         emit({type: 'progress'});
     }
@@ -521,7 +603,7 @@ function createEngine({
                 const next = await dom.find(SELECTORS.nextWord, 800, shouldContinue);
                 if (next) {
                     dom.click(next);
-                    await dom.wait(randomBetween(config.delays.next_word_min, config.delays.next_word_max));
+                    await dom.wait(navWait());
                 } else if (!startAttempted) {
                     startAttempted = true;
                     await startSession();
@@ -613,6 +695,12 @@ function createEngine({
             session: lastSession
                 ? {...lastSession, accuracy: accuracy(lastSession.correct, lastSession.answers)}
                 : null,
+            periods: {
+                week: summarizePeriod(stats, 'week', now),
+                month: summarizePeriod(stats, 'month', now),
+                year: summarizePeriod(stats, 'year', now),
+                all: summarizePeriod(stats, 'all', now)
+            },
             savedWords: words.length,
             streak: computeStreak(stats, now)
         };
@@ -634,11 +722,13 @@ function createEngine({
 module.exports = {
     DEFAULT_CONFIG,
     DELAY_BOUNDS,
+    PERIOD_DAYS,
     USER_DELAY_KEYS,
     accuracy,
     computeStreak,
     createEngine,
     createStorageAdapter,
     sanitizeConfig,
+    summarizePeriod,
     todayKey
 };

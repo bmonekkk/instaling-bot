@@ -19,7 +19,7 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**4.2.0**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
+Aktualna wersja (**4.2.1**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
 
 - 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
 - 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, ustawienia sesji, statystyki i konfigurowalne przypomnienia,
@@ -27,7 +27,7 @@ Aktualna wersja (**4.2.0**) to wydanie spójności — desktop, telefon i usersc
 - ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-Wersja 4.2.0 wyrównuje możliwości wszystkich platform: telefon i userscript mają teraz wszystkie desktopowe ustawienia tempa pisania i klikania (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`) obok poprawności odpowiedzi, a natywne przypomnienia na Androidzie i iOS potrafią powtarzać się co N minut i wyłączają się po zaliczeniu dzisiejszej sesji. Userscript nie wysyła już powiadomień w tle — po otwarciu karty po godzinie przypomnienia pokazuje dyskretny baner na stronie. Okno desktopu, panel userscriptu i strona projektu dzielą jeden klasyczny wygląd (jasnoszary, Tahoma / MS Sans Serif, kwadratowe beleczki, granatowy pasek tytułu). Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Limit odpowiedzi zniknął: uruchomienie po prostu podąża za stroną do końca sesji. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
+Wersja 4.2.1 wyrównuje możliwości wszystkich platform: desktop, Android, iOS i userscript mają ten sam **panel statystyk** (tydzień / miesiąc / rok / wszystko: sesje, odpowiedzi, skuteczność, nowe słówka, czas, aktywne dni), przycisk **Przywróć domyślne** (resetuje wszystko poza loginem, hasłem i językiem) oraz jedno wspólne ustawienie **szybkości klikania przycisków** (`nav_min` / `nav_max`) używane przy „dalej", logowaniu i starcie sesji. Częstotliwość przypomnienia wybierasz teraz z listy także na Androidzie i iOS (raz dziennie, co 15/30/60/120/180 min), a godzina przypomnienia jest wyrównana do lewej. Panel userscriptu nie wychodzi już poza ekran w Safari (`100dvh`). Statystyki mobilne liczą sesje i czas trwania tak samo jak desktop. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
 
 Open source, licencja ISC.
 
@@ -66,9 +66,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.2.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.2.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.2.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.2.1-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.2.1-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.2.1-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -145,20 +145,22 @@ Pliki można edytować także ręcznie — aplikacja używa tego samego formatu 
 
 ## 📱 Mobile: Android i iOS
 
-Wersja 4.2.0 wyrównuje telefon z desktopem. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, opóźnienia klikania i pisania, szanse na pauzę i literówkę, godzina przypomnienia) i **statystyki** (dzisiejsze odpowiedzi, skuteczność, seria dni). Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
+Wersja 4.2.1 wyrównuje telefon z desktopem. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, opóźnienia klikania i pisania, szybkość klikania przycisków, szanse na pauzę i literówkę, godzina i częstotliwość przypomnienia) oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok / wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni). W każdym panelu ustawień jest **Przywróć domyślne**. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
 
 ### 🤖 Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.2.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Pobierz `instaling-bot-4.2.1-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
 
-Górny pasek ma przełącznik **PL/EN**, przypomnienie ⏰, ustawienia ⚙, Start i Stop. Pod paskiem widać status, licznik odpowiedzi oraz dzisiejsze statystyki. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
+Górny pasek ma przełącznik **PL/EN**, przycisk statystyk 📊, przypomnienie ⏰, ustawienia ⚙, Start i Stop. Pod paskiem widać status, licznik odpowiedzi oraz dzisiejsze statystyki. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
 
-**Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, opóźnienia klikania i pisania (`click_min` / `click_max`, `type_min` / `type_max`), szansę na pauzę (`type_pause_chance`), szansę na literówkę (`typo_chance`) oraz **godzinę przypomnienia**. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
+**Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, opóźnienia klikania i pisania (`click_min` / `click_max`, `type_min` / `type_max`), **szybkość klikania przycisków** (`nav_min` / `nav_max`), szansę na pauzę (`type_pause_chance`), szansę na literówkę (`typo_chance`) oraz **godzinę i częstotliwość przypomnienia**. Przycisk **Przywróć domyślne** resetuje wszystkie ustawienia poza loginem, hasłem i językiem. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
 
-**Przypomnienie:** dotknij ⏰, aby włączyć codzienne powiadomienie o wybranej godzinie (domyślnie **17:00**). Podobnie jak w desktopie możesz je powtarzać co N minut, a przypomnienia przestają przychodzić, gdy dzisiejsza sesja jest już ukończona. Android 13+ poprosi o zgodę na powiadomienia. Przypomnienie przetrwa restart telefonu.
+**Statystyki:** dotknij 📊, aby zobaczyć panel z zakładkami tydzień / miesiąc / rok / wszystko — sesje, odpowiedzi, poprawne i błędne, skuteczność, nowe słówka, łączny czas i aktywne dni. Liczby pochodzą z tego samego modelu co desktop.
+
+**Przypomnienie:** dotknij ⏰, aby włączyć codzienne powiadomienie o wybranej godzinie (domyślnie **17:00**). Częstotliwość wybierasz z listy — raz dziennie albo co 15/30/60/120/180 min — a przypomnienia przestają przychodzić, gdy dzisiejsza sesja jest już ukończona. Android 13+ poprosi o zgodę na powiadomienia. Przypomnienie przetrwa restart telefonu.
 
 **Automatyzacja:** aplikacja obsługuje deep linki `instalingbot://start` i `instalingbot://stop`. W Taskerze, MacroDroidzie lub innym automacie dodaj akcję „Otwórz URL/Intent”, aby uruchomić sesję np. po połączeniu z domowym Wi-Fi. Bot nadal potrzebuje otwartej aplikacji i zalogowanej sesji.
 
@@ -171,17 +173,17 @@ Chrome na iOS nie obsługuje rozszerzeń, ale Safari tak:
 3. Otwórz [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) w Safari i zaimportuj skrypt w Userscripts.
 4. Wejdź na `instaling.pl`, zaloguj się i dotknij pływającego przycisku 🤖.
 
-Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi i statystyki. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, wszystkie desktopowe opóźnienia pisania i klikania (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`) oraz autostart — wartości zapisują się trwale w pamięci rozszerzenia. Słowa również zapisują się między sesjami. Userscript nie wysyła powiadomień przeglądarki: gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona, pokazuje mały baner na stronie. Skrypt aktualizuje się sam przez `@updateURL`.
+Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **panel statystyk** (zakładki tydzień / miesiąc / rok / wszystko) i **Przywróć domyślne**. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, wszystkie desktopowe opóźnienia pisania i klikania (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`), **szybkość klikania przycisków** (`nav_min` / `nav_max`) oraz autostart — wartości zapisują się trwale w pamięci rozszerzenia. Panel ma `max-height` oparty na `100dvh`, więc nie wychodzi poza ekran Safari. Słowa również zapisują się między sesjami. Userscript nie wysyła powiadomień przeglądarki: gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona, pokazuje mały baner na stronie. Skrypt aktualizuje się sam przez `@updateURL`.
 
 ### 🍏 iOS: IPA dla SideStore / AltStore
 
 Dla osób, które wolą osobną aplikację:
 
-1. Pobierz `instaling-bot-4.2.0-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.2.1-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
-IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, ustawienia sesji (poprawność, opóźnienia pisania i klikania, szanse na pauzę i literówkę) ze statystykami, powtarzalne przypomnienie i przycisk aktualizacji.
+IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, ustawienia sesji (poprawność, opóźnienia pisania i klikania, szybkość klikania przycisków, szanse na pauzę i literówkę), **listę częstotliwości przypomnienia** z godziną wyrównaną do lewej, **panel statystyk** (tydzień / miesiąc / rok / wszystko), **Przywróć domyślne** i przycisk aktualizacji.
 
 **Skróty (Shortcuts):** aplikacja przyjmuje `instalingbot://start` i `instalingbot://stop`, więc możesz uruchomić sesję z automatyzacji iOS. Sesja działa tylko, gdy aplikacja jest na pierwszym planie.
 
@@ -405,6 +407,15 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 
 ## 📦 Ostatnie zmiany
+
+### 4.2.1 — 2026-10-28
+
+- 📊 **Statystyki na każdej platformie.** Android, iOS i userscript mają teraz ten sam panel co desktop: zakładki tydzień / miesiąc / rok / wszystko z sesjami, odpowiedziami, skutecznością, nowymi słówkami, łącznym czasem i aktywnymi dniami. Silnik mobilny zapisuje sesje i czas trwania tak samo jak desktop.
+- ♻️ **Przywróć domyślne.** Desktop, Android, iOS i userscript mają przycisk resetujący wszystkie ustawienia poza loginem, hasłem i językiem.
+- ⏱️ **Szybkość klikania przycisków.** Jedno wspólne ustawienie `nav_min` / `nav_max` (domyślnie 2000/4500 ms) steruje tempem klikania „dalej", logowania i startu sesji — na desktopie i telefonie.
+- ⏰ **Przypomnienia jak na desktopie.** Częstotliwość wybierasz z listy (raz dziennie, co 15/30/60/120/180 min) także na Androidzie i iOS — koniec z wpisywaniem minut. Godzina przypomnienia jest wyrównana do lewej na iOS i w userscripcie.
+- 🐛 **Panel userscriptu na Safari.** Wysokość panelu opiera się na `100dvh` (z zapasem `100vh`) i ma `overscroll-behavior: contain`, więc nie wychodzi poza ekran i nie przewija strony pod spodem.
+- 🐛 **Porządki.** Userscript to teraz `4.2.2` (aplikacja pozostaje `4.2.1`), wersjonowanie podniesione w `package.json`, projekcie iOS (`MARKETING_VERSION` 4.2.1 / `CURRENT_PROJECT_VERSION` 40201), interfejsie desktopu, stronie, README (PL/EN), wiki, `docs/llms.txt`, `PROJECT_NOTES.md` i notatkach wydania.
 
 ### 4.2.0 — 2026-10-27
 

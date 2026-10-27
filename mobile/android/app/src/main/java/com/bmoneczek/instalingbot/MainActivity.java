@@ -35,6 +35,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
 import android.widget.ArrayAdapter;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -85,6 +86,7 @@ public class MainActivity extends Activity {
     private Button languageButton;
     private Button reminderButton;
     private Button settingsButton;
+    private Button statsButton;
     private Button updateButton;
     private SharedPreferences prefs;
     private boolean pendingStart = false;
@@ -106,7 +108,13 @@ public class MainActivity extends Activity {
                     "Pauza po klikni\u0119ciu max (ms)", "Op\u00f3\u017anienie liter min (ms)",
                     "Op\u00f3\u017anienie liter max (ms)", "Szansa na liter\u00f3wk\u0119 (%)",
                     "Szansa na pauz\u0119 (%)", "Raz dziennie", "Co 15 minut", "Co 30 minut",
-                    "Co godzin\u0119", "Co 2 godziny", "Co 3 godziny"},
+                    "Co godzin\u0119", "Co 2 godziny", "Co 3 godziny",
+                    "Szybko\u015b\u0107 klikania przycisk\u00f3w min (ms)",
+                    "Szybko\u015b\u0107 klikania przycisk\u00f3w max (ms)", "Przywr\u00f3\u0107 domy\u015blne",
+                    "Przywr\u00f3cono ustawienia domy\u015blne", "Statystyki", "Tydzie\u0144",
+                    "Miesi\u0105c", "Rok", "Wszystko", "Okres", "Sesje", "Odpowiedzi", "Dobrze",
+                    "B\u0142\u0119dnie", "Skuteczno\u015b\u0107", "Nowe s\u0142\u00f3wka", "Czas \u0142\u0105cznie",
+                    "Aktywne dni", "Brak danych dla wybranego okresu.", "Zamknij"},
             // en
             {"Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                     "Session finished", "Error", "Stopped", "Daily reminder",
@@ -117,8 +125,34 @@ public class MainActivity extends Activity {
                     "Max delay after a click (ms)", "Min letter delay (ms)",
                     "Max letter delay (ms)", "Typo chance (%)",
                     "Pause chance (%)", "Once a day", "Every 15 minutes", "Every 30 minutes",
-                    "Every hour", "Every 2 hours", "Every 3 hours"}
+                    "Every hour", "Every 2 hours", "Every 3 hours",
+                    "Min button click speed (ms)", "Max button click speed (ms)",
+                    "Restore defaults", "Defaults restored", "Statistics", "Week",
+                    "Month", "Year", "All time", "Period", "Sessions", "Answers", "Correct",
+                    "Wrong", "Accuracy", "New words", "Total time", "Active days",
+                    "No data for the selected period.", "Close"}
     };
+    // Label indexes beyond the original block, appended so the older indices stay put.
+    private static final int L_NAV_MIN = 33;
+    private static final int L_NAV_MAX = 34;
+    private static final int L_RESET = 35;
+    private static final int L_RESET_DONE = 36;
+    private static final int L_STATS = 37;
+    private static final int L_WEEK = 38;
+    private static final int L_MONTH = 39;
+    private static final int L_YEAR = 40;
+    private static final int L_ALL = 41;
+    private static final int L_PERIOD = 42;
+    private static final int L_SESSIONS = 43;
+    private static final int L_ANSWERS = 44;
+    private static final int L_CORRECT = 45;
+    private static final int L_WRONG = 46;
+    private static final int L_PERCENT = 47;
+    private static final int L_NEW_WORDS = 48;
+    private static final int L_TOTAL_TIME = 49;
+    private static final int L_ACTIVE_DAYS = 50;
+    private static final int L_NO_DATA = 51;
+    private static final int L_CLOSE = 52;
     // Repeat choices in minutes, matching the desktop select.
     private static final int[] REPEAT_MINUTES = {0, 15, 30, 60, 120, 180};
 
@@ -186,6 +220,10 @@ public class MainActivity extends Activity {
         reminderButton = classicButton("\u23F0", C_WINDOW, C_INK);
         reminderButton.setOnClickListener(view -> toggleReminder());
         titleBar.addView(reminderButton);
+
+        statsButton = classicButton("\uD83D\uDCCA", C_WINDOW, C_INK);
+        statsButton.setOnClickListener(view -> openStats());
+        titleBar.addView(statsButton);
 
         settingsButton = classicButton("\u2699", C_WINDOW, C_INK);
         settingsButton.setOnClickListener(view -> openSettings());
@@ -446,6 +484,8 @@ public class MainActivity extends Activity {
     private String delaysJson() {
         return "{click_min:" + prefs.getInt("click_min", 2000)
                 + ",click_max:" + prefs.getInt("click_max", 4500)
+                + ",nav_min:" + prefs.getInt("nav_min", 2000)
+                + ",nav_max:" + prefs.getInt("nav_max", 4500)
                 + ",type_min:" + prefs.getInt("type_min", 90)
                 + ",type_max:" + prefs.getInt("type_max", 230)
                 + ",type_pause_chance:" + prefs.getFloat("type_pause_chance", 0.12f)
@@ -520,6 +560,12 @@ public class MainActivity extends Activity {
         final EditText clickMax = numberField(prefs.getInt("click_max", 4500));
         content.addView(fieldLabel(label(22)));
         content.addView(clickMax);
+        final EditText navMin = numberField(prefs.getInt("nav_min", 2000));
+        content.addView(fieldLabel(label(L_NAV_MIN)));
+        content.addView(navMin);
+        final EditText navMax = numberField(prefs.getInt("nav_max", 4500));
+        content.addView(fieldLabel(label(L_NAV_MAX)));
+        content.addView(navMax);
         final EditText typeMin = numberField(prefs.getInt("type_min", 90));
         content.addView(fieldLabel(label(23)));
         content.addView(typeMin);
@@ -560,10 +606,32 @@ public class MainActivity extends Activity {
                 .setTitle(label(13))
                 .setView(scroll)
                 .setPositiveButton(label(16), (dialog, which) -> saveSettings(
-                        validity, clickMin, clickMax, typeMin, typeMax,
+                        validity, clickMin, clickMax, navMin, navMax, typeMin, typeMax,
                         typoChance, pauseChance, time, repeat.getSelectedItemPosition()))
+                .setNeutralButton(label(L_RESET), (dialog, which) -> resetToDefaults())
                 .setNegativeButton(label(17), null)
                 .show();
+    }
+
+    /** Restores every setting to its default. Language and credentials are kept. */
+    private void resetToDefaults() {
+        prefs.edit()
+                .putFloat("valid_chance", 0.8f)
+                .putInt("click_min", 2000)
+                .putInt("click_max", 4500)
+                .putInt("nav_min", 2000)
+                .putInt("nav_max", 4500)
+                .putInt("type_min", 90)
+                .putInt("type_max", 230)
+                .putFloat("typo_chance", 0.15f)
+                .putFloat("type_pause_chance", 0.12f)
+                .putInt("reminder_hour", DEFAULT_REMINDER_HOUR)
+                .putInt("reminder_minute", DEFAULT_REMINDER_MINUTE)
+                .putInt("reminder_repeat", 0)
+                .apply();
+        applyConfigToEngine();
+        if (prefs.getBoolean("reminder", false)) scheduleReminder();
+        Toast.makeText(this, label(L_RESET_DONE), Toast.LENGTH_SHORT).show();
     }
 
     private EditText numberField(int value) {
@@ -634,22 +702,27 @@ public class MainActivity extends Activity {
     }
 
     private void saveSettings(EditText validity, EditText clickMin, EditText clickMax,
-                              EditText typeMin, EditText typeMax, EditText typoChance,
-                              EditText pauseChance, int[] time, int repeatIndex) {
+                              EditText navMin, EditText navMax, EditText typeMin, EditText typeMax,
+                              EditText typoChance, EditText pauseChance, int[] time, int repeatIndex) {
         int percent = clamp(parseInt(validity.getText().toString(), 80), 0, 100);
         int cMin = clamp(parseInt(clickMin.getText().toString(), 2000), 0, 120000);
         int cMax = clamp(parseInt(clickMax.getText().toString(), 4500), 0, 120000);
+        int nMin = clamp(parseInt(navMin.getText().toString(), 2000), 0, 120000);
+        int nMax = clamp(parseInt(navMax.getText().toString(), 4500), 0, 120000);
         int tMin = clamp(parseInt(typeMin.getText().toString(), 90), 0, 5000);
         int tMax = clamp(parseInt(typeMax.getText().toString(), 230), 0, 5000);
         int typo = clamp(parseInt(typoChance.getText().toString(), 15), 0, 100);
         int pause = clamp(parseInt(pauseChance.getText().toString(), 12), 0, 100);
         if (cMax < cMin) cMax = cMin;
+        if (nMax < nMin) nMax = nMin;
         if (tMax < tMin) tMax = tMin;
         int repeat = REPEAT_MINUTES[clamp(repeatIndex, 0, REPEAT_MINUTES.length - 1)];
         prefs.edit()
                 .putFloat("valid_chance", percent / 100f)
                 .putInt("click_min", cMin)
                 .putInt("click_max", cMax)
+                .putInt("nav_min", nMin)
+                .putInt("nav_max", nMax)
                 .putInt("type_min", tMin)
                 .putInt("type_max", tMax)
                 .putFloat("typo_chance", typo / 100f)
@@ -725,6 +798,94 @@ public class MainActivity extends Activity {
                         // A malformed result must not break the shell.
                     }
                 });
+    }
+
+    /** Statistics menu: the same week/month/year/all panel as the desktop app. */
+    private void openStats() {
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setBackgroundColor(C_WINDOW);
+        content.setPadding(dp(16), dp(4), dp(16), dp(8));
+
+        final String[] periods = {"week", "month", "year", "all"};
+        final Spinner selector = new Spinner(this);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item,
+                new String[]{label(L_WEEK), label(L_MONTH), label(L_YEAR), label(L_ALL)});
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        selector.setAdapter(adapter);
+        content.addView(fieldLabel(label(L_PERIOD)));
+        content.addView(selector);
+
+        final TextView grid = new TextView(this);
+        grid.setTextColor(C_INK);
+        grid.setTextSize(13);
+        grid.setTypeface(classicTypeface(Typeface.NORMAL));
+        grid.setPadding(0, dp(10), 0, 0);
+        content.addView(grid);
+
+        selector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                renderStatsText(grid, periods[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(content);
+
+        new AlertDialog.Builder(this, R.style.ClassicDialog)
+                .setTitle(label(L_STATS))
+                .setView(scroll)
+                .setPositiveButton(label(L_CLOSE), null)
+                .show();
+    }
+
+    /** Asks the engine for one period summary and prints it into the dialog. */
+    private void renderStatsText(TextView grid, String periodKey) {
+        if (webView == null) {
+            grid.setText(label(L_NO_DATA));
+            return;
+        }
+        String js = "(function(){try{return window.__instalingBotEngine?"
+                + "window.__instalingBotEngine.getStats().periods['" + periodKey + "']:null;}"
+                + "catch(e){return null;}})()";
+        webView.evaluateJavascript(js, value -> {
+            if (value == null || "null".equals(value)) {
+                grid.setText(label(L_NO_DATA));
+                return;
+            }
+            try {
+                JSONObject summary = new JSONObject(value);
+                int answers = summary.optInt("answers", 0);
+                StringBuilder text = new StringBuilder();
+                text.append(label(L_SESSIONS)).append(": ").append(summary.optInt("sessions", 0)).append('\n');
+                text.append(label(L_ANSWERS)).append(": ").append(answers).append('\n');
+                text.append(label(L_CORRECT)).append(": ").append(summary.optInt("correct", 0)).append('\n');
+                text.append(label(L_WRONG)).append(": ").append(summary.optInt("wrong", 0)).append('\n');
+                text.append(label(L_PERCENT)).append(": ")
+                        .append(answers > 0 ? summary.optInt("percent", 0) + "%" : "\u2014").append('\n');
+                text.append(label(L_NEW_WORDS)).append(": ").append(summary.optInt("newWords", 0)).append('\n');
+                text.append(label(L_TOTAL_TIME)).append(": ")
+                        .append(formatMinutes(summary.optLong("durationMs", 0))).append('\n');
+                text.append(label(L_ACTIVE_DAYS)).append(": ").append(summary.optInt("activeDays", 0));
+                grid.setText(text.toString());
+            } catch (Exception error) {
+                grid.setText(label(L_NO_DATA));
+            }
+        });
+    }
+
+    private static String formatMinutes(long millis) {
+        long total = Math.max(0, Math.round(millis / 60000.0));
+        if (total < 60) return total + " min";
+        long hours = total / 60;
+        long minutes = total % 60;
+        return minutes > 0 ? hours + " h " + minutes + " min" : hours + " h";
     }
 
     private class NativeBridge {

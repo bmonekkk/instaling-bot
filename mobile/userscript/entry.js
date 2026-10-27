@@ -5,7 +5,7 @@
 // classic light-gray window with Tahoma text, square bevel borders and a navy
 // title bar, so all three surfaces look like the same program.
 
-const {createEngine, createStorageAdapter} = require('../engine/engine.js');
+const {createEngine, createStorageAdapter, DEFAULT_CONFIG} = require('../engine/engine.js');
 const {normalizeLanguage, translate} = require('../engine/i18n.js');
 
 const VERSION = __VERSION__;
@@ -16,6 +16,8 @@ const RELEASES_URL = 'https://github.com/bmonekkk/instaling-bot/releases/latest'
 
 const REMINDER_KEY = 'reminder';
 const DEFAULT_REMINDER = {enabled: true, time: '17:00', repeat_minutes: 0};
+// Repeat choices in minutes, matching the desktop select.
+const DEFAULT_REPEAT_VALUES = [0, 15, 30, 60, 120, 180];
 
 function gmStorage() {
     if (typeof GM_getValue === 'function' && typeof GM_setValue === 'function') {
@@ -47,6 +49,7 @@ const t = (key, vars) => translate(language, key, vars);
 let engine = null;
 let root = null;
 let els = {};
+let statsPeriod = 'week';
 
 function styleText() {
     return `
@@ -84,8 +87,12 @@ function styleText() {
             position: fixed; left: 50%; bottom: 74px;
             transform: translateX(-50%);
             width: min(360px, calc(100vw - 20px));
+            /* 100vh overflows under Safari's toolbars; dvh tracks the visible
+               viewport so the panel never grows taller than the screen. */
             max-height: calc(100vh - 96px);
+            max-height: calc(100dvh - 96px);
             overflow-y: auto;
+            overscroll-behavior: contain;
             background: #c0c0c0;
             border: 2px solid #000;
             box-shadow: 3px 3px 0 rgba(0,0,0,.45);
@@ -139,6 +146,9 @@ function styleText() {
             display: flex; align-items: center; justify-content: space-between;
             gap: 8px; margin-top: 6px; font-size: 12px;
         }
+        /* Reminder time sits next to its label, not pushed to the right edge. */
+        .field.left { justify-content: flex-start; }
+        .field.left input[type="time"] { margin-left: 0; }
         .field input[type="number"] { width: 76px; }
         .field input[type="time"] { width: 92px; }
         input[type="number"], input[type="time"], select {
@@ -150,7 +160,7 @@ function styleText() {
         .field.check { justify-content: flex-start; }
         .hint { margin: 6px 0 0; font-size: 11px; color: #333; }
 
-        .settings-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+        .settings-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .save {
             min-height: 30px; padding: 4px 14px; cursor: pointer;
             font: inherit; font-weight: 700;
@@ -158,8 +168,46 @@ function styleText() {
             border-color: #ffffff #404040 #404040 #ffffff;
             box-shadow: 1px 1px 0 #000;
         }
-        .save:active { border-color: #404040 #ffffff #ffffff #404040; box-shadow: none; }
+        .reset {
+            min-height: 30px; padding: 4px 10px; cursor: pointer;
+            font: inherit; font-weight: 700;
+            background: #c0c0c0; border: 2px solid;
+            border-color: #ffffff #404040 #404040 #ffffff;
+            box-shadow: 1px 1px 0 #000;
+        }
+        .save:active, .reset:active { border-color: #404040 #ffffff #ffffff #404040; box-shadow: none; }
         .save-note { font-size: 11px; color: #006400; }
+
+        .stats-toggle {
+            min-height: 30px; margin-top: 10px; width: 100%; cursor: pointer;
+            font: inherit; font-weight: 700;
+            background: #c0c0c0; border: 2px solid;
+            border-color: #ffffff #404040 #404040 #ffffff;
+            box-shadow: 1px 1px 0 #000;
+        }
+        .stats-toggle:active { border-color: #404040 #ffffff #ffffff #404040; box-shadow: none; }
+        .stats-panel { margin-top: 8px; }
+        .stats-panel[hidden] { display: none; }
+        .stats-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+        .stats-tab {
+            min-height: 26px; padding: 2px 4px; cursor: pointer; font: inherit;
+            font-size: 12px; background: #c0c0c0; border: 2px solid;
+            border-color: #ffffff #404040 #404040 #ffffff;
+        }
+        .stats-tab.active {
+            background: #000080; color: #fff;
+            border-color: #404040 #ffffff #ffffff #404040;
+        }
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 2px 10px; margin-top: 8px;
+        }
+        .stats-grid .stat {
+            display: flex; justify-content: space-between; font-size: 12px;
+            border-bottom: 1px dotted #808080; padding: 2px 0;
+        }
+        .stats-grid .stat-label { color: #333; }
+        .stats-grid strong { font-weight: 700; }
+        .stats-note { margin: 8px 0 0; font-size: 11px; color: #333; }
 
         .lang { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; }
         .log { margin-top: 8px; font-size: 11px; color: #333; min-height: 14px; }
@@ -214,6 +262,26 @@ function buildUi() {
                 <button class="action start" type="button"></button>
                 <button class="action stop" type="button"></button>
             </div>
+            <button class="stats-toggle" type="button"></button>
+            <div class="stats-panel" hidden>
+                <div class="stats-tabs" role="tablist">
+                    <button class="stats-tab active" type="button" role="tab" data-period="week"></button>
+                    <button class="stats-tab" type="button" role="tab" data-period="month"></button>
+                    <button class="stats-tab" type="button" role="tab" data-period="year"></button>
+                    <button class="stats-tab" type="button" role="tab" data-period="all"></button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat"><span class="stat-label" data-i18n="stats.sessions"></span><strong class="stats-sessions">0</strong></div>
+                    <div class="stat"><span class="stat-label" data-i18n="stats.answers"></span><strong class="stats-answers">0</strong></div>
+                    <div class="stat"><span class="stat-label" data-i18n="stats.correct"></span><strong class="stats-correct">0</strong></div>
+                    <div class="stat"><span class="stat-label" data-i18n="stats.wrong"></span><strong class="stats-wrong">0</strong></div>
+                    <div class="stat"><span class="stat-label" data-i18n="stats.percent"></span><strong class="stats-percent">0%</strong></div>
+                    <div class="stat"><span class="stat-label" data-i18n="stats.newWords"></span><strong class="stats-new">0</strong></div>
+                    <div class="stat"><span class="stat-label" data-i18n="stats.time"></span><strong class="stats-time">0 min</strong></div>
+                    <div class="stat"><span class="stat-label" data-i18n="stats.activeDays"></span><strong class="stats-days">0</strong></div>
+                </div>
+                <p class="stats-note"></p>
+            </div>
             <details class="settings">
                 <summary></summary>
                 <fieldset>
@@ -233,6 +301,10 @@ function buildUi() {
                         <input type="number" min="0" max="120000" step="100" class="click-min" inputmode="numeric"></label>
                     <label class="field"><span class="settings-clickMax"></span>
                         <input type="number" min="0" max="120000" step="100" class="click-max" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-navMin"></span>
+                        <input type="number" min="0" max="120000" step="100" class="nav-min" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-navMax"></span>
+                        <input type="number" min="0" max="120000" step="100" class="nav-max" inputmode="numeric"></label>
                     <label class="field"><span class="settings-typeMin"></span>
                         <input type="number" min="0" max="5000" step="10" class="type-min" inputmode="numeric"></label>
                     <label class="field"><span class="settings-typeMax"></span>
@@ -248,7 +320,7 @@ function buildUi() {
                         <input type="checkbox" class="reminder-enabled">
                         <span class="settings-reminderEnabled"></span>
                     </label>
-                    <label class="field"><span class="settings-reminder"></span>
+                    <label class="field left"><span class="settings-reminder"></span>
                         <input type="time" class="reminder-time"></label>
                     <label class="field"><span class="settings-repeat"></span>
                         <select class="reminder-repeat">
@@ -264,6 +336,7 @@ function buildUi() {
                 </fieldset>
                 <div class="settings-actions">
                     <button class="save" type="button"></button>
+                    <button class="reset" type="button"></button>
                     <span class="save-note" role="status"></span>
                 </div>
             </details>
@@ -318,6 +391,8 @@ function buildUi() {
         settingsAutostart: panel.querySelector('.settings-autostart'),
         settingsClickMin: panel.querySelector('.settings-clickMin'),
         settingsClickMax: panel.querySelector('.settings-clickMax'),
+        settingsNavMin: panel.querySelector('.settings-navMin'),
+        settingsNavMax: panel.querySelector('.settings-navMax'),
         settingsTypeMin: panel.querySelector('.settings-typeMin'),
         settingsTypeMax: panel.querySelector('.settings-typeMax'),
         settingsTypoChance: panel.querySelector('.settings-typoChance'),
@@ -330,6 +405,8 @@ function buildUi() {
         autostart: panel.querySelector('.autostart'),
         clickMin: panel.querySelector('.click-min'),
         clickMax: panel.querySelector('.click-max'),
+        navMin: panel.querySelector('.nav-min'),
+        navMax: panel.querySelector('.nav-max'),
         typeMin: panel.querySelector('.type-min'),
         typeMax: panel.querySelector('.type-max'),
         typoChance: panel.querySelector('.typo-chance'),
@@ -338,7 +415,20 @@ function buildUi() {
         reminderTime: panel.querySelector('.reminder-time'),
         reminderRepeat: panel.querySelector('.reminder-repeat'),
         save: panel.querySelector('.save'),
+        reset: panel.querySelector('.reset'),
         saveNote: panel.querySelector('.save-note'),
+        statsToggle: panel.querySelector('.stats-toggle'),
+        statsPanel: panel.querySelector('.stats-panel'),
+        statsTabs: Array.from(panel.querySelectorAll('.stats-tab')),
+        statsSessions: panel.querySelector('.stats-sessions'),
+        statsAnswers: panel.querySelector('.stats-answers'),
+        statsCorrect: panel.querySelector('.stats-correct'),
+        statsWrong: panel.querySelector('.stats-wrong'),
+        statsPercent: panel.querySelector('.stats-percent'),
+        statsNew: panel.querySelector('.stats-new'),
+        statsTime: panel.querySelector('.stats-time'),
+        statsDays: panel.querySelector('.stats-days'),
+        statsNote: panel.querySelector('.stats-note'),
         langLabel: panel.querySelector('.lang-label'),
         langSelect: panel.querySelector('.lang-select'),
         log: panel.querySelector('.log'),
@@ -380,6 +470,17 @@ function buildUi() {
         render();
     });
     els.save.addEventListener('click', saveSettings);
+    els.reset.addEventListener('click', resetSettings);
+    els.statsToggle.addEventListener('click', () => {
+        els.statsPanel.hidden = !els.statsPanel.hidden;
+        if (!els.statsPanel.hidden) renderStatsPanel();
+    });
+    for (const tab of els.statsTabs) {
+        tab.addEventListener('click', () => {
+            statsPeriod = tab.dataset.period;
+            renderStatsPanel();
+        });
+    }
     els.link.href = RELEASES_URL;
     applyStaticText();
 }
@@ -396,6 +497,8 @@ function applyStaticText() {
     els.settingsAutostart.textContent = t('settings.autostart');
     els.settingsClickMin.textContent = t('settings.clickMin');
     els.settingsClickMax.textContent = t('settings.clickMax');
+    els.settingsNavMin.textContent = t('settings.navMin');
+    els.settingsNavMax.textContent = t('settings.navMax');
     els.settingsTypeMin.textContent = t('settings.typeMin');
     els.settingsTypeMax.textContent = t('settings.typeMax');
     els.settingsTypoChance.textContent = t('settings.typoChance');
@@ -405,12 +508,20 @@ function applyStaticText() {
     els.settingsRepeat.textContent = t('settings.repeat');
     els.settingsReminderHint.textContent = t('settings.reminderHint');
     els.save.textContent = t('settings.save');
+    els.reset.textContent = t('settings.reset');
+    els.statsToggle.textContent = t('stats.button');
     els.langLabel.textContent = t('panel.language');
     els.bannerText.textContent = t('reminder.banner');
     els.bannerClose.textContent = 'OK';
     els.link.textContent = t('panel.link');
     for (const option of els.reminderRepeat.options) {
         option.textContent = t(option.dataset.i18n);
+    }
+    for (const tab of els.statsTabs) {
+        tab.textContent = t(`stats.${tab.dataset.period}`);
+    }
+    for (const label of els.statsPanel.querySelectorAll('[data-i18n]')) {
+        label.textContent = t(label.dataset.i18n);
     }
 }
 
@@ -437,6 +548,8 @@ function syncSettings() {
     els.validity.value = String(Math.round((config.valid_chance ?? 0.8) * 100));
     els.clickMin.value = String(delays.click_min ?? 2000);
     els.clickMax.value = String(delays.click_max ?? 4500);
+    els.navMin.value = String(delays.nav_min ?? 2000);
+    els.navMax.value = String(delays.nav_max ?? 4500);
     els.typeMin.value = String(delays.type_min ?? 90);
     els.typeMax.value = String(delays.type_max ?? 230);
     els.typoChance.value = String(Math.round((delays.typo_chance ?? 0.15) * 100));
@@ -467,6 +580,8 @@ function saveSettings() {
         delays: {
             click_min: Math.max(0, Math.round(number(els.clickMin, 2000))),
             click_max: Math.max(0, Math.round(number(els.clickMax, 4500))),
+            nav_min: Math.max(0, Math.round(number(els.navMin, 2000))),
+            nav_max: Math.max(0, Math.round(number(els.navMax, 4500))),
             type_min: Math.max(0, Math.round(number(els.typeMin, 90))),
             type_max: Math.max(0, Math.round(number(els.typeMax, 230))),
             typo_chance: Math.min(100, Math.max(0, typo)) / 100,
@@ -477,10 +592,25 @@ function saveSettings() {
     storage.set(REMINDER_KEY, {
         enabled: els.reminderEnabled.checked,
         time: /^([01]\d|2[0-3]):[0-5]\d$/.test(els.reminderTime.value) ? els.reminderTime.value : DEFAULT_REMINDER.time,
-        repeat_minutes: Math.max(0, Math.round(number(els.reminderRepeat, 0)))
+        repeat_minutes: DEFAULT_REPEAT_VALUES.includes(Number(els.reminderRepeat.value))
+            ? Number(els.reminderRepeat.value)
+            : 0
     });
     syncSettings();
     els.saveNote.textContent = t('settings.saved');
+}
+
+/**
+ * Restores every setting to its default once more. Credentials (login and
+ * password) and the chosen language are deliberately left untouched, and the
+ * reminder stays enabled with sane defaults.
+ */
+function resetSettings() {
+    engine.setConfig({...DEFAULT_CONFIG});
+    storage.set('autostart', false);
+    storage.set(REMINDER_KEY, {...DEFAULT_REMINDER});
+    els.saveNote.textContent = t('settings.resetDone');
+    syncSettings();
 }
 
 function statusKey(status) {
@@ -501,6 +631,7 @@ function render() {
     els.stop.disabled = !state.running;
     els.bubble.className = `bubble ${state.status}`;
     els.bubble.title = t(statusKey(state.status));
+    renderStatsPanel();
 }
 
 function renderStats(stats) {
@@ -511,6 +642,50 @@ function renderStats(stats) {
     parts.push(t('stats.accuracy', {percent: stats.total.accuracy}));
     if (stats.streak > 1) parts.push(t('stats.streak', {days: stats.streak}));
     return parts.join(' · ');
+}
+
+function formatMinutes(ms) {
+    const total = Math.max(0, Math.round(Number(ms ?? 0) / 60000));
+    if (total < 60) return t('stats.minutes', {minutes: total});
+    const hours = Math.floor(total / 60);
+    const minutes = total % 60;
+    return minutes > 0 ? `${hours} h ${minutes} min` : `${hours} h`;
+}
+
+/** Fills the statistics panel for the selected period (week/month/year/all). */
+function renderStatsPanel() {
+    if (!els.statsPanel || els.statsPanel.hidden) return;
+    for (const tab of els.statsTabs) {
+        const active = tab.dataset.period === statsPeriod;
+        tab.classList.toggle('active', active);
+        tab.setAttribute('aria-selected', String(active));
+    }
+    let summary = null;
+    try {
+        summary = engine.getStats()?.periods?.[statsPeriod] ?? null;
+    } catch (error) {
+        summary = null;
+    }
+    if (!summary) {
+        els.statsNote.textContent = t('stats.noData');
+        return;
+    }
+    els.statsSessions.textContent = String(summary.sessions ?? 0);
+    els.statsAnswers.textContent = String(summary.answers ?? 0);
+    els.statsCorrect.textContent = String(summary.correct ?? 0);
+    els.statsWrong.textContent = String(summary.wrong ?? 0);
+    els.statsPercent.textContent = summary.answers > 0 ? `${summary.percent}%` : '—';
+    els.statsNew.textContent = String(summary.newWords ?? 0);
+    els.statsTime.textContent = formatMinutes(summary.durationMs);
+    els.statsDays.textContent = String(summary.activeDays ?? 0);
+    els.statsNote.textContent = summary.sessions > 0
+        ? t('stats.noteRange', {
+            from: summary.from ?? '',
+            to: summary.to ?? '',
+            avgAnswers: summary.averageAnswers ?? 0,
+            avgMinutes: summary.averageMinutes ?? 0
+        })
+        : t('stats.noData');
 }
 
 function onEvent(event) {

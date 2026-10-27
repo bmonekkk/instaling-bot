@@ -313,13 +313,18 @@ function applySettings(current, payload) {
         type_pause_chance: clampNumber(delays.type_pause_chance, current.delays?.type_pause_chance ?? 0.12, 0, 1),
         typo_chance: clampNumber(delays.typo_chance, current.delays?.typo_chance ?? 0.15, 0, 1),
         click_min: clampNumber(delays.click_min, current.delays?.click_min ?? 2000, 0, 120000, true),
-        click_max: clampNumber(delays.click_max, current.delays?.click_max ?? 4500, 0, 120000, true)
+        click_max: clampNumber(delays.click_max, current.delays?.click_max ?? 4500, 0, 120000, true),
+        nav_min: clampNumber(delays.nav_min, current.delays?.nav_min ?? 2000, 0, 120000, true),
+        nav_max: clampNumber(delays.nav_max, current.delays?.nav_max ?? 4500, 0, 120000, true)
     };
     if (next.delays.type_max < next.delays.type_min) {
         next.delays.type_max = next.delays.type_min;
     }
     if (next.delays.click_max < next.delays.click_min) {
         next.delays.click_max = next.delays.click_min;
+    }
+    if (next.delays.nav_max < next.delays.nav_min) {
+        next.delays.nav_max = next.delays.nav_min;
     }
 
     const effective = resolveCredentials(next.credentials);
@@ -373,7 +378,9 @@ function configForRenderer(config) {
             type_pause_chance: config.delays?.type_pause_chance ?? 0.12,
             typo_chance: config.delays?.typo_chance ?? 0.15,
             click_min: config.delays?.click_min ?? 2000,
-            click_max: config.delays?.click_max ?? 4500
+            click_max: config.delays?.click_max ?? 4500,
+            nav_min: config.delays?.nav_min ?? 2000,
+            nav_max: config.delays?.nav_max ?? 4500
         },
         reminder: {
             enabled: config.reminder?.enabled !== false,

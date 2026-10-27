@@ -26,6 +26,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private var stopButton: ClassicButton!
     private var languageButton: ClassicButton!
     private var reminderButton: ClassicButton!
+    private var statsButton: ClassicButton!
     private var settingsButton: ClassicButton!
     private var updateButton: ClassicButton!
 
@@ -39,18 +40,31 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private let labels: [String: [String]] = [
         "pl": ["Start", "Stop", "Gotowy", "Uruchamianie...", "Pracuję...", "Zatrzymywanie...",
                "Sesja zakończona", "Błąd", "Zatrzymano", "Aktualizacja",
-               "Ustawienia sesji", "Poprawność odpowiedzi (%)", "Powtarzaj przypomnienie (min, 0 = raz dziennie)",
+               "Ustawienia sesji", "Poprawność odpowiedzi (%)", "Powtarzaj przypomnienie",
                "Godzina przypomnienia", "Zapisz", "Anuluj", "Zapisano ustawienia",
                "Humanizacja pisania", "Pauza po kliknięciu min (ms)", "Pauza po kliknięciu max (ms)",
                "Opóźnienie liter min (ms)", "Opóźnienie liter max (ms)",
-               "Szansa na literówkę (%)", "Szansa na pauzę (%)"],
+               "Szansa na literówkę (%)", "Szansa na pauzę (%)",
+               "Szybkość klikania przycisków min (ms)", "Szybkość klikania przycisków max (ms)",
+               "Przywróć domyślne", "Przywrócono ustawienia domyślne", "Statystyki",
+               "Tydzień", "Miesiąc", "Rok", "Wszystko", "Okres", "Sesje", "Odpowiedzi", "Dobrze",
+               "Błędnie", "Skuteczność", "Nowe słówka", "Czas łącznie", "Aktywne dni",
+               "Brak danych dla wybranego okresu.", "Zamknij",
+               "Raz dziennie", "Co 15 minut", "Co 30 minut", "Co godzinę", "Co 2 godziny", "Co 3 godziny"],
         "en": ["Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                "Session finished", "Error", "Stopped", "Update",
-               "Session settings", "Answer accuracy (%)", "Repeat reminder (min, 0 = once a day)",
+               "Session settings", "Answer accuracy (%)", "Repeat reminder",
                "Reminder time", "Save", "Cancel", "Settings saved",
                "Typing humanization", "Min delay after a click (ms)", "Max delay after a click (ms)",
                "Min letter delay (ms)", "Max letter delay (ms)",
-               "Typo chance (%)", "Pause chance (%)"]
+               "Typo chance (%)", "Pause chance (%)",
+               "Min button click speed (ms)", "Max button click speed (ms)",
+               "Restore defaults", "Defaults restored", "Statistics",
+               "Week", "Month", "Year", "All time", "Period", "Sessions", "Answers", "Correct",
+               "Wrong", "Accuracy", "New words", "Total time", "Active days",
+               "No data for the selected period.", "Close",
+               "Once a day", "Every 15 minutes", "Every 30 minutes", "Every hour", "Every 2 hours",
+               "Every 3 hours"]
     ]
 
     private func label(_ index: Int) -> String {
@@ -110,11 +124,15 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         reminderButton = makeButton("⏰", background: ClassicPalette.window, foreground: .black)
         reminderButton.addTarget(self, action: #selector(toggleReminder), for: .touchUpInside)
 
+        statsButton = makeButton("📊", background: ClassicPalette.window, foreground: .black)
+        statsButton.accessibilityLabel = label(28)
+        statsButton.addTarget(self, action: #selector(openStatistics), for: .touchUpInside)
+
         settingsButton = makeButton("⚙", background: ClassicPalette.window, foreground: .black)
         settingsButton.accessibilityLabel = label(10)
         settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
 
-        let titleRow = UIStackView(arrangedSubviews: [title, languageButton, reminderButton, settingsButton])
+        let titleRow = UIStackView(arrangedSubviews: [title, languageButton, reminderButton, statsButton, settingsButton])
         titleRow.axis = .horizontal
         titleRow.alignment = .center
         titleRow.spacing = 4
@@ -253,6 +271,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                     delays: {
                         click_min: \(clickMin),
                         click_max: \(clickMax),
+                        nav_min: \(navMin),
+                        nav_max: \(navMax),
                         type_min: \(typeMin),
                         type_max: \(typeMax),
                         type_pause_chance: \(pauseChance),
@@ -483,6 +503,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
     private var clickMin: Int { max(0, intSetting("click_min", 2000)) }
     private var clickMax: Int { max(0, intSetting("click_max", 4500)) }
+    private var navMin: Int { max(0, intSetting("nav_min", 2000)) }
+    private var navMax: Int { max(0, intSetting("nav_max", 4500)) }
     private var typeMin: Int { max(0, intSetting("type_min", 90)) }
     private var typeMax: Int { max(0, intSetting("type_max", 230)) }
     private var typoChance: Double { min(1, max(0, doubleSetting("typo_chance", 0.15))) }
@@ -538,6 +560,12 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         let clickMaxField = makeNumberField(String(clickMax))
         stack.addArrangedSubview(makeFieldLabel(label(19)))
         stack.addArrangedSubview(clickMaxField)
+        let navMinField = makeNumberField(String(navMin))
+        stack.addArrangedSubview(makeFieldLabel(label(24)))
+        stack.addArrangedSubview(navMinField)
+        let navMaxField = makeNumberField(String(navMax))
+        stack.addArrangedSubview(makeFieldLabel(label(25)))
+        stack.addArrangedSubview(navMaxField)
         let typeMinField = makeNumberField(String(typeMin))
         stack.addArrangedSubview(makeFieldLabel(label(20)))
         stack.addArrangedSubview(typeMinField)
@@ -562,16 +590,45 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             timePicker.date = date
         }
         stack.addArrangedSubview(makeFieldLabel(label(13)))
-        stack.addArrangedSubview(timePicker)
+        // Keep the time field on the left instead of letting it float to the edge.
+        let spacer = UIView()
+        spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        timePicker.setContentHuggingPriority(.required, for: .horizontal)
+        timePicker.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let timeRow = UIStackView(arrangedSubviews: [timePicker, spacer])
+        timeRow.axis = .horizontal
+        timeRow.alignment = .center
+        timeRow.spacing = 0
+        stack.addArrangedSubview(timeRow)
 
-        let repeatField = makeNumberField(String(reminderRepeat))
+        // Same reminder-frequency choices as the desktop select, instead of a
+        // free-text number of minutes.
+        let repeatSelection = DropdownSelection(reminderRepeat)
+        let repeatButton = makeDropdown(
+            title: repeatTitle(reminderRepeat),
+            options: reminderRepeatOptions(),
+            selection: repeatSelection
+        )
         stack.addArrangedSubview(makeFieldLabel(label(12)))
-        stack.addArrangedSubview(repeatField)
+        stack.addArrangedSubview(repeatButton)
 
         let buttons = UIStackView()
         buttons.axis = .horizontal
         buttons.spacing = 10
         buttons.distribution = .fillEqually
+
+        let reset = ClassicButton(title: label(26), fill: ClassicPalette.window, foreground: .black)
+        reset.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        reset.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            self.resetToDefaults()
+            self.applyConfigToEngine()
+            if UserDefaults.standard.bool(forKey: "reminder") {
+                self.scheduleReminder()
+            }
+            self.refreshStats()
+            controller.dismiss(animated: true)
+        }, for: .touchUpInside)
 
         let cancel = ClassicButton(title: label(15), fill: ClassicPalette.window, foreground: .black)
         cancel.heightAnchor.constraint(equalToConstant: 44).isActive = true
@@ -584,22 +641,25 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             let percent = min(100, max(0, Int(validityField.text ?? "") ?? 80))
             let clickMinValue = min(120000, max(0, Int(clickMinField.text ?? "") ?? 2000))
             let clickMaxValue = max(clickMinValue, min(120000, max(0, Int(clickMaxField.text ?? "") ?? 4500)))
+            let navMinValue = min(120000, max(0, Int(navMinField.text ?? "") ?? 2000))
+            let navMaxValue = max(navMinValue, min(120000, max(0, Int(navMaxField.text ?? "") ?? 4500)))
             let typeMinValue = min(5000, max(0, Int(typeMinField.text ?? "") ?? 90))
             let typeMaxValue = max(typeMinValue, min(5000, max(0, Int(typeMaxField.text ?? "") ?? 230)))
             let typoValue = min(100, max(0, Int(typoField.text ?? "") ?? 15))
             let pauseValue = min(100, max(0, Int(pauseField.text ?? "") ?? 12))
-            let repeatValue = min(1440, max(0, Int(repeatField.text ?? "") ?? 0))
             let time = Calendar.current.dateComponents([.hour, .minute], from: timePicker.date)
             UserDefaults.standard.set(Double(percent) / 100, forKey: "valid_chance")
             UserDefaults.standard.set(clickMinValue, forKey: "click_min")
             UserDefaults.standard.set(clickMaxValue, forKey: "click_max")
+            UserDefaults.standard.set(navMinValue, forKey: "nav_min")
+            UserDefaults.standard.set(navMaxValue, forKey: "nav_max")
             UserDefaults.standard.set(typeMinValue, forKey: "type_min")
             UserDefaults.standard.set(typeMaxValue, forKey: "type_max")
             UserDefaults.standard.set(Double(typoValue) / 100, forKey: "typo_chance")
             UserDefaults.standard.set(Double(pauseValue) / 100, forKey: "type_pause_chance")
             UserDefaults.standard.set(time.hour ?? Self.defaultReminderHour, forKey: "reminder_hour")
             UserDefaults.standard.set(time.minute ?? Self.defaultReminderMinute, forKey: "reminder_minute")
-            UserDefaults.standard.set(repeatValue, forKey: "reminder_repeat")
+            UserDefaults.standard.set(repeatSelection.value, forKey: "reminder_repeat")
             self.applyConfigToEngine()
             if UserDefaults.standard.bool(forKey: "reminder") {
                 self.scheduleReminder()
@@ -608,6 +668,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             self.refreshStats()
         }, for: .touchUpInside)
 
+        buttons.addArrangedSubview(reset)
         buttons.addArrangedSubview(cancel)
         buttons.addArrangedSubview(save)
         stack.addArrangedSubview(buttons)
@@ -672,10 +733,146 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         return view
     }
 
+    /// Values offered for the reminder frequency, matching the desktop select.
+    private let reminderRepeatValues = [0, 15, 30, 60, 120, 180]
+
+    private func reminderRepeatOptions() -> [(String, Int)] {
+        reminderRepeatValues.enumerated().map { (label(44 + $0.offset), $0.element) }
+    }
+
+    private func repeatTitle(_ minutes: Int) -> String {
+        let index = reminderRepeatValues.firstIndex(of: minutes) ?? 0
+        return label(44 + index)
+    }
+
+    /// A classic beveled button that opens a dropdown menu of choices.
+    private func makeDropdown(
+        title: String,
+        options: [(String, Int)],
+        selection: DropdownSelection
+    ) -> ClassicButton {
+        let button = ClassicButton(title: title, fill: ClassicPalette.window, foreground: .black)
+        button.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        button.showsMenuAsPrimaryAction = true
+        button.menu = UIMenu(children: options.map { option in
+            UIAction(
+                title: option.0,
+                state: option.1 == selection.value ? .on : .off
+            ) { [weak button] _ in
+                selection.value = option.1
+                button?.setTitle(option.0, for: .normal)
+            }
+        })
+        return button
+    }
+
+    /// Restores every setting to its default, keeping the language and login.
+    private func resetToDefaults() {
+        let defaults = UserDefaults.standard
+        defaults.set(0.8, forKey: "valid_chance")
+        defaults.set(2000, forKey: "click_min")
+        defaults.set(4500, forKey: "click_max")
+        defaults.set(2000, forKey: "nav_min")
+        defaults.set(4500, forKey: "nav_max")
+        defaults.set(90, forKey: "type_min")
+        defaults.set(230, forKey: "type_max")
+        defaults.set(0.15, forKey: "typo_chance")
+        defaults.set(0.12, forKey: "type_pause_chance")
+        defaults.set(Self.defaultReminderHour, forKey: "reminder_hour")
+        defaults.set(Self.defaultReminderMinute, forKey: "reminder_minute")
+        defaults.set(0, forKey: "reminder_repeat")
+    }
+
+    // MARK: - Statistics
+
+    /// Statistics menu: the same week/month/year/all panel as the desktop app.
+    @objc private func openStatistics() {
+        let controller = UIViewController()
+        controller.view.backgroundColor = ClassicPalette.window
+        controller.title = label(28)
+
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 12
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        controller.view.addSubview(stack)
+
+        let heading = UILabel()
+        heading.text = label(28)
+        heading.textColor = ClassicPalette.ink
+        heading.font = .boldSystemFont(ofSize: 18)
+        stack.addArrangedSubview(heading)
+
+        let selector = UISegmentedControl(items: [label(29), label(30), label(31), label(32)])
+        selector.selectedSegmentIndex = 0
+        selector.selectedSegmentTintColor = ClassicPalette.title1
+        selector.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+        selector.setTitleTextAttributes([.foregroundColor: ClassicPalette.ink], for: .normal)
+        stack.addArrangedSubview(selector)
+
+        let grid = UILabel()
+        grid.numberOfLines = 0
+        grid.textColor = ClassicPalette.ink
+        grid.font = .systemFont(ofSize: 14)
+        grid.text = label(42)
+        stack.addArrangedSubview(grid)
+
+        let close = ClassicButton(title: label(43), fill: ClassicPalette.window, foreground: .black)
+        close.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        close.addAction(UIAction { _ in controller.dismiss(animated: true) }, for: .touchUpInside)
+        stack.addArrangedSubview(close)
+
+        let periods = ["week", "month", "year", "all"]
+        selector.addAction(UIAction { [weak self] _ in
+            self?.renderStatistics(grid, period: periods[selector.selectedSegmentIndex])
+        }, for: .valueChanged)
+
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            stack.leadingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+        ])
+
+        present(controller, animated: true)
+        renderStatistics(grid, period: periods[0])
+    }
+
+    private func renderStatistics(_ grid: UILabel, period: String) {
+        let script = "(function(){try{return window.__instalingBotEngine?"
+            + "window.__instalingBotEngine.getStats().periods['\(period)']:null;}"
+            + "catch(e){return null;}})()"
+        webView?.evaluateJavaScript(script) { [weak self] result, _ in
+            guard let self, let summary = result as? [String: Any] else { return }
+            let answers = summary["answers"] as? Int ?? 0
+            let percent = summary["percent"] as? Int ?? 0
+            let durationMs = (summary["durationMs"] as? NSNumber)?.doubleValue ?? 0
+            let minutes = Self.formatMinutes(durationMs)
+            var lines: [String] = []
+            lines.append("\(self.label(34)): \(summary["sessions"] as? Int ?? 0)")
+            lines.append("\(self.label(35)): \(answers)")
+            lines.append("\(self.label(36)): \(summary["correct"] as? Int ?? 0)")
+            lines.append("\(self.label(37)): \(summary["wrong"] as? Int ?? 0)")
+            lines.append("\(self.label(38)): \(answers > 0 ? "\(percent)%" : "—")")
+            lines.append("\(self.label(39)): \(summary["newWords"] as? Int ?? 0)")
+            lines.append("\(self.label(40)): \(minutes)")
+            lines.append("\(self.label(41)): \(summary["activeDays"] as? Int ?? 0)")
+            grid.text = lines.joined(separator: "\n")
+        }
+    }
+
+    private static func formatMinutes(_ millis: Double) -> String {
+        let total = max(0, Int((millis / 60000).rounded()))
+        if total < 60 { return "\(total) min" }
+        let hours = total / 60
+        let minutes = total % 60
+        return minutes > 0 ? "\(hours) h \(minutes) min" : "\(hours) h"
+    }
+
     private func applyConfigToEngine() {
         let script = "window.__instalingBotEngine && window.__instalingBotEngine.setConfig({"
             + "valid_chance:\(validChance),"
             + "delays:{click_min:\(clickMin),click_max:\(clickMax),"
+            + "nav_min:\(navMin),nav_max:\(navMax),"
             + "type_min:\(typeMin),type_max:\(typeMax),"
             + "type_pause_chance:\(pauseChance),typo_chance:\(typoChance)}})"
         webView?.evaluateJavaScript(script)
@@ -827,5 +1024,14 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             return remote[index] > local[index]
         }
         return remote.count > local.count
+    }
+}
+
+/// Mutable holder for a dropdown's current value, shared between the menu
+/// actions and the settings screen.
+private final class DropdownSelection {
+    var value: Int
+    init(_ value: Int) {
+        self.value = value
     }
 }

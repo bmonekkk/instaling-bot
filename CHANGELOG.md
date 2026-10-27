@@ -2,6 +2,24 @@
 
 All notable changes to this fork are documented here.
 
+## [4.2.1] - 2026-10-28
+
+### Added
+- **Statistics panel on every platform.** The shared mobile engine (`mobile/engine/engine.js`) now records `sessions` and `durationMs` per day and exposes `periods` (week/month/year/all) mirroring `src/stats.js`. Android (📊 title-bar button + period spinner), iOS (📊 button + segmented control) and the userscript (toggleable panel with tabs) show the same sessions / answers / correct / wrong / accuracy / new words / total time / active days grid as the desktop statistics modal.
+- **Restore defaults everywhere.** A button in the desktop app (`Domyślne`), the Android settings dialog, the iOS settings sheet and the userscript panel resets every setting except login, password and language.
+- **Shared navigation-button click speed.** New `nav_min` / `nav_max` delays (defaults 2000/4500 ms) drive the "next word", login and session start/continue waits on the desktop (`src/main.js`), in the shared engine and in every shell. Exposed in `config/Config.defaults.json` and the desktop Advanced section.
+
+### Changed
+- **Mobile reminder frequency is now a dropdown** (once a day, every 15/30/60/120/180 min) on Android and iOS, matching the desktop select instead of a free-text minutes field.
+- **Reminder time is left-aligned** on iOS and in the userscript, next to its label.
+- Version bumped to `4.2.1` (userscript `4.2.2`) across `package.json`, the iOS project (`MARKETING_VERSION` 4.2.1 / `CURRENT_PROJECT_VERSION` 40201), the desktop renderer, the website, `docs/llms.txt`, README (PL/EN), wiki, `PROJECT_NOTES.md` and the release notes.
+
+### Fixed
+- **Oversized userscript settings panel on Safari.** The panel now uses `max-height: calc(100dvh - 96px)` with a `100vh` fallback and `overscroll-behavior: contain`, so it stays inside the visible viewport and no longer scrolls the page behind it.
+
+### Compatibility
+- Desktop/CLI configs, `SavedWords.json`, statistics and reminders are unchanged. `check_min` / `check_max` and `next_word_min` / `next_word_max` remain as internal fallbacks. Mobile apps still do not read `Config.json` and still do not store credentials.
+
 ## [4.2.0] - 2026-10-27
 
 ### Added
