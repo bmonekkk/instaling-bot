@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies without native downloads
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Syntax check
+        run: npm run check
+
+      - name: Check whitespace
+        run: git diff --check HEAD^ HEAD
+
+      - name: Check installer script
+        run: bash -n install.sh
+
+      - name: CLI smoke test
+        run: |
+          node bin/instaling-bot.js version
+          node bin/instaling-bot.js help > /dev/null
+          node bin/instaling-bot.js stats --json > /dev/null

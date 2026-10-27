@@ -4,6 +4,15 @@ All notable changes to this fork are documented here.
 
 ## [Unreleased]
 
+### Added
+- Community health files: `SECURITY.md`, `CONTRIBUTING.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md`, issue and pull request templates, and discussion templates for Q&A and Ideas.
+- CI workflow covering syntax checks, whitespace, the `install.sh` shell script and CLI smoke tests; CodeQL analysis for JavaScript; Dependabot updates for npm and GitHub Actions.
+- Wiki source under `wiki/` with a `scripts/sync-wiki.sh` helper, plus a welcome discussion in the repository.
+- Repository hardening: protected `master` with a required CI check, private vulnerability reporting, secret scanning push protection, Dependabot alerts and security updates, squash-only merges and automatic branch deletion.
+
+### Changed
+- README now has CI, CodeQL, release, license and discussions badges, plus a community and support section.
+
 ## [3.2.0] - 2026-10-27
 
 ### Added

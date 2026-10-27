@@ -1,0 +1,80 @@
+# ❓ FAQ
+
+## Czy to jest oficjalne narzędzie InstaLing?
+
+Nie. Projekt jest niezależny i nie jest powiązany z InstaLing ani z jego właścicielami.
+
+## Czy mogę tego używać w szkole?
+
+Projekt ma charakter **edukacyjny** — powstał jako ćwiczenie z automatyzacji przeglądarki.
+Nie jest przeznaczony do oszukiwania w nauce ani do obchodzenia zasad szkoły. Automatyczne
+korzystanie z serwisu może naruszać jego regulamin. Decyzja i odpowiedzialność należą do
+Ciebie.
+
+## Czy bot wysyła moje dane na jakiś serwer?
+
+Nie. Bot działa lokalnie. Login, hasło, słówka i statystyki są zapisywane w plikach w folderze
+aplikacji. Nie ma własnego backendu ani telemetrii.
+
+## Gdzie są moje dane?
+
+- **Windows:** `%APPDATA%\instaling-bot`
+- **macOS:** `~/Library/Application Support/instaling-bot`
+- **CLI:** `config/` w katalogu projektu lub `~/.local/share/instaling-bot`
+
+Pliki: `Config.json`, `SavedWords.json`, `stats.json`, `reminder-state.json`, `logs/`,
+`pages/`, `screenshots/`.
+
+## Czy mogę używać wielu kont?
+
+Tak, ale każde konto powinno mieć osobny folder danych lub osobny `Config.json`. Nie
+uruchamiaj dwóch sesji na tym samym koncie jednocześnie.
+
+## Dlaczego statystyki są puste?
+
+`stats.json` powstaje po pierwszej sesji z co najmniej jedną odpowiedzią. Statystyki nie
+są uzupełniane wstecz dla sesji sprzed aktualizacji.
+
+## Dlaczego przypomnienie się nie pojawia?
+
+- aplikacja musi działać (także w zasobniku),
+- musi być po wybranej godzinie,
+- dzisiejsza sesja nie może być jeszcze ukończona,
+- przy `repeat_minutes` kolejne przypomnienie pojawi się po wybranym interwale.
+
+## Czy aplikacja aktualizuje się sama?
+
+Nie. Desktop pokazuje banner z linkiem do wydania, ale nie pobiera ani nie instaluje
+aktualizacji automatycznie. CLI blokuje start nieaktualnej wersji, ale nie aktualizuje się
+samo.
+
+## Dlaczego instalatory są niepodpisane?
+
+Projekt nie ma certyfikatu code signing. Windows SmartScreen i macOS Gatekeeper mogą
+ostrzec przy pierwszym uruchomieniu. To oczekiwane; kod źródłowy jest publiczny.
+
+## Jakie języki są obsługiwane?
+
+Wszystkie języki dostępne na instaling.pl, m.in. angielski, niemiecki, francuski, włoski
+i hiszpański. Interfejs aplikacji jest po polsku.
+
+## Czy jest wersja desktopowa na Linuksa?
+
+Nie. Na Linuksie działa CLI. Aplikacja desktopowa jest budowana dla Windows i macOS.
+
+## Jak zgłosić błąd lub pomysł?
+
+- **Błąd:** [Issues](https://github.com/bmonekkk/instaling-bot/issues) z szablonem.
+- **Pomysł:** [Discussions → Ideas](https://github.com/bmonekkk/instaling-bot/discussions/categories/ideas).
+- **Pytanie:** [Discussions → Q&A](https://github.com/bmonekkk/instaling-bot/discussions/categories/q-a).
+- **Bezpieczeństwo:** [prywatny raport](https://github.com/bmonekkk/instaling-bot/security/advisories/new).
+
+## Czy projekt przyjmuje pull requesty?
+
+Tak! Zobacz [CONTRIBUTING.md](https://github.com/bmonekkk/instaling-bot/blob/master/CONTRIBUTING.md)
+i [Współtworzenie](Contributing).
+
+## Czy można wesprzeć projekt?
+
+Tak, dobrowolnie przez [Ko-fi](https://ko-fi.com/H5P529J2VO). Wsparcie nie gwarantuje
+konkretnych funkcji ani terminów.

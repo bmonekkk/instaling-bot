@@ -67,7 +67,13 @@ scripts/
   ensure-electron.js   postinstall fallback that downloads the Electron runtime
   remind.js            CLI reminder loop (shares config and state with the desktop app)
   check-updates.js     CLI update check against GitHub releases
+  sync-wiki.sh         pushes wiki/ to the GitHub wiki repository
   generate-icon.ps1    Windows-only icon generator for build/icon.png
+wiki/           source for the GitHub wiki (Home, Installation, CLI, Configuration, ...)
+.github/
+  workflows/    release.yml, ci.yml, codeql.yml
+  ISSUE_TEMPLATE/, DISCUSSION_TEMPLATE/, dependabot.yml, FUNDING.yml
+  RELEASE_NOTES_v*.md
 config/
   Config.json             real CLI config (gitignored, contains credentials)
   Config.defaults.json    template committed to git
@@ -287,6 +293,27 @@ Release checklist:
 7. Push the tag (`git tag vX.Y.Z && git push origin vX.Y.Z`) and wait for the workflow.
 8. Open the draft release, verify `.exe` + both `.pkg` files, then publish.
 9. Check that GitHub Pages reflects the new version and the asset links resolve.
+
+## Community and repository setup
+
+Health files live at the repository root: `SECURITY.md`, `CONTRIBUTING.md`, `SUPPORT.md`,
+`CODE_OF_CONDUCT.md`. Issue forms are in `.github/ISSUE_TEMPLATE/`, discussion forms in
+`.github/DISCUSSION_TEMPLATE/`, and the PR template is `.github/pull_request_template.md`.
+
+- `ci.yml` runs on pushes and PRs to `master`: syntax check, whitespace, `install.sh` and
+  CLI smoke tests. The `Check` job is a required status check for `master`.
+- `codeql.yml` runs CodeQL `security-and-quality` for JavaScript on pushes, PRs and weekly.
+- `dependabot.yml` updates npm dependencies and GitHub Actions weekly (minor/patch grouped).
+- `master` is protected by a ruleset: PR required (0 approvals), conversation resolution,
+  linear history, no deletion/force-push, required `Check` status; repository admins can bypass
+  for urgent releases.
+- Repository settings: issues and discussions enabled, wiki enabled, squash-only merges,
+  auto-delete branches, auto-merge and update-branch enabled.
+- Security: Dependabot alerts and security updates, private vulnerability reporting, secret
+  scanning + push protection, non-provider patterns and validity checks.
+- Wiki source is versioned in `wiki/`. GitHub has no API for the **first** wiki page: open
+  `https://github.com/bmonekkk/instaling-bot/wiki`, create any first page, then run
+  `scripts/sync-wiki.sh` to push the full wiki.
 
 ## Common tasks
 

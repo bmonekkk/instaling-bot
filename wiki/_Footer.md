@@ -1,0 +1,1 @@
+instaling-bot · [GitHub](https://github.com/bmonekkk/instaling-bot) · [Wydania](https://github.com/bmonekkk/instaling-bot/releases) · [Dyskusje](https://github.com/bmonekkk/instaling-bot/discussions) · [Ko-fi](https://ko-fi.com/H5P529J2VO)

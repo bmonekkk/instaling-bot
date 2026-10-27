@@ -1,0 +1,38 @@
+title: "[Pomysł] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Podziel się pomysłem! Możesz pisać po polsku lub po angielsku.
+
+        Opisz **problem**, który chcesz rozwiązać, a nie tylko techniczne rozwiązanie.
+        Sprawdź najpierw, czy podobny pomysł już istnieje.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Jaki problem to rozwiązuje?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proponowane rozwiązanie
+      description: Jak powinno działać? Dodaj przykłady ustawień, poleceń lub UI.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Obszar
+      options:
+        - Aplikacja desktopowa
+        - CLI
+        - Statystyki
+        - Przypomnienia
+        - Aktualizacje
+        - Dokumentacja / wiki
+        - Inne

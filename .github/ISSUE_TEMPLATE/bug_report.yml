@@ -1,0 +1,101 @@
+name: Bug report
+description: Report a reproducible problem with the desktop app or CLI.
+title: "[Bug]: "
+labels: ["bug", "needs triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! You can write in **Polish or English**.
+
+        Before opening this issue:
+        1. Update to the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+        2. Search [issues](https://github.com/bmonekkk/instaling-bot/issues) and [discussions](https://github.com/bmonekkk/instaling-bot/discussions).
+        3. **Never paste passwords, cookies, tokens, `Config.json` or unredacted logs.**
+        4. Security problems go through [SECURITY.md](https://github.com/bmonekkk/instaling-bot/blob/master/SECURITY.md), not here.
+
+  - type: dropdown
+    id: product
+    attributes:
+      label: Where does it happen?
+      options:
+        - Desktop app — Windows
+        - Desktop app — macOS
+        - CLI — Linux
+        - CLI — macOS
+        - CLI — Windows
+        - Installer / download
+        - Documentation / website
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The version shown in the title bar or by `instaling-bot version`.
+      placeholder: "3.2.0"
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and install method
+      placeholder: "Windows 11 24H2, setup-win64.exe / macOS 15 arm64, pkg / Ubuntu 24.04, install.sh"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Be specific. A minimal sequence is more useful than a long description.
+      placeholder: |
+        1. Open the app / run `instaling-bot start`
+        2. Set ...
+        3. Click ...
+        4. See error ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs (redacted)
+      description: Remove logins, passwords, cookies, tokens and personal data before pasting.
+      render: shell
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or recordings
+      description: Drag and drop files here. Crop or blur anything private.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I use the latest release.
+          required: true
+        - label: I searched existing issues and discussions.
+          required: true
+        - label: I removed credentials and personal data from logs and screenshots.
+          required: true
+        - label: This is not a security vulnerability (those go through SECURITY.md).
+          required: true

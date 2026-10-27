@@ -1,0 +1,42 @@
+title: "[Pytanie] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dziękuję za pytanie! Możesz pisać po polsku lub po angielsku.
+
+        Najpierw sprawdź [README FAQ](https://github.com/bmonekkk/instaling-bot#-rozwiązywanie-problemów)
+        i [wiki](https://github.com/bmonekkk/instaling-bot/wiki). Nie wklejaj haseł, ciasteczek,
+        tokenów ani prywatnych logów.
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Z czym potrzebujesz pomocy?
+      description: Opisz problem, oczekiwany wynik i co już sprawdziłeś.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Wersja
+      placeholder: "3.2.0"
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: System
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - Inny
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logi lub zrzuty (bez danych prywatnych)
+      description: Usuń login, hasło, ciasteczka i dane osobowe.
+      render: shell

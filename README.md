@@ -4,6 +4,14 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
+**Wiki:** https://github.com/bmonekkk/instaling-bot/wiki
+**Dyskusje:** https://github.com/bmonekkk/instaling-bot/discussions
+
+[![CI](https://github.com/bmonekkk/instaling-bot/actions/workflows/ci.yml/badge.svg)](https://github.com/bmonekkk/instaling-bot/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/bmonekkk/instaling-bot/actions/workflows/codeql.yml/badge.svg)](https://github.com/bmonekkk/instaling-bot/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/bmonekkk/instaling-bot?label=release)](https://github.com/bmonekkk/instaling-bot/releases/latest)
+[![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
+[![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
 Aktualna wersja (**3.2.0**) łączy trzy rzeczy:
 
@@ -318,6 +326,23 @@ Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow Git
 Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
 
 
+## 💬 Społeczność i wsparcie
+
+- 💬 **[Dyskusje](https://github.com/bmonekkk/instaling-bot/discussions)** — pytania (Q&A), pomysły (Ideas), pokaż swój setup (Show and tell) i ankiety.
+- 🐛 **[Issues](https://github.com/bmonekkk/instaling-bot/issues)** — powtarzalne błędy. Użyj szablonu i usuń dane prywatne z logów.
+- 📚 **[Wiki](https://github.com/bmonekkk/instaling-bot/wiki)** — instalacja, CLI, konfiguracja, problemy i FAQ.
+- 🤝 **[Contributing](CONTRIBUTING.md)** — jak pomóc, zgłosić zmianę i uruchomić projekt lokalnie.
+- 📜 **[Code of Conduct](CODE_OF_CONDUCT.md)** — zasady życzliwej społeczności.
+- 🔐 **[Security](SECURITY.md)** — prywatne zgłaszanie luk. Nie otwieraj publicznego issue.
+- 🆘 **[Support](SUPPORT.md)** — gdzie szukać pomocy i czego oczekiwać.
+
+**Zanim zapytasz:** sprawdź FAQ, zaktualizuj do najnowszej wersji i wyszukaj istniejące wątki.
+Nigdy nie publikuj haseł, ciasteczek, tokenów, `Config.json` ani logów z danymi osobowymi.
+
+Projekt rozwijam hobbystycznie — odpowiedzi są best-effort. Bezpieczeństwo ma priorytet,
+potem powtarzalne błędy, a na końcu pomysły i kosmetyka.
+
+
 ## ⚠️ Disclaimer / Zastrzeżenia
 
 Projekt ma charakter **edukacyjny** — powstał jako ćwiczenie z automatyzacji przeglądarki (Puppeteer), obsługi cookies, selektorów i logiki aplikacji webowej. **Nie jest przeznaczony do oszukiwania w nauce** ani do obchodzenia zasad szkoły czy nauczyciela. Używaj go odpowiedzialnie, najlepiej do nauki i testowania własnych umiejętności.
@@ -337,4 +362,9 @@ ISC — zobacz plik [LICENSE](LICENSE). Projekt jest kontynuacją [PanSzelescik/
 
 ## 🧑‍💻 Dla deweloperów
 
-Architektura desktopu, ścieżki danych, proces budowania i lista rzeczy, których nie wolno zepsuć: [PROJECT_NOTES.md](PROJECT_NOTES.md).
+Architektura desktopu, ścieżki danych, proces budowania i lista rzeczy, których nie wolno
+zepsuć: [PROJECT_NOTES.md](PROJECT_NOTES.md).
+
+Zanim otworzysz pull request, przeczytaj **[CONTRIBUTING.md](CONTRIBUTING.md)** i uruchom
+`npm run check`, `git diff --check` oraz smoke test CLI. `master` jest chroniony, a zmiany
+przechodzą przez CI (składnia, biała spacja, `install.sh`, CLI) i CodeQL.

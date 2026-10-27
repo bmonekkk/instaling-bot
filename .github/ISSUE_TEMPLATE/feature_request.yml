@@ -1,0 +1,66 @@
+name: Feature request
+description: Suggest an improvement for the app, CLI, docs or community.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea! You can write in **Polish or English**.
+
+        Please check [Discussions → Ideas](https://github.com/bmonekkk/instaling-bot/discussions/categories/ideas)
+        first — a similar idea may already be there. Big or uncertain ideas are often better
+        as a discussion.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Desktop app
+        - CLI
+        - Statistics
+        - Reminders
+        - Updates / releases
+        - Documentation / wiki
+        - Accessibility
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve?
+      description: Describe the user need, not only the implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should happen? Include commands, settings or UI examples if useful.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing workarounds, other tools or designs you thought about.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Screenshots, mockups, links or examples. Do not include private data.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I can help with testing.
+        - label: I can help with documentation.
+        - label: I can open a pull request (with guidance if needed).
