@@ -57,7 +57,7 @@ const blockedHosts = [
 
 const SELECTORS = {
     loginEmail: ['#log_email', 'input[name="log_email"]'],
-    loginPassword: ['#log_password', 'input[name="log_password"]'],
+    loginMaskedField: ['#log_password', 'input[name="log_password"]'],
     loginSubmit: ['#main-container form button[type="submit"]', 'form button[type="submit"]', 'button[type="submit"]'],
     startSession: ['a.btn-start-session', '#session_button', 'button#session_button', '.btn-start-session'],
     continueSession: [
@@ -193,7 +193,7 @@ async function login(page) {
         let passwordValue;
         try {
             loginValue = await typeExact(page, SELECTORS.loginEmail, config.login, getRandomInt(18, 35));
-            passwordValue = await typeExact(page, SELECTORS.loginPassword, config.password, getRandomInt(18, 35));
+            passwordValue = await typeExact(page, SELECTORS.loginMaskedField, config.password, getRandomInt(18, 35));
         } catch {
             // Never let a browser or typing error carry the credentials into the
             // error log; the user gets a fixed message instead.

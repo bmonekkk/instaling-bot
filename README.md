@@ -250,7 +250,7 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
   - `login` — login lub e-mail
   - `password` — hasło
 - `sites` — używane strony
-  - `login` — strona logowania; musi używać HTTPS i należeć do `instaling.pl` (bot odmówi startu dla innego adresu)
+  - `login` — strona logowania; musi wskazywać oficjalną stronę logowania `instaling.pl` po HTTPS (bot odmówi startu dla innego adresu)
 - `delays` — czasy oczekiwania w milisekundach (1 s = 1000 ms); bot losuje wartość między min i max
   - `click_min` / `click_max` — domyślne opóźnienie po kliknięciu w przycisk
   - `type_min` / `type_max` — opóźnienie na pojedynczą literę

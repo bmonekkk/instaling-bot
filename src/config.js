@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const {DEFAULT_LOGIN_URL, normalizeLoginUrl} = require('./urls.js');
+const {DEFAULT_LOGIN_URL, resolveLoginUrl} = require('./urls.js');
 
 // The desktop app runs the engine against a writable user-data directory, so the
 // config path can be provided explicitly. The CLI keeps using config/Config.json.
@@ -33,7 +33,7 @@ const credentials = raw.credentials ?? {
 const sites = raw.sites && typeof raw.sites === 'object' ? raw.sites : {};
 let loginUrl;
 try {
-    loginUrl = normalizeLoginUrl(sites.login ?? DEFAULT_LOGIN_URL);
+    loginUrl = resolveLoginUrl(sites.login ?? DEFAULT_LOGIN_URL);
 } catch (error) {
     throw new Error(`Invalid sites.login in ${configPath}: ${error.message}`);
 }
