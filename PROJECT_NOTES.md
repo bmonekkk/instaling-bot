@@ -70,6 +70,10 @@ scripts/
   sync-wiki.sh         pushes wiki/ to the GitHub wiki repository
   generate-icon.ps1    Windows-only icon generator for build/icon.png
 wiki/           source for the GitHub wiki (Home, Installation, CLI, Configuration, ...)
+test/
+  stats.test.js       stats aggregation, period windows and normalization
+  reminder.test.js    reminder schedule, repeat interval and state helpers
+  update.test.js      version comparison and the stubbed release check
 .github/
   workflows/    release.yml, ci.yml, codeql.yml
   ISSUE_TEMPLATE/, DISCUSSION_TEMPLATE/, dependabot.yml, FUNDING.yml
@@ -300,8 +304,9 @@ Health files live at the repository root: `SECURITY.md`, `CONTRIBUTING.md`, `SUP
 `CODE_OF_CONDUCT.md`. Issue forms are in `.github/ISSUE_TEMPLATE/`, discussion forms in
 `.github/DISCUSSION_TEMPLATE/`, and the PR template is `.github/pull_request_template.md`.
 
-- `ci.yml` runs on pushes and PRs to `master`: syntax check, whitespace, `install.sh` and
-  CLI smoke tests. The `Check` job is a required status check for `master`.
+- `ci.yml` runs on pushes and PRs to `master`: syntax check, unit tests (`node --test`),
+  whitespace, `install.sh` and CLI smoke tests. The `Check` job is a required status check
+  for `master`.
 - `codeql.yml` runs CodeQL `security-and-quality` for JavaScript on pushes, PRs and weekly.
 - `dependabot.yml` updates npm dependencies and GitHub Actions weekly (minor/patch grouped).
 - `master` is protected by a ruleset: PR required (0 approvals), conversation resolution,

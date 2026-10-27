@@ -22,6 +22,7 @@
 <!-- Be specific: OS, version, commands, scenarios, edge cases. -->
 
 - [ ] `npm run check`
+- [ ] `npm test`
 - [ ] `git diff --check`
 - [ ] `bash -n install.sh`
 - [ ] CLI smoke test (`node bin/instaling-bot.js help`, `stats`, `version`)

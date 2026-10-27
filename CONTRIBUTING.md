@@ -41,6 +41,7 @@ Useful commands:
 npm run desktop     # Electron app (development)
 npm start           # CLI bot
 npm run check       # syntax check for every JS file
+npm test            # unit tests (node:test), no network or real data
 npm run stats       # CLI statistics
 npm run help        # CLI help
 npm run dist:win    # Windows installer (run on Windows)
@@ -53,6 +54,7 @@ Run at least:
 
 ```bash
 npm run check
+npm test
 git diff --check
 bash -n install.sh
 node bin/instaling-bot.js help

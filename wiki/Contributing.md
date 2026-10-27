@@ -36,6 +36,7 @@ Przydatne polecenia:
 npm run desktop     # aplikacja Electron
 npm start           # CLI
 npm run check       # składnia wszystkich plików JS
+npm test            # testy jednostkowe (node:test)
 npm run stats       # statystyki CLI
 npm run help        # pomoc CLI
 npm run dist:win    # instalator Windows (na Windows)
@@ -46,6 +47,7 @@ npm run dist:mac    # pakiet macOS (na macOS)
 
 ```bash
 npm run check
+npm test
 git diff --check
 bash -n install.sh
 node bin/instaling-bot.js help

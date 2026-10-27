@@ -366,5 +366,6 @@ Architektura desktopu, ścieżki danych, proces budowania i lista rzeczy, który
 zepsuć: [PROJECT_NOTES.md](PROJECT_NOTES.md).
 
 Zanim otworzysz pull request, przeczytaj **[CONTRIBUTING.md](CONTRIBUTING.md)** i uruchom
-`npm run check`, `git diff --check` oraz smoke test CLI. `master` jest chroniony, a zmiany
-przechodzą przez CI (składnia, biała spacja, `install.sh`, CLI) i CodeQL.
+`npm run check`, `npm test`, `git diff --check` oraz smoke test CLI. `master` jest chroniony,
+a zmiany przechodzą przez CI (składnia, testy jednostkowe, biała spacja, `install.sh`, CLI)
+i CodeQL.
