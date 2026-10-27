@@ -1,5 +1,7 @@
 # instaling-bot 🤖
 
+**🇵🇱 Polski · 🇬🇧 [English](README.en.md)**
+
 Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) — teraz także jako **aplikacja desktopowa dla Windows i macOS**.
 
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
@@ -328,6 +330,7 @@ Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
 
 ## 💬 Społeczność i wsparcie
 
+- 👋 **[Zacznij tutaj](https://github.com/bmonekkk/instaling-bot/discussions/1)** — wątek powitalny z linkami do wszystkiego.
 - 💬 **[Dyskusje](https://github.com/bmonekkk/instaling-bot/discussions)** — pytania (Q&A), pomysły (Ideas), pokaż swój setup (Show and tell) i ankiety.
 - 🐛 **[Issues](https://github.com/bmonekkk/instaling-bot/issues)** — powtarzalne błędy. Użyj szablonu i usuń dane prywatne z logów.
 - 📚 **[Wiki](https://github.com/bmonekkk/instaling-bot/wiki)** — instalacja, CLI, konfiguracja, problemy i FAQ.

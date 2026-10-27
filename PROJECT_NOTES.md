@@ -289,7 +289,7 @@ macOS `.pkg` files cannot be built reliably on Windows. Use the workflow (or a M
 Release checklist:
 
 1. Bump `version` in `package.json` and `package-lock.json`.
-2. Update `CHANGELOG.md`, `README.md`, `docs/index.html`, `PROJECT_NOTES.md`, `NOTICE`, and add `.github/RELEASE_NOTES_vX.Y.Z.md`.
+2. Update `CHANGELOG.md`, `README.md`, `README.en.md`, `docs/index.html`, `PROJECT_NOTES.md`, `NOTICE`, and add `.github/RELEASE_NOTES_vX.Y.Z.md`.
 3. Run `npm ci`, `npm run check`, and a CLI `max_answers: 1` smoke test.
 4. Test the desktop Stop button and reset local test config to production defaults.
 5. Commit, push to `origin master`.
