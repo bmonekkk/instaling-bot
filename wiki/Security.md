@@ -21,8 +21,9 @@ osobowymi. Zredaguj logi przed wysłaniem.
 
 | Wersja | Wsparcie |
 |---|---|
-| 3.2.x | ✅ |
-| < 3.2 | ❌ |
+| 4.0.x | ✅ |
+| 3.3.x | ✅ |
+| < 3.3 | ❌ |
 
 Aktualizuj do [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 

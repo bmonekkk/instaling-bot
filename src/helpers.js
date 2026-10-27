@@ -2,6 +2,8 @@ const config = require('./config.js');
 const fs = require('fs/promises');
 const path = require('path');
 const {yellow} = require('./printer.js');
+const {getRandomInt} = require('./core/random.js');
+const {getTypoChar, misspell} = require('./core/typing.js');
 
 const ROOT = process.env.INSTALING_ROOT
     ? path.resolve(process.env.INSTALING_ROOT)
@@ -133,80 +135,6 @@ async function clickWait(page, selector, wait_min = config.delays.click_min, wai
     return delay(getRandomInt(wait_min, wait_max));
 }
 
-const TYPO_NEIGHBORS = {
-    q: ['w', 'a', 's'],
-    w: ['q', 'e', 'a', 's', 'd'],
-    e: ['w', 'r', 's', 'd', 'f'],
-    r: ['e', 't', 'd', 'f', 'g'],
-    t: ['r', 'y', 'f', 'g', 'h'],
-    y: ['t', 'u', 'g', 'h', 'j'],
-    u: ['y', 'i', 'h', 'j', 'k'],
-    i: ['u', 'o', 'j', 'k', 'l'],
-    o: ['i', 'p', 'k', 'l'],
-    p: ['o', 'l'],
-    a: ['q', 'w', 's', 'z', 'x'],
-    s: ['a', 'd', 'w', 'e', 'z', 'x', 'c'],
-    d: ['s', 'f', 'e', 'r', 'x', 'c', 'v'],
-    f: ['d', 'g', 'r', 't', 'c', 'v', 'b'],
-    g: ['f', 'h', 't', 'y', 'v', 'b', 'n'],
-    h: ['g', 'j', 'y', 'u', 'b', 'n', 'm'],
-    j: ['h', 'k', 'u', 'i', 'n', 'm'],
-    k: ['j', 'l', 'i', 'o', 'm'],
-    l: ['k', 'o', 'p'],
-    z: ['a', 's', 'x'],
-    x: ['z', 'c', 's', 'd'],
-    c: ['x', 'v', 'd', 'f'],
-    v: ['c', 'b', 'f', 'g'],
-    b: ['v', 'n', 'g', 'h'],
-    n: ['b', 'm', 'h', 'j'],
-    m: ['n', 'j', 'k']
-};
-
-const ACCENT_MAP = {
-    á: 'a', à: 'a', ä: 'a', â: 'a', ã: 'a', å: 'a',
-    é: 'e', è: 'e', ë: 'e', ê: 'e',
-    í: 'i', ì: 'i', ï: 'i', î: 'i',
-    ó: 'o', ò: 'o', ö: 'o', ô: 'o', õ: 'o',
-    ú: 'u', ù: 'u', ü: 'u', û: 'u',
-    ñ: 'n', ç: 'c', ß: 's', ł: 'l', ą: 'a', ć: 'c', ę: 'e',
-    ś: 's', ź: 'z', ż: 'z', ń: 'n'
-};
-
-function getTypoChar(char) {
-    const lower = char.toLowerCase();
-    if (lower === char.toUpperCase()) {
-        return char;
-    }
-    const base = ACCENT_MAP[lower] ?? lower;
-    const options = TYPO_NEIGHBORS[base] ?? 'abcdefghijklmnopqrstuvwxyz'.split('');
-    const wrong = options[getRandomInt(0, options.length)];
-    return char === char.toUpperCase() ? wrong.toUpperCase() : wrong;
-}
-
-/**
- * Creates a plausible (but wrong) spelling of a word. Used when valid_chance
- * decides that the bot should answer incorrectly, so the answer field is filled
- * with a human-like mistake instead of being left empty.
- */
-function misspell(word) {
-    const chars = [...word];
-    if (chars.length < 2) {
-        return word + 'x';
-    }
-    const style = getRandomInt(0, 3);
-    if (style === 0) {
-        const i = getRandomInt(0, chars.length - 1);
-        [chars[i], chars[i + 1]] = [chars[i + 1], chars[i]];
-    } else if (style === 1) {
-        chars.splice(getRandomInt(0, chars.length), 1);
-    } else {
-        const i = getRandomInt(0, chars.length);
-        chars[i] = getTypoChar(chars[i]);
-    }
-    const result = chars.join('');
-    return result === word ? word.slice(0, -1) : result;
-}
-
 async function clearField(page, selector) {
     await page.$eval(selector, el => {
         el.focus();
@@ -331,12 +259,6 @@ async function savePage(page, i) {
     } catch (e) {
         // Saving diagnostics must never crash the bot.
     }
-}
-
-function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min;
 }
 
 async function checkVisibility(page, selector, timeout = 1000) {

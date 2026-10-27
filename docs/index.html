@@ -9,9 +9,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="favicon-96.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-    <title>instaling-bot — bot do instaling.pl (Windows, macOS, Linux CLI)</title>
-    <meta name="description" content="Bot do instaling.pl jako aplikacja desktopowa dla Windows i macOS oraz CLI dla Linuksa. Wersja 3.3.2: jaśniejszy komunikat offline, codzienne sprawdzanie aktualizacji, ikona w zasobniku, interfejs PL/EN, powiadomienia o sesji, statystyki i wbudowany Chrome. Open source, licencja ISC.">
-    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, aplikacja desktopowa, electron, windows, macos, linux, cli, puppeteer, nodejs, open source, human like typing, przypomnienia, statystyki, aktualizacje, angielski, polski, interfejs PL EN">
+    <title>instaling-bot — bot do instaling.pl (Windows, macOS, Android, iOS, CLI)</title>
+    <meta name="description" content="Bot do instaling.pl na Windows, macOS, Androida i iOS oraz CLI dla Linuksa. Wersja 4.0.0: APK, niepodpisana IPA, userscript do Safari, wspólny silnik, interfejs PL/EN, natywne przypomnienia, statystyki i wbudowany Chrome. Open source, licencja ISC.">
+    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, aplikacja desktopowa, android apk, ios ipa, sidestore, userscript, tampermonkey, electron, windows, macos, linux, cli, puppeteer, nodejs, open source, human like typing, przypomnienia, statystyki, aktualizacje, angielski, polski, interfejs PL EN">
     <meta name="author" content="bmonekkk">
     <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://bmonekkk.github.io/instaling-bot/">
@@ -20,7 +20,7 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
     <meta property="og:type" content="website">
     <meta property="og:title" content="instaling-bot — bot do instaling.pl (Windows, macOS, Linux CLI)">
-    <meta property="og:description" content="Aplikacja dla Windows i macOS oraz CLI dla Linuksa. Automatyczne rozwiązywanie słówek, live log i wbudowany Chrome. Wersja 3.3.2 z jaśniejszym komunikatem offline, codziennym sprawdzaniem aktualizacji, ikoną w zasobniku i interfejsem PL/EN. Open source, ISC.">
+    <meta property="og:description" content="Desktop, Android, iOS i CLI. Automatyczne rozwiązywanie słówek, live log i wspólny silnik. Wersja 4.0.0 z APK, niepodpisaną IPA, userscriptem do Safari i natywnymi przypomnieniami. Open source, ISC.">
     <meta property="og:url" content="https://bmonekkk.github.io/instaling-bot/">
     <meta property="og:site_name" content="instaling-bot">
     <meta property="og:locale" content="pl_PL">
@@ -51,10 +51,10 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "instaling-bot",
-        "softwareVersion": "3.3.2",
+        "softwareVersion": "4.0.0",
         "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Windows, macOS, Linux",
-        "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Aplikacja desktopowa dla Windows i macOS z wbudowanym Chrome oraz wersja CLI dla Linuksa. Obsługuje logowanie, sesję nauki, zapamiętywanie tłumaczeń, ludzkie pisanie z literówkami, losowe typy błędów, statystyki, codzienne przypomnienia, powiadomienia o zakończeniu sesji, codzienne sprawdzanie aktualizacji i ikonę w zasobniku. Interfejs dostępny po polsku i angielsku.",
+        "operatingSystem": "Windows, macOS, Linux, Android, iOS",
+        "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Aplikacja desktopowa dla Windows i macOS, powłoki mobilne na Androida i iOS oraz wersja CLI dla Linuksa. Obsługuje logowanie, sesję nauki, zapamiętywanie tłumaczeń, ludzkie pisanie z literówkami, losowe typy błędów, statystyki, codzienne przypomnienia, powiadomienia o zakończeniu sesji i aktualizacje. Interfejs dostępny po polsku i angielsku.",
         "url": "https://bmonekkk.github.io/instaling-bot/",
         "downloadUrl": "https://github.com/bmonekkk/instaling-bot/releases/latest",
         "codeRepository": "https://github.com/bmonekkk/instaling-bot",
@@ -79,6 +79,22 @@
                 "acceptedAnswer": {
                     "@type": "Answer",
                     "text": "Sprawdź połączenie z internetem i spróbuj ponownie. Okno błędu zamyka się tylko przyciskiem Zamknij."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Jak zainstalować instaling-bot na Androidzie?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Pobierz plik instaling-bot-4.0.0-android.apk z najnowszego wydania, otwórz go i zezwól na instalację z tego źródła. Zaloguj się na instaling.pl w aplikacji, wejdź na stronę nauki i naciśnij Start. APK nie jest w Play Store."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Jak uruchomić instaling-bot na iPhone?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Najłatwiej zainstalować darmowe Userscripts z App Store, włączyć rozszerzenie w Safari i zaimportować instaling-bot.user.js. Alternatywnie pobierz niepodpisaną IPA i podpisz ją własnym Apple ID w SideStore lub AltStore; darmowe konto wymaga odświeżenia co 7 dni."
                 }
             },
             {
@@ -590,7 +606,7 @@
 <div class="window">
     <div class="titlebar">
         <span class="titlebar-icon">🤖</span>
-        <span class="titlebar-text">instaling-bot.exe — v3.3.2</span>
+        <span class="titlebar-text">instaling-bot — v4.0.0</span>
         <span class="titlebar-buttons" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
     </div>
 
@@ -603,7 +619,7 @@
 
     <main class="content">
         <h1>instaling<span>-bot</span></h1>
-        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 3.3.2 to <strong>aplikacja desktopowa dla Windows i macOS</strong> z interfejsem <strong>PL/EN</strong> oraz pełne CLI — z codziennym sprawdzaniem aktualizacji, ikoną w zasobniku, wbudowanym Chrome, panelem ustawień, live logiem, statystykami i przypomnieniami.</p>
+        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 4.0.0 to <strong>desktop dla Windows i macOS</strong>, <strong>APK na Androida</strong>, <strong>IPA i userscript na iOS</strong> oraz pełne CLI — ze wspólnym silnikiem, interfejsem <strong>PL/EN</strong>, humanizacją pisania, statystykami i natywnymi przypomnieniami.</p>
 
         <div class="badges">
             <span class="badge">Windows .exe</span>
@@ -611,14 +627,15 @@
             <span class="badge">Linux CLI</span>
             <span class="badge">Electron</span>
             <span class="badge">Chrome w zestawie</span>
-            <span class="badge">v3.3.2</span>
+            <span class="badge">v4.0.0</span>
             <span class="badge">Licencja ISC</span>
             <span class="badge">Open source</span>
         </div>
 
         <p class="actions">
-            <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.3.2/instaling-bot-3.3.2-setup-win64.exe">Pobierz dla Windows (.exe)</a>
+            <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.0.0/instaling-bot-4.0.0-setup-win64.exe">Pobierz dla Windows (.exe)</a>
             <a class="btn" href="#macos">Pobierz dla macOS (.pkg)</a>
+            <a class="btn" href="#mobile">Pobierz na telefon</a>
             <a class="btn" href="#cli">Wersja CLI dla Linuksa</a>
             <a class="btn" href="https://github.com/bmonekkk/instaling-bot">Kod na GitHub</a>
         </p>
@@ -631,17 +648,17 @@
         </section>
 
         <section class="panel highlight">
-            <h2>Nowość w 3.3.2: offline bez odsyłania do FAQ</h2>
+            <h2>Nowość w 4.0.0: bot na telefonie</h2>
             <div class="grid">
                 <ul>
-                    <li><strong>Jaśniejszy komunikat o braku internetu</strong> — okno prosi już tylko o sprawdzenie połączenia i naciśnięcie <strong>Start</strong> ponownie.</li>
-                    <li><strong>Bez martwego odsyłacza</strong> — przy błędzie offline nie ma przycisku <strong>FAQ w README</strong>, bo bez sieci i tak go nie otworzysz. Przy innych błędach bota przycisk zostaje.</li>
-                    <li><strong>Dwie ostatnie wersje w README</strong> — bieżące wydanie i poprzednia wersja, z pełną historią w <code>CHANGELOG.md</code>.</li>
+                    <li><strong>Android APK</strong> — natywny pasek Start/Stop, PL/EN, licznik odpowiedzi, przypomnienie o 17:00 i przycisk aktualizacji.</li>
+                    <li><strong>iOS IPA</strong> — niepodpisana aplikacja dla SideStore/AltStore, z tym samym silnikiem i schematem URL dla Skrótów.</li>
+                    <li><strong>Userscript</strong> — najłatwiejsza droga na iPhone'a: Safari + rozszerzenie Userscripts.</li>
                 </ul>
                 <ul>
-                    <li><strong>Codzienne aktualizacje z 3.3.1</strong> — sprawdzanie przy starcie, raz na dobę i przy rozpoczęciu sesji, plus zmieniona ikona zasobnika.</li>
-                    <li><strong>Interfejs PL/EN</strong> i powiadomienia o zakończeniu sesji z 3.3.0 nadal działają.</li>
-                    <li><strong>Bezpieczeństwo, etap 1</strong> — uprawnienia tylko dla właściciela, maskowanie haseł i dane logowania ze zmiennych środowiskowych.</li>
+                    <li><strong>Ten sam silnik</strong> — odpowiedzi, literówki, zapisywanie słówek i statystyki sesji jak w desktopie.</li>
+                    <li><strong>Sesja przeżywa przeładowanie</strong> — instaling.pl odświeża stronę po sprawdzeniu odpowiedzi, a bot wznawia pracę z zapisanego stanu.</li>
+                    <li><strong>Bez haseł na telefonie</strong> — logujesz się w normalnej sesji strony; aplikacja mobilna nie zapisuje danych logowania.</li>
                 </ul>
             </div>
         </section>
@@ -651,24 +668,52 @@
             <div class="downloads">
                 <div class="download-card">
                     <span class="platform">Windows 10/11</span>
-                    <span class="filename">instaling-bot-3.3.2-setup-win64.exe</span>
+                    <span class="filename">instaling-bot-4.0.0-setup-win64.exe</span>
                     <p class="meta">x64 · instalator NSIS · Chrome w zestawie</p>
-                    <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.3.2/instaling-bot-3.3.2-setup-win64.exe">Pobierz .exe</a>
+                    <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.0.0/instaling-bot-4.0.0-setup-win64.exe">Pobierz .exe</a>
                 </div>
                 <div class="download-card">
                     <span class="platform">macOS Apple Silicon</span>
-                    <span class="filename">instaling-bot-3.3.2-macos-arm64.pkg</span>
+                    <span class="filename">instaling-bot-4.0.0-macos-arm64.pkg</span>
                     <p class="meta">macOS 13+ · Apple Silicon · Chrome w zestawie</p>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.3.2/instaling-bot-3.3.2-macos-arm64.pkg">Pobierz .pkg</a>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.0.0/instaling-bot-4.0.0-macos-arm64.pkg">Pobierz .pkg</a>
                 </div>
                 <div class="download-card">
                     <span class="platform">macOS Intel</span>
-                    <span class="filename">instaling-bot-3.3.2-macos-x64.pkg</span>
+                    <span class="filename">instaling-bot-4.0.0-macos-x64.pkg</span>
                     <p class="meta">macOS 13+ · procesory Intel · Chrome w zestawie</p>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.3.2/instaling-bot-3.3.2-macos-x64.pkg">Pobierz .pkg</a>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.0.0/instaling-bot-4.0.0-macos-x64.pkg">Pobierz .pkg</a>
                 </div>
             </div>
             <p class="note"><strong>Instalatory są niepodpisane.</strong> Windows SmartScreen: <em>More info → Run anyway</em>. macOS: kliknij instalator prawym przyciskiem → <em>Open</em> albo zatwierdź aplikację w <em>System Settings → Privacy &amp; Security</em>. To normalne dla buildów bez certyfikatu code signing. <a href="https://github.com/bmonekkk/instaling-bot/releases">Wszystkie wydania</a>.</p>
+        </section>
+
+        <section class="panel" id="mobile">
+            <h2>Pobierz na telefon</h2>
+            <div class="downloads">
+                <div class="download-card">
+                    <span class="platform">Android 7+</span>
+                    <span class="filename">instaling-bot-4.0.0-android.apk</span>
+                    <p class="meta">APK · WebView · PL/EN · przypomnienie 17:00</p>
+                    <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.0.0/instaling-bot-4.0.0-android.apk">Pobierz .apk</a>
+                </div>
+                <div class="download-card">
+                    <span class="platform">iPhone / iPad</span>
+                    <span class="filename">instaling-bot-4.0.0-ios.ipa</span>
+                    <p class="meta">iOS 16+ · SideStore / AltStore · bez podpisu</p>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.0.0/instaling-bot-4.0.0-ios.ipa">Pobierz .ipa</a>
+                </div>
+                <div class="download-card">
+                    <span class="platform">Safari iOS · Firefox Android</span>
+                    <span class="filename">instaling-bot.user.js</span>
+                    <p class="meta">Userscript · autostart · aktualizuje się sam</p>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js">Pobierz userscript</a>
+                </div>
+            </div>
+            <p><strong>Android:</strong> pobierz APK, otwórz go i zezwól na instalację z tego źródła. Zaloguj się na <code>instaling.pl</code> w aplikacji, wejdź na stronę nauki i naciśnij <strong>Start</strong>. Deep linki <code>instalingbot://start</code> i <code>instalingbot://stop</code> działają z Taskerem i MacroDroidem.</p>
+            <p><strong>iOS (najłatwiej):</strong> zainstaluj darmowe <strong>Userscripts</strong> z App Store, włącz rozszerzenie w Safari, zaimportuj <code>instaling-bot.user.js</code> i otwórz stronę nauki. <strong>IPA:</strong> podpisz plik własnym Apple ID w SideStore/AltStore; darmowe konto wymaga odświeżania co 7 dni.</p>
+            <p><strong>Android bez APK:</strong> Chrome nie obsługuje userscriptów — użyj Firefoksa z Tampermonkey/Violentmonkey i tego samego pliku <code>.user.js</code>.</p>
+            <p class="note"><strong>APK i IPA są niepodpisane przez store.</strong> Nie ma ich w Play Store ani App Store. Sesja mobilna działa tylko przy otwartej aplikacji lub karcie — telefon może wstrzymać WebView w tle. Aplikacje nie zapisują hasła; korzystają z normalnej sesji strony. <a href="https://github.com/bmonekkk/instaling-bot/releases">Wszystkie wydania</a>.</p>
         </section>
 
         <section class="panel">
@@ -747,6 +792,9 @@ instaling-bot help</code></pre>
                 <li><strong>SmartScreen / Gatekeeper ostrzega</strong> - instalatory są niepodpisane. Windows: <em>More info → Run anyway</em>. macOS: prawy przycisk → <em>Open</em> lub ustawienia prywatności.</li>
                 <li><strong>Bot nie przechodzi logowania</strong> - sprawdź login i hasło. Bot wpisuje je dokładnie i sam ponawia próbę raz, jeśli strona chwilowo odrzuci formularz.</li>
                 <li><strong>Brak Chrome w CLI</strong> - uruchom <code>npx puppeteer browsers install chrome</code>. Desktop ma Chrome w instalatorze.</li>
+                <li><strong>APK się nie instaluje</strong> - zezwól na instalację z nieznanych źródeł. Plik jest podpisany kluczem deweloperskim, nie przez Play Store.</li>
+                <li><strong>Sesja mobilna staje po zablokowaniu telefonu</strong> - to normalne; WebView jest wstrzymywany w tle, a 4.0 nie ma trybu ukrytego. Zostaw aplikację na pierwszym planie.</li>
+                <li><strong>IPA nie instaluje się</strong> - plik jest niepodpisany; podpisz go własnym Apple ID w SideStore/AltStore. Darmowe konto wymaga odświeżenia po 7 dniach.</li>
                 <li><strong>Strona zmieniła układ</strong> - włącz <code>"debug": true</code> i sprawdź pliki w <code>pages/</code> oraz <code>screenshots/</code>.</li>
                 <li><strong>Chcesz szybciej / wolniej</strong> - zmień wartości w sekcji <code>delays</code> w <code>Config.json</code> lub w panelu humanizacji.</li>
                 <li><strong>Duże zużycie RAM w tle</strong> - włącz tryb zasobnika; zamknięcie okna niszczy renderer i zostaje lekki proces główny (ok. 50 MB, poniżej 100 MB także po zamknięciu wcześniej otwartego okna).</li>
@@ -757,8 +805,8 @@ instaling-bot help</code></pre>
 
         <section class="panel" id="english" lang="en">
             <h2>English summary</h2>
-            <p><strong>instaling-bot</strong> is an open-source (ISC) bot for <a href="https://instaling.pl">instaling.pl</a> vocabulary practice. It ships as a desktop app for Windows 10/11 and macOS 13+ with a bundled Chrome for Testing, and as a Node.js 22+ CLI for Linux, macOS and Windows. The app logs in, starts or resumes a session, answers prompts, remembers translations and can deliberately make believable mistakes for human-like behaviour.</p>
-            <p>Version 3.3.2 refines the no-internet dialog: it now only asks you to check the connection, without a FAQ link that cannot be opened offline. It builds on 3.3.1's daily update checks and changed tray icon, plus 3.3.0's full Polish/English interface, session-finished notifications and Phase 1 security hardening. Installers are unsigned, so SmartScreen or Gatekeeper may warn on first launch.</p>
+            <p><strong>instaling-bot</strong> is an open-source (ISC) bot for <a href="https://instaling.pl">instaling.pl</a> vocabulary practice. It ships as a desktop app for Windows 10/11 and macOS 13+ with a bundled Chrome for Testing, an Android APK, an unsigned iOS IPA, a Safari/Firefox userscript, and a Node.js 22+ CLI for Linux, macOS and Windows. Every variant shares the same answer engine: it starts or resumes a session, answers prompts, remembers translations and can deliberately make believable mistakes for human-like behaviour.</p>
+            <p>Version 4.0.0 adds the mobile shells: PL/EN interface, native daily reminders, update checks and URL schemes for Shortcuts/Tasker, without storing credentials on the phone. The iOS IPA is unsigned and needs SideStore/AltStore with a 7-day refresh on a free Apple ID; the Safari userscript is the easiest iPhone path. Mobile sessions run only while the app or tab is open. Desktop installers remain unsigned, so SmartScreen or Gatekeeper may warn on first launch.</p>
             <p>Read the <a href="https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md">English README</a>, browse the <a href="https://github.com/bmonekkk/instaling-bot/wiki">wiki</a> or ask in <a href="https://github.com/bmonekkk/instaling-bot/discussions">Discussions</a>.</p>
         </section>
 
@@ -774,7 +822,7 @@ instaling-bot help</code></pre>
 
     <div class="statusbar">
         <span>Gotowe</span>
-        <span>v3.3.2 · Windows · macOS · Linux</span>
+        <span>v4.0.0 · Windows · macOS · Android · iOS · Linux</span>
     </div>
 </div>
 

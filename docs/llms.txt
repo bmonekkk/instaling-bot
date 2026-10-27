@@ -1,8 +1,8 @@
 # instaling-bot
 
-> Open-source desktop app and CLI bot for practising vocabulary on instaling.pl.
-> Windows 10/11 and macOS 13+ desktop app with a bundled Chrome for Testing;
-> Node.js 22+ CLI for Linux, macOS and Windows.
+> Open-source bot for practising vocabulary on instaling.pl.
+> Desktop app for Windows 10/11 and macOS 13+, Android APK, unsigned iOS IPA,
+> Safari/Firefox userscript, and a Node.js 22+ CLI for Linux, macOS and Windows.
 
 ## Canonical
 
@@ -13,6 +13,7 @@
 - Discussions: https://github.com/bmonekkk/instaling-bot/discussions
 - Security policy: https://github.com/bmonekkk/instaling-bot/blob/master/SECURITY.md
 - English README: https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md
+- Mobile architecture: https://github.com/bmonekkk/instaling-bot/blob/master/MOBILE_PLAN.md
 
 ## What it is
 
@@ -21,24 +22,34 @@ resumes a session, reads each prompt, answers with a configurable accuracy, reme
 translations and can make believable mistakes (empty field, different translation or a
 typo) for human-like behaviour. Everything runs locally; there is no backend or telemetry.
 
-Version 3.3.2 refines the no-internet dialog (check the connection only, no FAQ link that
-cannot be opened offline) and keeps the README to the two latest releases. It builds on
-3.3.1's daily update checks (startup, once a day and at session start), the tray icon that
-changes when an update is available, and the Ko-fi tray item, plus a full Polish/English
-interface, an optional session-finished notification, and security Phase 1 (owner-only
-config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD`
-overrides). Statistics, repeating reminders and the full CLI (`start`, `stats`, `remind`,
-`update-check`, `help`, `version`) remain available.
+Version 4.0.0 is the first mobile release. The desktop and CLI keep every 3.3.x feature,
+and a shared engine now also powers three mobile variants:
+
+- **Android APK** — native WebView shell with Start/Stop, PL/EN, answer counter, a daily
+  17:00 reminder, an update button and `instalingbot://start` / `instalingbot://stop`
+  deep links for Tasker/MacroDroid.
+- **iOS IPA** — unsigned build for SideStore/AltStore with the same engine, reminder and
+  URL scheme for Shortcuts. A free Apple ID needs a refresh every 7 days.
+- **Userscript** — floating panel for Safari on iOS/iPadOS and Firefox on Android, with
+  `?autostart=1`, `?lang=en`, GM storage and automatic updates through `@updateURL`.
+
+Mobile apps do not store passwords; they reuse the normal website session in the WebView.
+A session runs only while the app or browser tab is open. The full desktop retains
+week/month/year statistics, saved-word export, tray mode and hidden background sessions.
 
 ## Install
 
-- Windows: `instaling-bot-3.3.2-setup-win64.exe` from the latest release.
-- macOS: `instaling-bot-3.3.2-macos-arm64.pkg` or `instaling-bot-3.3.2-macos-x64.pkg`.
+- Windows: `instaling-bot-4.0.0-setup-win64.exe` from the latest release.
+- macOS: `instaling-bot-4.0.0-macos-arm64.pkg` or `instaling-bot-4.0.0-macos-x64.pkg`.
+- Android: `instaling-bot-4.0.0-android.apk`.
+- iOS: `instaling-bot-4.0.0-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
 - Linux / terminal: `curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash`
 
 ## Notes
 
 - License: ISC.
-- Language: Polish-first documentation, English README and support; the desktop UI switches between Polish and English.
-- Installers are unsigned; SmartScreen and Gatekeeper may warn on first launch.
+- Language: Polish-first documentation, English README and support; every app switches
+  between Polish and English.
+- Installers, APK and IPA are unsigned; SmartScreen and Gatekeeper may warn on first launch.
+- Mobile sessions stop when the app/tab is suspended in the background.
 - The project is educational, is not affiliated with InstaLing and is not intended to cheat.

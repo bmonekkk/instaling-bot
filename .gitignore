@@ -120,3 +120,14 @@ resources/browser/
 
 # macOS
 .DS_Store
+
+# Mobile build outputs
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/local.properties
+mobile/android/app/src/main/assets/core.js
+mobile/ios/build/
+mobile/ios/InstalingBot.xcodeproj/
+mobile/ios/InstalingBot/Info.plist
+mobile/ios/InstalingBot/Resources/core.js

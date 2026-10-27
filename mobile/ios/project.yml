@@ -1,0 +1,50 @@
+name: InstalingBot
+options:
+  bundleIdPrefix: com.bmoneczek
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "4.0.0"
+    CURRENT_PROJECT_VERSION: "40000"
+    SWIFT_VERSION: "5.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+
+targets:
+  InstalingBot:
+    type: application
+    platform: iOS
+    sources:
+      - path: InstalingBot
+        excludes:
+          - Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bmoneczek.instalingbot
+        PRODUCT_NAME: InstalingBot
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        CODE_SIGN_STYLE: Manual
+        DEVELOPMENT_TEAM: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: InstalingBot/Info.plist
+      properties:
+        CFBundleDisplayName: instaling-bot
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIRequiresFullScreen: false
+        CFBundleURLTypes:
+          - CFBundleURLName: com.bmoneczek.instalingbot
+            CFBundleURLSchemes:
+              - instalingbot
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: false

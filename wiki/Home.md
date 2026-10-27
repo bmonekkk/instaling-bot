@@ -1,9 +1,9 @@
 # 🤖 instaling-bot Wiki
 
 Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) —
-aplikacja desktopowa dla Windows i macOS oraz CLI dla Linuksa i terminala.
+aplikacja desktopowa dla Windows i macOS, APK/IPA na telefon oraz CLI dla Linuksa i terminala.
 
-**Wersja:** 3.2.x
+**Wersja:** 4.0.0
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Wydania:** https://github.com/bmonekkk/instaling-bot/releases
 **Dyskusje:** https://github.com/bmonekkk/instaling-bot/discussions
@@ -15,7 +15,8 @@ aplikacja desktopowa dla Windows i macOS oraz CLI dla Linuksa i terminala.
 
 | Strona | Czego się dowiesz |
 |---|---|
-| [📥 Instalacja](Installation) | Desktop, CLI, aktualizacje i pierwsze uruchomienie |
+| [📥 Instalacja](Installation) | Desktop, mobile, CLI, aktualizacje i pierwsze uruchomienie |
+| [📱 Mobile](Mobile) | Android APK, iOS IPA, userscript i ograniczenia |
 | [⌨️ CLI](CLI) | Polecenia, statystyki, przypomnienia i aktualizacje |
 | [⚙️ Konfiguracja](Configuration) | `Config.json`, opcje, dane aplikacji i prywatność |
 | [🆘 Rozwiązywanie problemów](Troubleshooting) | Logowanie, Chrome, internet, aktualizacje, statystyki |
@@ -31,6 +32,11 @@ aplikacja desktopowa dla Windows i macOS oraz CLI dla Linuksa i terminala.
 1. Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Zainstaluj i otwórz **instaling-bot**.
 3. Wpisz login i hasło, ustaw poprawność odpowiedzi i naciśnij **Start**.
+
+### Android / iOS
+
+Pobierz APK albo IPA z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest)
+lub zainstaluj userscript w Safari/Firefoksie. Szczegóły: [Mobile](Mobile).
 
 ### CLI
 

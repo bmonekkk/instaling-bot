@@ -1,0 +1,54 @@
+plugins {
+    id 'com.android.application'
+}
+
+def pkg = new groovy.json.JsonSlurper().parseText(file('../../../package.json').text)
+def versionParts = pkg.version.tokenize('.').collect { it as int }
+def computedVersionCode = versionParts[0] * 10000 + (versionParts[1] ?: 0) * 100 + (versionParts[2] ?: 0)
+
+def keystoreFile = System.getenv('ANDROID_KEYSTORE_FILE')
+def keystorePassword = System.getenv('ANDROID_KEYSTORE_PASSWORD')
+def keyAlias = System.getenv('ANDROID_KEY_ALIAS')
+def keyPassword = System.getenv('ANDROID_KEY_PASSWORD')
+
+android {
+    namespace 'com.bmoneczek.instalingbot'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.bmoneczek.instalingbot'
+        minSdk 24
+        targetSdk 35
+        versionCode computedVersionCode
+        versionName pkg.version
+    }
+
+    signingConfigs {
+        release {
+            if (keystoreFile) {
+                storeFile file(keystoreFile)
+                storePassword keystorePassword
+                this.keyAlias keyAlias
+                this.keyPassword keyPassword
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // Sideload-friendly: use the release key when CI provides one,
+            // otherwise fall back to the debug key so any build is installable.
+            signingConfig keystoreFile ? signingConfigs.release : signingConfigs.debug
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        abortOnError false
+    }
+}

@@ -6,9 +6,9 @@ Pobierz plik z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/r
 
 | System | Plik |
 |---|---|
-| Windows 10/11 (x64) | `instaling-bot-3.3.2-setup-win64.exe` |
-| macOS 13+ (Apple Silicon) | `instaling-bot-3.3.2-macos-arm64.pkg` |
-| macOS 13+ (Intel) | `instaling-bot-3.3.2-macos-x64.pkg` |
+| Windows 10/11 (x64) | `instaling-bot-4.0.0-setup-win64.exe` |
+| macOS 13+ (Apple Silicon) | `instaling-bot-4.0.0-macos-arm64.pkg` |
+| macOS 13+ (Intel) | `instaling-bot-4.0.0-macos-x64.pkg` |
 
 Instalator zawiera Chrome for Testing — **nie trzeba instalować Node.js ani Chrome**.
 
@@ -22,6 +22,22 @@ To oczekiwane dla buildów bez certyfikatu code signing:
 
 Aktualizacja polega na pobraniu i uruchomieniu nowego instalatora. Ustawienia, słówka,
 statystyki i przypomnienia zostają w folderze danych.
+
+## Mobile: Android i iOS
+
+| System | Plik |
+|---|---|
+| Android 7+ | `instaling-bot-4.0.0-android.apk` |
+| iOS 16+ (SideStore/AltStore) | `instaling-bot-4.0.0-ios.ipa` |
+| Safari iOS / Firefox Android | `instaling-bot.user.js` |
+
+APK instalujesz jak każdy plik spoza sklepu (zezwól na instalację z tego źródła). IPA jest
+niepodpisana — podpisz ją własnym Apple ID w SideStore/AltStore; darmowe konto wymaga
+odświeżenia co 7 dni. Najłatwiejsza droga na iPhone'a to Safari + rozszerzenie Userscripts
+i plik `.user.js`.
+
+Aplikacje mobilne nie zapisują hasła: logujesz się na `instaling.pl` w ich WebView.
+Sesja działa tylko przy otwartej aplikacji lub karcie. Pełna instrukcja: [Mobile](Mobile).
 
 ## CLI: Linux, macOS i Windows
 

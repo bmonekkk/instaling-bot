@@ -1,4 +1,4 @@
-name: Build desktop installers
+name: Build release assets
 
 on:
   workflow_dispatch:
@@ -7,13 +7,157 @@ on:
       - "v*"
 
 concurrency:
-  group: desktop-build-${{ github.ref }}
+  group: release-build-${{ github.ref }}
   cancel-in-progress: false
 
 permissions:
   contents: write
 
+env:
+  NODE_VERSION: "22"
+
 jobs:
+  userscript:
+    name: Userscript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build userscript and shared core
+        run: npm run build:mobile
+
+      - name: Upload userscript
+        uses: actions/upload-artifact@v4
+        with:
+          name: userscript
+          path: dist/instaling-bot.user.js
+          if-no-files-found: error
+
+  android:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build shared core
+        run: npm run build:mobile
+
+      - name: Build APK
+        working-directory: mobile/android
+        env:
+          ANDROID_KEYSTORE_FILE: ${{ secrets.ANDROID_KEYSTORE_FILE }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:assembleRelease --no-daemon
+
+      - name: Name the APK
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          mkdir -p release-assets
+          cp mobile/android/app/build/outputs/apk/release/app-release.apk \
+            "release-assets/instaling-bot-${VERSION}-android.apk"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: release-assets/*.apk
+          if-no-files-found: error
+
+  ios:
+    name: iOS IPA
+    runs-on: macos-15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build shared core
+        run: npm run build:mobile
+
+      - name: Generate Xcode project
+        working-directory: mobile/ios
+        run: xcodegen generate
+
+      - name: Build unsigned app
+        working-directory: mobile/ios
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project InstalingBot.xcodeproj \
+            -scheme InstalingBot \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            ONLY_ACTIVE_ARCH=NO \
+            build
+
+      - name: Package IPA for SideStore/AltStore
+        run: |
+          set -euo pipefail
+          VERSION=$(node -p "require('./package.json').version")
+          APP="mobile/ios/build/Build/Products/Release-iphoneos/InstalingBot.app"
+          mkdir -p mobile/ios/build/Payload release-assets
+          cp -R "$APP" mobile/ios/build/Payload/
+          cd mobile/ios/build
+          zip -qry "instaling-bot-${VERSION}-ios.ipa" Payload
+          mv "instaling-bot-${VERSION}-ios.ipa" ../../../release-assets/
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: release-assets/*.ipa
+          if-no-files-found: error
+
   windows:
     name: Windows installer
     runs-on: windows-latest
@@ -24,7 +168,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
@@ -63,7 +207,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
 
       - name: Install dependencies
@@ -85,9 +229,12 @@ jobs:
           if-no-files-found: error
 
   release:
-    name: Attach installers to release
+    name: Attach assets to release
     if: startsWith(github.ref, 'refs/tags/v')
     needs:
+      - userscript
+      - android
+      - ios
       - windows
       - macos
     runs-on: ubuntu-latest
@@ -95,7 +242,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Download installers
+      - name: Download assets
         uses: actions/download-artifact@v4
         with:
           path: release-assets

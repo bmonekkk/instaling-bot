@@ -4,14 +4,14 @@ Short, practical overview of what this project is, how it works, and what to do 
 
 ## What it is
 
-A desktop app **and** a Node.js CLI bot that use Puppeteer (real Chrome) to:
+A desktop app, a Node.js CLI bot and three mobile shells that share the same answer engine to:
 
 1. log in to `instaling.pl`,
 2. start/continue a vocabulary session,
 3. answer the questions,
 4. remember correct translations in a local JSON file.
 
-The desktop app wraps the existing engine in Electron and bundles Chrome for Testing. The CLI remains fully supported, especially for Linux and terminal users. Both share `src/`, the config format and `SavedWords.json`.
+The desktop app wraps the engine in Electron and bundles Chrome for Testing. The CLI remains fully supported, especially for Linux and terminal users. Mobile ships as an Android WebView APK, an unsigned iOS WKWebView IPA and a userscript; all three bundle `mobile/engine/` and `src/core/`. Desktop and CLI share config and `SavedWords.json`; mobile keeps words in WebView/GM storage and never reads `Config.json`.
 
 It is **not** an official InstaLing tool. Educational project, ISC license, use at your own risk.
 
@@ -22,12 +22,14 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.3.2) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v4.0.0) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-3.3.2-setup-win64.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-4.0.0-setup-win64.exe` (gitignored) |
+| Mobile assets | `mobile/android/.../app-release.apk`, `mobile/ios/build/...ipa`, `dist/instaling-bot.user.js` |
+| Mobile plan | `MOBILE_PLAN.md` |
 
 ## Stack
 
@@ -35,7 +37,11 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 - Puppeteer 25 (`puppeteer` downloads Chrome for Testing for the CLI)
 - Electron 45 (`desktop/`)
 - electron-builder 26 (NSIS for Windows, PKG for macOS)
-- CommonJS (`require`), no build step, no TypeScript
+- CommonJS (`require`), no TypeScript; desktop/CLI need no build step
+- esbuild 0.25 bundles the userscript and `core.js` for the APK/IPA
+- Android: plain Java WebView (no AndroidX), AGP 8.7.3, Gradle 8.13, minSdk 24, targetSdk 35
+- iOS: UIKit + WKWebView, iOS 16+, XcodeGen project (`mobile/ios/project.yml`)
+- jsdom 26 for the mobile engine tests
 - `chalk` (console colors) — the only runtime dependency besides Puppeteer
 - Chrome for Testing is copied into `resources/browser/` for desktop installers
 - No database — words are a JSON array
@@ -44,8 +50,9 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 
 ```
 src/
-  main.js       shared engine: launch browser, login, session, answer loop, events, graceful stop
-  helpers.js    DOM helpers: selectors, click/type, human typing, delays, cookie consent, diagnostics
+  core/         browser-safe shared code: random, typing, answer choice, mistakes, selectors
+  main.js       desktop/CLI engine: launch browser, login, session, answer loop, events, graceful stop
+  helpers.js    DOM helpers: click/type, human typing, delays, cookie consent, diagnostics
   config.js     loads Config.json (INSTALING_CONFIG aware), normalizes credentials
   urls.js       validates sites.login and resolves it to the canonical login page
   words.js      SavedWords.json lookup/save (INSTALING_ROOT aware, lazy load)
@@ -69,12 +76,21 @@ scripts/
   remind.js            CLI reminder loop (shares config and state with the desktop app)
   check-updates.js     CLI update check against GitHub releases
   sync-wiki.sh         pushes wiki/ to the GitHub wiki repository
+  build-mobile.js      esbuild: userscript + APK/IPA core.js assets
+  generate-icons.py    iOS AppIcon + Android mipmaps without external deps
   generate-icon.ps1    Windows-only icon generator for build/icon.png
-wiki/           source for the GitHub wiki (Home, Installation, CLI, Configuration, ...)
+mobile/
+  engine/       shared DOM adapter, tick-based session engine, PL/EN strings, mobile selectors
+  userscript/   floating panel entry, GM storage, autostart
+  android/      Java WebView activity, AlarmManager reminder, BootReceiver, Gradle project
+  ios/          AppDelegate, MainViewController, WKWebView bridge, notification scheduling
 test/
-  stats.test.js       stats aggregation, period windows and normalization
-  reminder.test.js    reminder schedule, repeat interval and state helpers
-  update.test.js      version comparison and the stubbed release check
+  core.test.js          shared RNG/typing/answer strategies
+  mobile-engine.test.js jsdom sessions, mistakes, missing forms, resume after reload
+  stats.test.js         stats aggregation, period windows and normalization
+  reminder.test.js      reminder schedule, repeat interval and state helpers
+  update.test.js        version comparison and the stubbed release check
+wiki/           source for the GitHub wiki (Home, Installation, CLI, Configuration, ...)
 .github/
   workflows/    release.yml, ci.yml, codeql.yml
   ISSUE_TEMPLATE/, DISCUSSION_TEMPLATE/, dependabot.yml, FUNDING.yml
@@ -193,6 +209,32 @@ IPC/event flow:
 - Reminder: `src/reminder.js` owns `reminder-state.json`. `checkReminder()` compares `reminder.time` with local time, skips when `lastSession` or `lastNotified` is today, shows an OS notification plus `app:reminder`, then calls `markNotified()`. `markSessionDone()` runs when a bot process ends with code 0 and at least one answer (the CLI does the same in `handleStop()`).
 - Updates: `src/update.js` `checkLatestRelease()` calls the GitHub API. The result is exposed through `app:check-updates` / `app:update-status`; the renderer shows a banner whose **Pobierz** button opens `html_url`. Nothing is downloaded or installed automatically.
 
+### Mobile
+
+```
+build-mobile.js
+  ├─ esbuild mobile/userscript/entry.js       → dist/instaling-bot.user.js
+  ├─ esbuild mobile/engine/browser.js         → android/app/src/main/assets/core.js
+  └─ esbuild mobile/engine/browser.js         → ios/InstalingBot/Resources/core.js
+
+Android MainActivity
+  ├─ WebView loads https://instaling.pl/ (cookies persist)
+  ├─ onPageFinished → evaluate core.js → InstalingBot.create() → resume()
+  ├─ JS posts events through InstalingBotNative.postEvent(json)
+  ├─ toolbar: PL/EN, reminder, Start, Stop; update check via GitHub API
+  ├─ AlarmManager at 17:00 + ReminderReceiver + BootReceiver
+  └─ intents instalingbot://start|stop → start()/stop()
+
+iOS MainViewController
+  ├─ WKUserScript (core.js + boot) at documentEnd, main frame only
+  ├─ engine posts JSON through webkit.messageHandlers.instalingBot
+  ├─ toolbar: PL/EN, reminder, Start, Stop; update check via URLSession
+  ├─ UNCalendarNotificationTrigger at 17:00
+  └─ AppDelegate open URL → requestStart()/requestStop()
+```
+
+The mobile engine is **tick-based**, not a long `while` loop: instaling.pl performs a real navigation after "check", which destroys the JS context. Each page load resumes the persisted run (`instalingBot.run` in WebView storage or GM storage). Before clicking "check" the engine stores `pending` (polish, typed answer, known translation, sentence, mistake); the result page reads `#word`, saves the word, updates counters and clears `pending`. Without this, answers were lost on every reload.
+
 ## The important fixes (don't regress these)
 
 1. **Cookie consent overlay** — Google Funding Choices renders a dialog over the login form. `fundingchoicesmessages.google.com` is blocked, and `dismissConsent()` clicks `.fc-cta-do-not-consent` as a fallback.
@@ -216,6 +258,11 @@ IPC/event flow:
 19. **macOS tray glyph** — `templateTrayIcon()` paints `TRAY_GLYPH` into a 16×16/32×32 bitmap and calls `setTemplateImage(true)`. Do not go back to the coloured `build/icon.png` on macOS; a template image is what makes the icon readable in light and dark menu bars.
 20. **Dock visibility** — in tray mode macOS uses `setActivationPolicy('accessory')` + `dock.hide()`; showing the window restores `regular` + `dock.show()`. Keep both calls paired, otherwise the app either stays in the Dock or cannot get focus.
 21. **Isolated testing** — set `INSTALING_DESKTOP_DATA=/tmp/whatever` to redirect the whole Electron profile (config, cache, `reminder-state.json`) away from the real user data. Do not test by overriding `HOME`; Electron ignores it for `userData`.
+22. **Mobile pending answers** — never remove `state.pending`/`completePending()`. The site reloads on "check", so counting the answer only on the answer page loses data. `test/mobile-engine.test.js` covers both the no-reload and reload paths.
+23. **Tick scheduling** — `tick()` performs one page step, sets `busy`, then schedules the next tick. Do not turn it into a synchronous loop: navigation can interrupt any pending promise, and the fresh page must resume from storage.
+24. **No credentials on mobile** — the shells must not read `Config.json` or ask for a password. They reuse the website session in the WebView. Keep the login-page guard in `startSession()`.
+25. **Mobile assets are generated** — `mobile/android/app/src/main/assets/core.js` and `mobile/ios/InstalingBot/Resources/core.js` are gitignored build outputs. Run `npm run build:mobile` before Gradle/XcodeGen; CI does this in every mobile job.
+26. **Unsigned builds** — Android falls back to the debug key when `ANDROID_KEYSTORE_*` is missing, and iOS is built with `CODE_SIGNING_ALLOWED=NO`. Do not add store signing assumptions without testing SideStore/AltStore.
 
 ## Config cheat sheet
 
@@ -260,9 +307,13 @@ IPC/event flow:
 npm install                    # runs scripts/ensure-electron.js (downloads Electron if needed)
 npm run desktop                # run the Electron app from source
 npm run check                  # syntax-check every JS file
+npm test                       # node --test (desktop + mobile)
+npm run build:mobile           # userscript + APK/IPA core.js assets
 npm run prepare:browser        # copy Chrome for Testing into resources/browser
 npm run dist:win               # Windows .exe (NSIS, x64)
 npm run dist:mac               # macOS .pkg (current arch; must run on macOS)
+cd mobile/android && ./gradlew :app:assembleDebug    # Android debug APK
+cd mobile/ios && xcodegen generate                    # Xcode project (needs XcodeGen)
 ```
 
 - `dist:win` / `dist:mac` run `prepare:browser` automatically.
@@ -278,6 +329,9 @@ npm run dist:mac               # macOS .pkg (current arch; must run on macOS)
 
 | Job | Runner | Output |
 |---|---|---|
+| `userscript` | `ubuntu-latest` | `dist/instaling-bot.user.js` |
+| `android` | `ubuntu-latest` | `*-android.apk` |
+| `ios` | `macos-15` | `*-ios.ipa` (unsigned) |
 | `windows` | `windows-latest` | `dist/*.exe` → `windows-installer` artifact |
 | `macos` arm64 | `macos-15` | `dist/*.pkg` → `macos-installer-arm64` |
 | `macos` x64 | `macos-15-intel` | `dist/*.pkg` → `macos-installer-x64` |
@@ -289,15 +343,16 @@ macOS `.pkg` files cannot be built reliably on Windows. Use the workflow (or a M
 
 Release checklist:
 
-1. Bump `version` in `package.json` and `package-lock.json`.
-2. Update `CHANGELOG.md`, `README.md`, `README.en.md`, `docs/index.html`, `PROJECT_NOTES.md`, `NOTICE`, and add `.github/RELEASE_NOTES_vX.Y.Z.md`.
-3. Run `npm ci`, `npm run check`, and a CLI `max_answers: 1` smoke test.
-4. Test the desktop Stop button and reset local test config to production defaults.
-5. Commit, push to `origin master`.
-6. Optionally trigger the workflow with `workflow_dispatch` and verify the artifacts.
-7. Push the tag (`git tag vX.Y.Z && git push origin vX.Y.Z`) and wait for the workflow.
-8. Open the draft release, verify `.exe` + both `.pkg` files, then publish.
-9. Check that GitHub Pages reflects the new version and the asset links resolve.
+1. Bump `version` in `package.json` and `package-lock.json`. The Android version name/code is read from `package.json`; update `MARKETING_VERSION` in `mobile/ios/project.yml` too.
+2. Update `CHANGELOG.md`, `README.md`, `README.en.md`, `docs/index.html`, `docs/llms.txt`, `PROJECT_NOTES.md`, `NOTICE`, wiki pages, and add `.github/RELEASE_NOTES_vX.Y.Z.md`.
+3. Run `npm ci`, `npm run check`, `npm test`, `npm run build:mobile`, and a CLI `max_answers: 1` smoke test.
+4. For mobile changes, build `./gradlew :app:assembleDebug` and the unsigned Xcode build; install the APK on a device/emulator when possible.
+5. Test the desktop Stop button and reset local test config to production defaults.
+6. Commit, push to `origin master`.
+7. Optionally trigger the workflow with `workflow_dispatch` and verify the artifacts.
+8. Push the tag (`git tag vX.Y.Z && git push origin vX.Y.Z`) and wait for the workflow.
+9. Open the draft release, verify `.exe` + both `.pkg` + `.apk` + `.ipa` + `.user.js`, then publish.
+10. Check that GitHub Pages reflects the new version and the asset links resolve.
 
 ## Community and repository setup
 
@@ -395,7 +450,12 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Uses Chrome for Testing, not the user's installed Chrome.
 - Installers are unsigned; macOS builds require CI or a Mac. Updates are manual (download + run installer).
 - Credentials are stored in plain text in the local config file (same as the CLI). The UI says so; use full-disk encryption and do not share the data folder.
-- No automated tests yet (only `node --check` and manual smoke tests).
+- Mobile sessions stop when the WebView is suspended in the background; no background automation in 4.0.
+- Mobile reminders are fixed at 17:00 and do not repeat every N minutes.
+- APK/IPA are unsigned and outside the stores; the IPA needs a 7-day refresh on a free Apple ID.
+- Selector/DOM coverage for mobile is fixture-based (jsdom); real-device validation still needs a logged-in account.
+- Android APK smoke-tested on an API 35 emulator (2026-10-27): launches without a crash, PL/EN switch, Start/Stop, `instalingbot://stop`, 17:00 AlarmManager reminder and the Android 13+ notification prompt all work. The engine/bridge reaches the live site ("Szukam przycisku rozpoczęcia sesji..." on the logged-out home page).
+- Android layout notes: the wordmark lives in the status row so the four toolbar controls share the width evenly; a `WindowInsets` listener pads the root for targetSdk 35 edge-to-edge.
 
 ## MVP done in 3.0.0
 
@@ -405,6 +465,15 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Bundled Chrome for Testing and a manifest consumed by the engine.
 - Windows NSIS installer and macOS PKG builds for arm64/x64 via GitHub Actions.
 - Shared engine/config/words with the CLI, including graceful stop and IPC events.
+
+## What changed in 4.0.0
+
+- Shared `src/core/` (RNG, typing steps, answer choice, mistakes, selectors) consumed by desktop/CLI and mobile.
+- `mobile/engine/` tick-based session engine with persisted run + pending answer so a full page reload does not lose an answer. jsdom tests cover answer, deliberate mistake, missing form, resume and pending-result completion.
+- Android plain WebView shell (`MainActivity`, `ReminderReceiver`, `BootReceiver`) with native toolbar, deep links and debug-key fallback for release builds.
+- iOS UIKit/WKWebView shell with `WKUserScript` injection, local notifications and URL scheme; built unsigned on the macOS CI runner.
+- Userscript floating panel with GM storage, `?autostart=1`, `?lang=en` and `@updateURL`.
+- Release workflow now builds/attaches APK, IPA and userscript; CI builds the userscript bundle, Android debug APK and unsigned iOS app.
 
 ## What changed in 3.3.2
 

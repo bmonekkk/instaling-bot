@@ -2,6 +2,7 @@
 
 - [🏠 Home](Home)
 - [📥 Instalacja](Installation)
+- [📱 Mobile](Mobile)
 - [⌨️ CLI](CLI)
 - [⚙️ Konfiguracja](Configuration)
 - [🆘 Problemy](Troubleshooting)

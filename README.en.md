@@ -19,13 +19,15 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**3.3.2**) combines three things:
+The current version (**4.0.0**) is the first mobile release:
 
-- 🖥️ a desktop app with a GUI, live log, statistics and a bundled Chrome browser,
-- ⌨️ a full CLI for Linux and the terminal, installed with a single `curl` command,
+- 🖥️ **desktop** for Windows and macOS: GUI, live log, statistics and a bundled Chrome,
+- 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, reminders and automation shortcuts,
+- 🌐 **userscript** for Safari on iOS/iPadOS and Firefox on Android,
+- ⌨️ a full **CLI** for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
 
-Version 3.3.0 added a **full Polish/English interface** (settings, dialogs, statistics, tray menu and notifications), an optional **session-finished notification** for hidden or minimized windows, and **security Phase 1**: owner-only permissions for `Config.json`, password redaction in logs, and `INSTALING_LOGIN` / `INSTALING_PASSWORD` environment overrides. Version 3.3.1 added **daily update checks** — at startup, once a day and whenever a session starts — plus a **different tray icon** when a newer release is available. Version 3.3.2 refines the **no-internet dialog**: it only asks you to check the connection, without pointing at a FAQ you cannot open offline. Statistics, repeating reminders and the 3.2.x CLI stay unchanged.
+Version 4.0.0 brings the same engine to phones without the Play Store or App Store. The mobile apps are thin shells: you sign in to `instaling.pl` in their built-in browser, and the bot answers in the open session. The mobile app does not store your password — it stays in the normal website session. The study reminder is native (daily at 17:00), and starting a session can be wired to system shortcuts. Desktop and CLI keep every 3.3.x feature.
 
 Open source, ISC license.
 
@@ -39,22 +41,21 @@ Instaling Bot is an independent open-source project maintained as a hobby. If yo
 Support is entirely voluntary and not required to use the project. The project is not officially affiliated with InstaLing. Donations do not guarantee specific features or release dates.
 
 
-## ✨ Two versions, one engine
+## ✨ Four variants, one engine
 
-| | Desktop | CLI |
-|---|---|---|
-| Systems | Windows 10/11, macOS 13+ | Linux, macOS, Windows |
-| Requires Node.js | **No** | Yes, Node.js 22+ |
-| Interface | App window, settings, live log | Terminal |
-| Browser | Chrome for Testing bundled in the installer | Downloaded by Puppeteer |
-| Data | `%APPDATA%\instaling-bot` or `~/Library/Application Support/instaling-bot` | `config/` in the project directory |
-| Statistics | **Statistics** button: week, month, year, all time | `instaling-bot stats` |
-| Reminders | System notification + toast, optionally every N minutes | `instaling-bot remind`, same setting |
-| Session end | Notification when the window is hidden or minimized | Message in the terminal |
-| Updates | Release check + **Download** button | `instaling-bot update-check`; start blocks outdated builds |
-| Updating | New installer from GitHub | Re-run `curl` or `git pull && npm install --omit=dev` |
+| | Desktop | Android APK / iOS IPA | Userscript | CLI |
+|---|---|---|---|---|
+| Systems | Windows 10/11, macOS 13+ | Android 7+ / iOS 16+ | Safari iOS, Firefox Android | Linux, macOS, Windows |
+| Requires Node.js | **No** | **No** | **No** | Yes, Node.js 22+ |
+| Interface | App window, settings, live log | Native bar + page in a WebView | Floating panel on the page | Terminal |
+| Login | In the app | Normal website login | Normal website login | In the app |
+| Browser | Chrome for Testing bundled | System WebView | Your browser | Puppeteer |
+| Statistics | week, month, year, all time | current session + daily record | current session | `instaling-bot stats` |
+| Reminders | Native + toast, optionally every N minutes | Daily at 17:00 | — | `instaling-bot remind` |
+| Automation | Tray, autostart | `instalingbot://start` / `stop` | `?autostart=1` | CLI commands |
+| Updating | New installer | **Update** button | Automatic via `@updateURL` | Re-run `curl` |
 
-Both variants use the same engine (`src/`), the same options and the same `SavedWords.json` format.
+Every variant uses the same engine (`src/core/` and `mobile/engine/`), the same answer strategies and typing humanization. Saved words stay local: desktop/CLI in `SavedWords.json`, mobile in WebView storage, and the userscript in `GM_setValue`.
 
 The desktop interface works in Polish and English. Switch languages with the **PL/EN** buttons in the menu bar; the choice is saved in `Config.json` (`language`) and also covers the tray menu and native notifications.
 
@@ -65,9 +66,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.3.2-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.3.2-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.3.2-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.0.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.0.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.0.0-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -140,6 +141,61 @@ logs/last-run.log         full log of the last run
 ```
 
 You can edit the files by hand too — the app uses the same format as the CLI.
+
+
+## 📱 Mobile: Android and iOS
+
+Version 4.0.0 brings the bot to phones. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
+
+### 🤖 Android: APK (recommended)
+
+1. Download `instaling-bot-4.0.0-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+2. Open the file and allow installation from this source when Android asks.
+3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
+4. Open the learning page and press **Start** in the top bar.
+
+The top bar has a **PL/EN** switch, a ⏰ reminder, Start and Stop. Session progress is shown below it. When a newer release exists, the app shows an **Update** button linking to GitHub.
+
+**Reminder:** tap ⏰ to enable a daily notification at **17:00**. Android 13+ asks for notification permission. The reminder survives a reboot.
+
+**Automation:** the app handles `instalingbot://start` and `instalingbot://stop` deep links. In Tasker, MacroDroid or a similar tool, add an "Open URL/Intent" action to start a session, for example when you connect to your home Wi-Fi. The bot still needs the app open and the website session signed in.
+
+### 🍎 iOS: Safari + userscript (easiest)
+
+Chrome on iOS does not support extensions, but Safari does:
+
+1. Install the free **Userscripts** app from the App Store.
+2. Enable it in **Settings → Safari → Extensions** and allow it on `instaling.pl`.
+3. Open [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) in Safari and import it into Userscripts.
+4. Visit `instaling.pl`, sign in and tap the floating 🤖 button.
+
+The panel has Start/Stop, PL/EN and an answer counter. Settings and saved words live in the extension storage. The script updates itself through `@updateURL`.
+
+### 🍏 iOS: IPA for SideStore / AltStore
+
+For people who prefer a separate app:
+
+1. Download `instaling-bot-4.0.0-ios.ipa` from the latest release.
+2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
+3. Sign in to `instaling.pl` in the app and press **Start**.
+
+The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, 17:00 reminder and update button.
+
+**Shortcuts:** the app accepts `instalingbot://start` and `instalingbot://stop`, so an iOS automation can start a session. The session only runs while the app is in the foreground.
+
+### 🌐 Userscript on Android
+
+Chrome for Android has no userscript manager. Use **Firefox for Android** with **Tampermonkey** or **Violentmonkey** and install the same `instaling-bot.user.js`. This is a good option if you do not want to install the APK.
+
+You can also open the page with parameters: `?autostart=1` starts a session after loading, and `?lang=en` switches the interface to English — useful in shortcuts and automations.
+
+### ⚠️ Mobile limitations
+
+- A session runs only while the **app or tab is open**. The phone may suspend a WebView in the background; there is no hidden background mode.
+- The mobile apps **do not store your password** — you sign in normally on the website, and cookies stay in the WebView.
+- The APK and IPA are **not store-signed**. Install them at your own risk; they are not in the Play Store or App Store.
+- The mobile reminder fires at a fixed time, without the desktop's repeat-every-N-minutes option.
+- Full week/month/year statistics and saved-word export remain desktop-only.
 
 
 ## ⌨️ CLI: Linux and the terminal
@@ -299,6 +355,16 @@ Problems are split into the **desktop app** and the **CLI**. The app's error dia
 - **Antivirus / SmartScreen warning** — the installers are unsigned; this is expected. The source code is public.
 - **Too much RAM in the background** — enable tray mode; closing the window releases the renderer process and leaves a lightweight main process with the icon.
 
+### 📱 Mobile
+
+- **The APK will not install** — allow installation from unknown sources for the browser or file manager that opens it. The APK is signed with a developer key, not by the Play Store.
+- **"Could not find the session start button"** — sign in inside the app and open the learning page before pressing **Start**. The mobile bot does not log in for you.
+- **The session stops when I lock the phone** — expected. WebView is suspended in the background, and 4.0 has no hidden mode. Keep the app in the foreground.
+- **No notifications on Android 13+** — enable notification permission in the app settings and tap ⏰ again.
+- **The IPA will not install in SideStore/AltStore** — it is unsigned; sign it with your own Apple ID. A free account needs a refresh after 7 days.
+- **The userscript does not see the page** — check that the Userscripts/Tampermonkey extension is allowed on `instaling.pl` and that the script is enabled for that domain.
+- **Chrome on Android does not run the userscript** — that is a Chrome limitation; use the APK or Firefox with Tampermonkey.
+
 ### ⌨️ CLI
 
 - **The bot stops at login** — check the login and password in `config/Config.json`. The bot dismisses the cookie overlay itself; if problems persist, run with `"show_browser": true` and check `screenshots/answer-error.png`.
@@ -318,36 +384,41 @@ npm run desktop          # starts the Electron app
 npm run check            # syntax of all files
 npm run dist:win         # Windows .exe (NSIS)
 npm run dist:mac         # macOS .pkg (macOS only)
+npm run build:mobile     # userscript + core.js assets for APK/IPA
 ```
 
 Before packaging, `npm run dist:win` / `dist:mac` automatically runs `npm run prepare:browser`, which copies Chrome for Testing to `resources/browser/` and creates a manifest.
 
-The macOS installer must be built on macOS. The repository includes a GitHub Actions workflow (`.github/workflows/release.yml`) that builds the Windows `.exe` and the macOS `.pkg` for Apple Silicon and Intel.
+The macOS installer must be built on macOS. The repository includes a GitHub Actions workflow (`.github/workflows/release.yml`) that builds the Windows `.exe`, macOS `.pkg`, APK, IPA and userscript.
+
+**Mobile from source:**
+
+```bash
+npm install
+npm run build:mobile
+cd mobile/android && ./gradlew :app:assembleDebug     # debug APK
+cd mobile/ios && xcodegen generate                     # Xcode project (requires XcodeGen)
+```
+
+A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDROID_KEYSTORE_*` secrets it falls back to the debug key, so the file remains installable. The IPA needs macOS with full Xcode and is built unsigned in CI. Architecture details: [`MOBILE_PLAN.md`](MOBILE_PLAN.md).
 
 
 ## 📦 Recent changes
+
+### 4.0.0 — 2026-10-27
+
+- 📱 **Android APK.** A native WebView shell with Start/Stop, PL/EN, answer counter, a 17:00 reminder and an update button. Handles `instalingbot://start` and `instalingbot://stop` for Tasker/MacroDroid.
+- 🍏 **iOS IPA.** An unsigned SideStore/AltStore app with the same engine, reminder and URL scheme for Shortcuts. The easiest iPhone path remains the Safari userscript.
+- 🌐 **Userscript 4.0.** The shared engine in a floating panel for Safari iOS/iPadOS and Firefox on Android, with `?autostart=1`, `?lang=en` and automatic updates.
+- 🧠 **Shared mobile engine.** Answers, typos, saved words and session statistics behave like the desktop; a run survives full instaling.pl page reloads.
+- 🔔 **Native reminders.** A daily 17:00 notification in the APK and IPA, surviving an Android reboot and handling Android 13+ permissions.
+- 🔐 **No passwords on the phone.** The mobile apps reuse the normal website session in the WebView and do not store credentials.
+- 📚 **Documentation.** README (PL/EN), project site, wiki, `PROJECT_NOTES.md`, `CHANGELOG.md` and the mobile plan `MOBILE_PLAN.md`.
 
 ### 3.3.2 — 2026-10-27
 
 - 📡 **Clearer no-internet message.** The offline dialog now only asks you to check the connection and no longer points at a FAQ you cannot open without internet. The **README FAQ** button remains for bot errors only.
 - 📚 **Two latest releases in the README.** The changes section now shows the current release plus the previous one; the full history lives in `CHANGELOG.md`.
-- 🧹 **Documentation.** Corrected the offline dialog descriptions in the README and on the project page.
-
-### 3.3.1 — 2026-10-27
-
-- 🔄 **Daily update checks.** The app checks for a new release at startup, once a day, and whenever a session starts — including while minimized or in the tray. Finishing a session does not trigger a check.
-- 🟥 **Tray update icon.** When a newer version is available, the tray icon changes (a red badge on Windows/Linux, an extra shape on macOS) and the menu shows an **Update available** item that opens the release.
-- ☕ **Ko-fi in the tray menu.** **Support on Ko-fi** now sits directly below **Show window**.
-- 📚 **Documentation.** README, wiki, project page and developer notes describe the new update cadence and tray icon.
-
-### 3.3.0 — 2026-10-27
-
-- 🌍 **Full PL/EN interface.** The menu-bar switch translates settings, error dialogs, statistics, the tray menu and native notifications. The choice is saved as `language` in `Config.json`; engine logs remain in Polish.
-- 🔔 **Session-finished notification.** A new `notifications.session_finished` option (default `true`) shows the result or error when the window is hidden in the tray or minimized. A visible window does not produce a duplicate.
-- 🔐 **Security Phase 1.** `Config.json` gets `600` permissions on macOS/Linux and a private ACL on Windows; passwords are redacted from logs and notifications.
-- 🔑 **Credentials from the environment.** `INSTALING_LOGIN` and `INSTALING_PASSWORD` take precedence over `Config.json`, and the desktop app shows which fields come from the environment.
-- 🔎 **SEO and project page.** Cleaner title and metadata, `WebSite` structured data, an updated `SoftwareApplication` entry, a fresh sitemap `lastmod` and another IndexNow submission.
-- 📚 **Documentation.** README, wiki and the site describe the PL/EN interface, notifications, environment variables and the new security phase.
 
 Full history: [CHANGELOG.md](CHANGELOG.md).
 

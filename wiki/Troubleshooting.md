@@ -5,6 +5,37 @@ Jeśli problemu nie ma poniżej, zajrzyj do
 zadaj pytanie w [Discussions → Q&A](https://github.com/bmonekkk/instaling-bot/discussions/categories/q-a).
 **Nie publikuj haseł, ciasteczek, tokenów ani prywatnych logów.**
 
+## Mobile
+
+### APK się nie instaluje
+
+Zezwól na instalację z nieznanych źródeł dla przeglądarki lub menedżera plików. APK jest
+podpisany kluczem deweloperskim, nie przez Play Store.
+
+### „Nie znalazłem przycisku startu sesji”
+
+Zaloguj się w oknie aplikacji i otwórz stronę nauki, zanim naciśniesz **Start**. Mobile nie
+loguje się za Ciebie i nie czyta `Config.json`.
+
+### Sesja zatrzymuje się po zablokowaniu telefonu
+
+To normalne. WebView jest wstrzymywany w tle, a 4.0 nie ma trybu ukrytego. Zostaw aplikację
+na pierwszym planie.
+
+### Brak powiadomień na Androidzie 13+
+
+Włącz uprawnienie powiadomień w ustawieniach aplikacji i ponownie dotknij ⏰.
+
+### IPA nie instaluje się w SideStore/AltStore
+
+Plik jest niepodpisany. Podpisz go własnym Apple ID; darmowe konto wymaga odświeżenia po
+7 dniach.
+
+### Userscript nie widzi strony
+
+Sprawdź, czy rozszerzenie Userscripts/Tampermonkey ma zgodę dla `instaling.pl` i czy skrypt
+jest włączony. Chrome for Android nie obsługuje userscriptów — użyj APK lub Firefoksa.
+
 ## Desktop
 
 ### Brak internetu / offline

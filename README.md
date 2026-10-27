@@ -19,13 +19,15 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**3.3.2**) łączy trzy rzeczy:
+Aktualna wersja (**4.0.0**) to pierwsze wydanie mobilne:
 
-- 🖥️ aplikację desktopową z GUI, logiem na żywo, statystykami i wbudowaną przeglądarką Chrome,
-- ⌨️ pełnoprawne CLI dla Linuksa i terminala, instalowane jedną komendą `curl`,
+- 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
+- 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, przypomnienia i skróty automatyzacji,
+- 🌐 **userscript** dla Safari na iOS/iPadOS oraz Firefoksa na Androidzie,
+- ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-W 3.3.0 doszedł **pełny interfejs PL/EN** (ustawienia, dialogi, statystyki, menu zasobnika i powiadomienia), **przełącznik powiadomienia o zakończeniu sesji** dla okna ukrytego lub zminimalizowanego oraz **pierwszy etap bezpieczeństwa**: uprawnienia `600` dla `Config.json`, maskowanie haseł w logach i zmienne środowiskowe `INSTALING_LOGIN` / `INSTALING_PASSWORD`. Wersja 3.3.1 dodała **codzienne sprawdzanie aktualizacji** — przy starcie, raz na dobę i przy rozpoczęciu sesji — oraz **zmienioną ikonę zasobnika**, gdy dostępna jest nowsza wersja. Wersja 3.3.2 dopracowuje **okno braku internetu**: prosi tylko o sprawdzenie połączenia, bez odsyłania do FAQ, którego bez sieci i tak nie otworzysz. Statystyki, powtarzane przypomnienia i CLI z 3.2.x zostają bez zmian.
+Wersja 4.0.0 przenosi ten sam silnik na telefony bez Play Store i App Store. Aplikacje mobilne są cienkimi powłokami: logujesz się na `instaling.pl` w ich wbudowanej przeglądarce, a bot odpowiada w otwartej sesji. Hasła nie są zapisywane przez aplikację mobilną — zostają w normalnej sesji strony. Przypomnienie o nauce działa natywnie (codziennie o 17:00), a uruchamianie można podpiąć pod skróty systemowe. Desktop i CLI zachowują wszystkie funkcje z 3.3.x.
 
 Open source, licencja ISC.
 
@@ -39,22 +41,21 @@ Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli
 Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projektu. Projekt nie jest oficjalnie powiązany z InstaLing. Wpłaty nie gwarantują konkretnych funkcji ani terminów aktualizacji.
 
 
-## ✨ Dwie wersje, jeden silnik
+## ✨ Cztery warianty, jeden silnik
 
-| | Desktop | CLI |
-|---|---|---|
-| Systemy | Windows 10/11, macOS 13+ | Linux, macOS, Windows |
-| Wymaga Node.js | **Nie** | Tak, Node.js 22+ |
-| Interfejs | Okno aplikacji, ustawienia, live log | Terminal |
-| Przeglądarka | Chrome for Testing dołączony do instalatora | Pobierany przez Puppeteer |
-| Dane | `%APPDATA%\instaling-bot` lub `~/Library/Application Support/instaling-bot` | `config/` w katalogu projektu |
-| Statystyki | przycisk **Statystyki**: tydzień, miesiąc, rok, całość | `instaling-bot stats` |
-| Przypomnienia | powiadomienie systemowe + toast, opcjonalnie co N minut | `instaling-bot remind`, to samo ustawienie |
-| Koniec sesji | powiadomienie, gdy okno jest ukryte lub zminimalizowane | komunikat w terminalu |
-| Aktualizacje | sprawdzanie wydań + przycisk **Pobierz** | `instaling-bot update-check`; start blokuje starą wersję |
-| Aktualizacja | nowy instalator z GitHuba | ponowny `curl` lub `git pull && npm install --omit=dev` |
+| | Desktop | Android APK / iOS IPA | Userscript | CLI |
+|---|---|---|---|---|
+| Systemy | Windows 10/11, macOS 13+ | Android 7+ / iOS 16+ | Safari iOS, Firefox Android | Linux, macOS, Windows |
+| Wymaga Node.js | **Nie** | **Nie** | **Nie** | Tak, Node.js 22+ |
+| Interfejs | Okno aplikacji, ustawienia, live log | Natywny pasek + strona w WebView | Pływający panel na stronie | Terminal |
+| Logowanie | w aplikacji | normalne logowanie na stronie | normalne logowanie na stronie | w aplikacji |
+| Przeglądarka | Chrome for Testing w instalatorze | WebView systemowy | Twoja przeglądarka | Puppeteer |
+| Statystyki | tydzień, miesiąc, rok, całość | bieżąca sesja i zapis dzienny | bieżąca sesja | `instaling-bot stats` |
+| Przypomnienia | systemowe + toast, co N minut | codziennie o 17:00 | — | `instaling-bot remind` |
+| Automatyzacja | zasobnik, autostart | `instalingbot://start` / `stop` | `?autostart=1` | polecenia CLI |
+| Aktualizacja | nowy instalator | przycisk **Aktualizacja** | auto przez `@updateURL` | nowy `curl` |
 
-Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i formatu `SavedWords.json`.
+Wszystkie warianty korzystają z tego samego silnika (`src/core/` i `mobile/engine/`), tych samych strategii odpowiedzi i humanizacji pisania. Zapamiętane słówka zostają lokalnie: desktop/CLI w `SavedWords.json`, mobile w pamięci WebView, a userscript w `GM_setValue`.
 
 Interfejs desktopowy działa po polsku i angielsku. Język przełączasz przyciskami **PL/EN** na pasku menu; wybór zapisuje się w `Config.json` (`language`) i obejmuje też menu zasobnika oraz powiadomienia systemowe.
 
@@ -65,9 +66,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.3.2-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.3.2-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.3.2-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.0.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.0.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.0.0-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -140,6 +141,61 @@ logs/last-run.log         pełny log ostatniego uruchomienia
 ```
 
 Pliki można edytować także ręcznie — aplikacja używa tego samego formatu co CLI.
+
+
+## 📱 Mobile: Android i iOS
+
+Wersja 4.0.0 przenosi bota na telefon. Aplikacje mobilne nie są okrojoną podróbką desktopu: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
+
+### 🤖 Android: APK (zalecane)
+
+1. Pobierz `instaling-bot-4.0.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
+3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
+4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
+
+Górny pasek ma przełącznik **PL/EN**, przypomnienie ⏰, Start i Stop. Postęp sesji widać pod paskiem. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
+
+**Przypomnienie:** dotknij ⏰, aby włączyć codzienne powiadomienie o **17:00**. Android 13+ poprosi o zgodę na powiadomienia. Przypomnienie przetrwa restart telefonu.
+
+**Automatyzacja:** aplikacja obsługuje deep linki `instalingbot://start` i `instalingbot://stop`. W Taskerze, MacroDroidzie lub innym automacie dodaj akcję „Otwórz URL/Intent”, aby uruchomić sesję np. po połączeniu z domowym Wi-Fi. Bot nadal potrzebuje otwartej aplikacji i zalogowanej sesji.
+
+### 🍎 iOS: Safari + userscript (najłatwiejsza droga)
+
+Chrome na iOS nie obsługuje rozszerzeń, ale Safari tak:
+
+1. Zainstaluj darmową aplikację **Userscripts** z App Store.
+2. Włącz ją w **Ustawienia → Safari → Rozszerzenia** i zezwól na `instaling.pl`.
+3. Otwórz [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) w Safari i zaimportuj skrypt w Userscripts.
+4. Wejdź na `instaling.pl`, zaloguj się i dotknij pływającego przycisku 🤖.
+
+Panel userscriptu ma Start/Stop, PL/EN i licznik odpowiedzi. Ustawienia i słówka zapisują się w pamięci rozszerzenia. Skrypt aktualizuje się sam przez `@updateURL`.
+
+### 🍏 iOS: IPA dla SideStore / AltStore
+
+Dla osób, które wolą osobną aplikację:
+
+1. Pobierz `instaling-bot-4.0.0-ios.ipa` z najnowszego wydania.
+2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
+3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
+
+IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, przypomnienie o 17:00 i przycisk aktualizacji.
+
+**Skróty (Shortcuts):** aplikacja przyjmuje `instalingbot://start` i `instalingbot://stop`, więc możesz uruchomić sesję z automatyzacji iOS. Sesja działa tylko, gdy aplikacja jest na pierwszym planie.
+
+### 🌐 Userscript na Androidzie
+
+Chrome for Android nie ma menedżera userscriptów. Użyj **Firefoksa for Android** z **Tampermonkey** lub **Violentmonkey** i zainstaluj ten sam plik `instaling-bot.user.js`. To dobry wariant dla osób, które nie chcą instalować APK.
+
+Możesz też otworzyć stronę z parametrami: `?autostart=1` uruchamia sesję po załadowaniu, a `?lang=en` ustawia angielski interfejs — przydatne w skrótach i automatyzacjach.
+
+### ⚠️ Ograniczenia mobilne
+
+- Sesja działa tylko przy **otwartej aplikacji lub karcie**. Telefon może wstrzymać WebView po przejściu w tło; nie ma ukrytej pracy w tle.
+- Aplikacje mobilne **nie zapisują hasła** — logujesz się normalnie na stronie, a ciasteczka zostają w WebView.
+- APK i IPA są **niepodpisane przez store**. Instalujesz je na własną odpowiedzialność; nie ma ich w Play Store ani App Store.
+- Przypomnienie mobilne to powiadomienie o stałej godzinie, bez powtarzania co N minut jak w desktopie.
+- Pełne statystyki tygodnia/miesiąca/roku i eksport słówek pozostają w wersji desktopowej.
 
 
 ## ⌨️ CLI: Linux i terminal
@@ -288,7 +344,7 @@ Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 
 ## 🆘 Rozwiązywanie problemów
 
-Problemy są podzielone na **aplikację desktopową** i **CLI**. Okno błędu w aplikacji linkuje bezpośrednio do tej sekcji — nie otwiera już osobnego FAQ na stronie.
+Problemy są podzielone na **aplikację desktopową**, **mobile** i **CLI**. Okno błędu w aplikacji linkuje bezpośrednio do tej sekcji — nie otwiera już osobnego FAQ na stronie.
 
 ### 🖥️ Desktop
 
@@ -298,6 +354,16 @@ Problemy są podzielone na **aplikację desktopową** i **CLI**. Okno błędu w 
 - **Chcę zobaczyć, co robi bot** — włącz **Pokaż okno Chrome** i **Logi debug**, a potem zajrzyj do `pages/` i `screenshots/` w folderze danych.
 - **Antywirus / SmartScreen ostrzega** — instalatory są niepodpisane; to oczekiwane. Kod źródłowy jest publiczny.
 - **Za dużo RAM w tle** — włącz tryb zasobnika; zamknięcie okna zwalnia proces renderowania i zostaje lekki proces główny z ikoną.
+
+### 📱 Mobile
+
+- **APK się nie instaluje** — zezwól na instalację z nieznanych źródeł dla przeglądarki lub menedżera plików, którym otwierasz plik. APK jest podpisany kluczem deweloperskim, nie przez Play Store.
+- **„Nie znalazłem przycisku startu sesji"** — zaloguj się w oknie aplikacji i otwórz stronę nauki, zanim naciśniesz **Start**. Bot nie loguje się za Ciebie na telefonie.
+- **Sesja zatrzymuje się po zablokowaniu telefonu** — to normalne. WebView jest wstrzymywany w tle, a wersja 4.0 nie ma trybu ukrytego. Zostaw aplikację na pierwszym planie.
+- **Brak powiadomień na Androidzie 13+** — włącz uprawnienie powiadomień w ustawieniach aplikacji i ponownie dotknij ⏰.
+- **IPA nie instaluje się w SideStore/AltStore** — plik jest niepodpisany; podpisz go własnym Apple ID. Darmowe konto wymaga odświeżenia po 7 dniach.
+- **Userscript nie widzi strony** — sprawdź, czy rozszerzenie Userscripts/Tampermonkey ma zgodę dla `instaling.pl` i czy skrypt jest włączony dla tej domeny.
+- **Chrome na Androidzie nie uruchamia userscriptu** — to ograniczenie Chrome; użyj APK albo Firefoksa z Tampermonkey.
 
 ### ⌨️ CLI
 
@@ -318,36 +384,41 @@ npm run desktop          # uruchamia aplikację Electron
 npm run check            # składnia wszystkich plików
 npm run dist:win         # Windows .exe (NSIS)
 npm run dist:mac         # macOS .pkg (tylko na macOS)
+npm run build:mobile     # userscript + zasoby core.js dla APK/IPA
 ```
 
 Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm run prepare:browser`, które kopiuje Chrome for Testing do `resources/browser/` i tworzy manifest.
 
-Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
+Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe`, macOS `.pkg`, APK, IPA i userscript.
+
+**Mobile ze źródeł:**
+
+```bash
+npm install
+npm run build:mobile
+cd mobile/android && ./gradlew :app:assembleDebug     # APK debug
+cd mobile/ios && xcodegen generate                     # projekt Xcode (wymaga XcodeGen)
+```
+
+APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYSTORE_*` używa klucza debugowego, więc plik da się zainstalować. IPA wymaga macOS z pełnym Xcode i jest budowana bez podpisu w CI. Szczegóły architektury: [`MOBILE_PLAN.md`](MOBILE_PLAN.md).
 
 
 ## 📦 Ostatnie zmiany
 
+### 4.0.0 — 2026-10-27
+
+- 📱 **Android APK.** Natywna powłoka WebView z paskiem Start/Stop, przełącznikiem PL/EN, licznikiem odpowiedzi, przypomnieniem o 17:00 i przyciskiem aktualizacji. Obsługuje `instalingbot://start` i `instalingbot://stop` dla Taskera/MacroDroida.
+- 🍏 **iOS IPA.** Niepodpisana aplikacja dla SideStore/AltStore z tym samym silnikiem, przypomnieniem i schematem URL dla Skrótów. Najprostsza droga na iPhone'a to userscript w Safari.
+- 🌐 **Userscript 4.0.** Wspólny silnik w pływającym panelu dla Safari iOS/iPadOS oraz Firefoksa na Androidzie, z `?autostart=1`, `?lang=en` i automatyczną aktualizacją.
+- 🧠 **Wspólny silnik mobilny.** Odpowiedzi, literówki, zapisywanie słówek i statystyki sesji działają tak samo jak w desktopie; sesja przeżywa pełne przeładowanie strony instaling.pl.
+- 🔔 **Natywne przypomnienia.** Codzienne powiadomienie o 17:00 w APK i IPA, z zachowaniem po restarcie Androida i obsługą uprawnień Android 13+.
+- 🔐 **Bez haseł na telefonie.** Aplikacje mobilne korzystają z normalnej sesji strony w WebView; nie zapisują danych logowania.
+- 📚 **Dokumentacja.** README (PL/EN), strona projektu, wiki, `PROJECT_NOTES.md`, `CHANGELOG.md` i plan mobilny `MOBILE_PLAN.md`.
+
 ### 3.3.2 — 2026-10-27
 
-- 📡 **Jaśniejszy komunikat o braku internetu.** Okno offline prosi już tylko o sprawdzenie połączenia i nie odsyła do FAQ, którego bez sieci nie otworzysz. Przycisk **FAQ w README** zostaje wyłącznie przy błędach bota.
+- 📡 **Jaśniejszy komunikat o braku internetu.** Okno offline prosi już tylko o sprawdzenie połączenia i nie odsyła do FAQ, którego bez sieci i nie otworzysz. Przycisk **FAQ w README** zostaje wyłącznie przy błędach bota.
 - 📚 **Dwie ostatnie wersje w README.** Sekcja zmian pokazuje teraz bieżące wydanie i poprzednią wersję; pełna historia jest w `CHANGELOG.md`.
-- 🧹 **Dokumentacja.** Poprawione opisy okna offline w README i na stronie projektu.
-
-### 3.3.1 — 2026-10-27
-
-- 🔄 **Codzienne sprawdzanie aktualizacji.** Aplikacja sprawdza nowe wydanie przy starcie, raz na dobę oraz przy każdym rozpoczęciu sesji — także wtedy, gdy działa zminimalizowana lub w zasobniku. Zakończenie sesji nie uruchamia sprawdzania.
-- 🟥 **Ikona aktualizacji w zasobniku.** Gdy dostępna jest nowsza wersja, ikona zmienia wygląd (czerwony znacznik na Windows/Linux, dodatkowy kształt na macOS), a menu pokazuje pozycję **Dostępna aktualizacja** prowadzącą do wydania.
-- ☕ **Ko-fi w menu zasobnika.** Pozycja **Wesprzyj projekt na Ko-fi** jest bezpośrednio pod **Pokaż okno**.
-- 📚 **Dokumentacja.** README, wiki, strona projektu i notatki deweloperskie opisują nowy rytm aktualizacji i ikonę zasobnika.
-
-### 3.3.0 — 2026-10-27
-
-- 🌍 **Pełny interfejs PL/EN.** Przełącznik na pasku menu tłumaczy ustawienia, dialogi błędów, statystyki, menu zasobnika i powiadomienia systemowe. Wybór zapisuje się jako `language` w `Config.json`; logi silnika pozostają po polsku.
-- 🔔 **Powiadomienie o zakończeniu sesji.** Nowe ustawienie `notifications.session_finished` (domyślnie `true`) pokazuje wynik lub błąd, gdy okno jest ukryte w zasobniku albo zminimalizowane. Widoczne okno nie generuje duplikatu powiadomienia.
-- 🔐 **Bezpieczeństwo, etap 1.** `Config.json` otrzymuje uprawnienia `600` na macOS/Linux i prywatną listę ACL na Windows; hasło jest maskowane w logach i powiadomieniach.
-- 🔑 **Dane logowania ze środowiska.** `INSTALING_LOGIN` i `INSTALING_PASSWORD` mają pierwszeństwo przed `Config.json`, a desktop pokazuje, które pola są ustawione przez środowisko.
-- 🔎 **SEO i strona projektu.** Uporządkowany tytuł i metadane, dane strukturalne `WebSite` oraz zaktualizowany `SoftwareApplication`, świeży `lastmod` mapy strony i ponowne zgłoszenie IndexNow.
-- 📚 **Dokumentacja.** README, wiki i strona opisują interfejs PL/EN, powiadomienia, zmienne środowiskowe i nowy etap bezpieczeństwa.
 
 Pełna historia: [CHANGELOG.md](CHANGELOG.md).
 

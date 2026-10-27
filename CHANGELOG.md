@@ -2,6 +2,29 @@
 
 All notable changes to this fork are documented here.
 
+## [4.0.0] - 2026-10-27
+
+### Added
+- **Android APK** (`instaling-bot-4.0.0-android.apk`): a plain Java WebView shell with a native Start/Stop bar, PL/EN switch, answer counter, daily 17:00 reminder, update button and `instalingbot://start` / `instalingbot://stop` deep links for Tasker/MacroDroid. Works on Android 7+ and survives reboots for the reminder.
+- **iOS IPA** (`instaling-bot-4.0.0-ios.ipa`): an unsigned UIKit/WKWebView build for SideStore/AltStore, with the same PL/EN interface, local 17:00 notification, update check and URL scheme for Shortcuts. Built on the GitHub Actions macOS runner.
+- **Userscript** (`instaling-bot.user.js`): the shared mobile engine in a floating panel for Safari on iOS/iPadOS (Userscripts extension) and Firefox on Android (Tampermonkey/Violentmonkey). Supports `?autostart=1`, `?lang=en`, GM storage and automatic updates via `@updateURL`.
+- `mobile/engine/`: a shared browser-safe session engine with DOM adapters, mobile selectors, PL/EN strings and a tick-based resume model. instaling.pl reloads the page after checking an answer, so the engine persists the run and pending answer, then finishes bookkeeping on the result page.
+- `src/core/`: browser-safe answer strategies, typing humanization, RNG and selectors extracted from the desktop/CLI implementation so all shells use one source of truth.
+- `scripts/build-mobile.js` (esbuild bundles for the userscript, APK and IPA), `scripts/generate-icons.py` and `MOBILE_PLAN.md`.
+- `test/core.test.js` and `test/mobile-engine.test.js` covering typo generation, answer strategies, a complete jsdom session, deliberate mistakes, missing forms and resume-after-reload.
+- CI jobs for the userscript bundle, Android debug APK and an unsigned iOS build; the release workflow now produces and attaches APK, IPA and userscript assets alongside the desktop installers.
+
+### Changed
+- The desktop/CLI core now imports shared code from `src/core/`; existing exports and behaviour are unchanged.
+- `src/main.js` selectors live in `src/core/selectors.js`; desktop and mobile selector lists can evolve independently while sharing the defaults.
+- Version bumped to `4.0.0` across `package.json`, the Android Gradle build (version name read from `package.json`), the iOS project, README, site, wiki and release notes.
+
+### Compatibility
+- Desktop and CLI configs, `SavedWords.json`, statistics, reminders and update checks are unchanged.
+- Mobile apps do not read `Config.json` and do not store credentials; login happens in the normal WebView session.
+- Mobile reminders fire at a fixed 17:00 and do not repeat every N minutes. Background sessions are out of scope for 4.0.
+- APK/IPA remain outside the Play Store and App Store; the IPA needs SideStore/AltStore and a 7-day refresh on a free Apple ID.
+
 ## [3.3.2] - 2026-10-27
 
 ### Changed

@@ -5,7 +5,7 @@ Original project:
   https://github.com/PanSzelescik/instaling-bot
   Copyright (c) 2021 PanSzelescik
 
-This fork (v3.3.2):
+This fork (v4.0.0):
   https://github.com/bmonekkk/instaling-bot
   Copyright (c) 2026 bmonekkk and contributors
 
@@ -21,6 +21,9 @@ Third-party notices
 - The desktop app is built with Electron (MIT) and electron-builder (MIT).
   Their license texts are included in the installed application
   (LICENSE.electron.txt and the electron-builder metadata).
+- The mobile shells use the platform WebView (Android WebView, WKWebView on
+  iOS) and are compiled with the Android SDK and Xcode toolchains. They are
+  distributed unsigned, outside the Play Store and App Store.
 - Desktop installers bundle Chrome for Testing, which is based on the Chromium
   open-source project and includes third-party components under their own
   licenses. The Chromium license text is included in the installed application
