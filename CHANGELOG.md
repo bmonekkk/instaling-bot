@@ -13,6 +13,7 @@ All notable changes to this fork are documented here.
 ### Changed
 - README now has CI, CodeQL, release, license and discussions badges, plus a community and support section.
 - Added an English README (`README.en.md`) with a language switcher at the top of both README files.
+- Search engine and link-preview metadata for the project page: Open Graph and Twitter images, `FAQPage` structured data, favicon, `llms.txt`, refreshed sitemap, IndexNow submission script and a 1200x630 social preview.
 
 ## [3.2.0] - 2026-10-27
 

@@ -3,20 +3,34 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
     <title>instaling-bot - aplikacja desktopowa i bot do instaling.pl (2026)</title>
     <meta name="description" content="Działający bot do instaling.pl jako aplikacja desktopowa dla Windows i macOS oraz wersja CLI dla Linuksa. Wersja 3.2.0: instalator .exe i .pkg, wbudowany Chrome, live log, statystyki, powtarzane przypomnienia, nowe CLI i sprawdzanie aktualizacji. Open source, licencja ISC.">
     <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, aplikacja desktopowa, electron, windows, macos, linux, cli, puppeteer, nodejs, open source, human like typing, przypomnienia, statystyki, aktualizacje, angielski, niemiecki, francuski, włoski">
     <meta name="author" content="bmonekkk">
-    <meta name="robots" content="index, follow">
+    <meta name="robots" content="index, follow, max-image-preview:large">
     <link rel="canonical" href="https://bmonekkk.github.io/instaling-bot/">
+    <link rel="alternate" hreflang="pl" href="https://bmonekkk.github.io/instaling-bot/">
+    <link rel="alternate" hreflang="x-default" href="https://bmonekkk.github.io/instaling-bot/">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml">
     <meta property="og:type" content="website">
     <meta property="og:title" content="instaling-bot - aplikacja desktopowa i bot do instaling.pl (2026)">
     <meta property="og:description" content="Aplikacja dla Windows i macOS oraz CLI dla Linuksa. Automatyczne logowanie, rozwiązywanie słówek, live log i wbudowany Chrome. Wersja 3.2.0 ze statystykami i nowym CLI, open source, ISC.">
     <meta property="og:url" content="https://bmonekkk.github.io/instaling-bot/">
     <meta property="og:site_name" content="instaling-bot">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://bmonekkk.github.io/instaling-bot/social-preview.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="instaling-bot — bot do instaling.pl dla Windows, macOS i Linuksa">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="instaling-bot - bot do instaling.pl">
     <meta name="twitter:description" content="Desktop dla Windows i macOS oraz CLI dla Linuksa. Automatyczne rozwiązywanie słówek na instaling.pl. Open source, ISC.">
+    <meta name="twitter:image" content="https://bmonekkk.github.io/instaling-bot/social-preview.png">
+    <meta name="twitter:image:alt" content="instaling-bot — bot do instaling.pl dla Windows, macOS i Linuksa">
     <script type="application/ld+json">
     {
         "@context": "https://schema.org",
@@ -31,8 +45,92 @@
         "codeRepository": "https://github.com/bmonekkk/instaling-bot",
         "license": "https://github.com/bmonekkk/instaling-bot/blob/master/LICENSE",
         "programmingLanguage": "JavaScript",
+        "inLanguage": "pl-PL",
+        "isAccessibleForFree": true,
+        "sameAs": ["https://github.com/bmonekkk/instaling-bot"],
         "author": {"@type": "Person", "name": "bmonekkk"},
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "PLN"}
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "inLanguage": "pl-PL",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Brak internetu / offline w instaling-bot",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Sprawdź połączenie z internetem i spróbuj ponownie. Okno błędu zamyka się tylko przyciskiem Zamknij, a pomoc znajdziesz w FAQ w README."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Czy instalator instaling-bot jest podpisany?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Nie. Windows SmartScreen i macOS Gatekeeper mogą ostrzec przy pierwszym uruchomieniu. Windows: More info, potem Run anyway. macOS: prawy przycisk, Open lub ustawienia prywatności."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Bot nie przechodzi logowania do instaling.pl",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Sprawdź login i hasło. Bot wpisuje je dokładnie i ponawia próbę raz, jeśli strona chwilowo odrzuci formularz."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Brak Chrome w wersji CLI",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Uruchom npx puppeteer browsers install chrome. Wersja desktop ma Chrome dołączony do instalatora."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Strona instaling.pl zmieniła układ",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Włącz debug: true i sprawdź pliki w pages/ oraz screenshots/. Jeśli problem się powtarza, zgłoś issue z fragmentem HTML bez danych osobowych."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Jak zmienić szybkość działania bota?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Zmień wartości w sekcji delays w Config.json lub w panelu humanizacji w aplikacji."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Duże zużycie RAM w tle",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Włącz tryb zasobnika. Zamknięcie okna niszczy renderer i zostaje lekki proces główny."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "macOS: brak ikony w Docku",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "To zamierzone w trybie zasobnika. Kliknij ikonę w menu bar, żeby wrócić do okna i Docka."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Autostart otwiera okno",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Włącz także tryb zasobnika. Sam autostart nie uruchamia aplikacji po cichu."
+                }
+            }
+        ]
     }
     </script>
     <style>
@@ -639,13 +737,20 @@ instaling-bot help</code></pre>
             </ul>
         </section>
 
+        <section class="panel" id="english" lang="en">
+            <h2>English summary</h2>
+            <p><strong>instaling-bot</strong> is an open-source (ISC) bot for <a href="https://instaling.pl">instaling.pl</a> vocabulary practice. It ships as a desktop app for Windows 10/11 and macOS 13+ with a bundled Chrome for Testing, and as a Node.js 22+ CLI for Linux, macOS and Windows. The app logs in, starts or resumes a session, answers prompts, remembers translations and can deliberately make believable mistakes for human-like behaviour.</p>
+            <p>Version 3.2.0 adds week, month, year and all-time statistics, repeating reminders, a new CLI (<code>start</code>, <code>stats</code>, <code>remind</code>, <code>update-check</code>) and update checks before the CLI starts. Installers are unsigned, so SmartScreen or Gatekeeper may warn on first launch.</p>
+            <p>Read the <a href="https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md">English README</a>, browse the <a href="https://github.com/bmonekkk/instaling-bot/wiki">wiki</a> or ask in <a href="https://github.com/bmonekkk/instaling-bot/discussions">Discussions</a>.</p>
+        </section>
+
         <div class="warn">
             <strong>Ważne zastrzeżenie:</strong> projekt ma charakter <strong>edukacyjny</strong> (nauka automatyzacji przeglądarki). Nie jest powiązany z InstaLing i nie jest przeznaczony do oszukiwania w nauce. Automatyczne korzystanie z serwisu może naruszać jego regulamin - używaj odpowiedzialnie i na własną odpowiedzialność. Oprogramowanie jest dostarczane bez gwarancji (licencja ISC).
         </div>
 
         <footer>
             <p>Projekt jest kontynuacją <a href="https://github.com/PanSzelescik/instaling-bot">PanSzelescik/instaling-bot</a>. Licencja <a href="https://github.com/bmonekkk/instaling-bot/blob/master/LICENSE">ISC</a>.</p>
-            <p>Strona projektu: <a href="https://bmonekkk.github.io/instaling-bot/">bmonekkk.github.io/instaling-bot</a> · <a href="https://github.com/bmonekkk/instaling-bot/blob/master/CHANGELOG.md">CHANGELOG</a> · <a href="https://github.com/bmonekkk/instaling-bot/blob/master/PROJECT_NOTES.md">PROJECT_NOTES</a></p>
+            <p>Strona projektu: <a href="https://bmonekkk.github.io/instaling-bot/">bmonekkk.github.io/instaling-bot</a> · <a href="https://github.com/bmonekkk/instaling-bot/blob/master/CHANGELOG.md">CHANGELOG</a> · <a href="https://github.com/bmonekkk/instaling-bot/blob/master/PROJECT_NOTES.md">PROJECT_NOTES</a> · <a href="https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md">English README</a></p>
         </footer>
     </main>
 

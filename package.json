@@ -16,7 +16,8 @@
     "dist:win": "npm run prepare:browser && electron-builder --win nsis",
     "dist:mac": "npm run prepare:browser && electron-builder --mac pkg",
     "stats": "node bin/instaling-bot.js stats",
-    "help": "node bin/instaling-bot.js help"
+    "help": "node bin/instaling-bot.js help",
+    "indexnow": "bash scripts/submit-indexnow.sh"
   },
   "keywords": [
     "instaling",

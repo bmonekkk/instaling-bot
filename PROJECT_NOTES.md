@@ -321,6 +321,24 @@ Health files live at the repository root: `SECURITY.md`, `CONTRIBUTING.md`, `SUP
   API for the **first** wiki page; that initial page already exists, so future updates only
   need the script run after editing `wiki/`.
 
+### Search engine visibility
+
+- `docs/index.html` has a Polish title and description, canonical URL, `hreflang`, Open Graph
+  and Twitter cards, `SoftwareApplication` + `FAQPage` JSON-LD, a favicon, an English summary
+  section, `robots.txt`, `sitemap.xml` and `llms.txt` for AI crawlers.
+- `docs/social-preview.png` is a 1200x630 card for link previews. Upload it in GitHub
+  Settings → Social preview for the repository.
+- `scripts/submit-indexnow.sh` (`npm run indexnow`) submits the page to IndexNow, which covers
+  Bing, Yandex, Seznam, Naver and other participants. Run it after a Pages deploy.
+- Google does not use IndexNow. Add the URL-prefix property
+  `https://bmonekkk.github.io/instaling-bot/` in Google Search Console, verify it (HTML tag
+  or HTML file in `docs/`), then submit `https://bmonekkk.github.io/instaling-bot/sitemap.xml`.
+  Bing Webmaster Tools can import the property from Search Console.
+- `robots.txt` in a GitHub Pages project subdirectory is not the host-level file Google
+  fetches, so the sitemap must be submitted directly in Search Console.
+- Backlinks (Reddit, forums, project lists) and a custom domain matter more than meta tags
+  for a new site; indexing can take days to weeks.
+
 ## Common tasks
 
 ```bash
