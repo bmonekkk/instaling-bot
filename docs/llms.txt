@@ -21,16 +21,17 @@ resumes a session, reads each prompt, answers with a configurable accuracy, reme
 translations and can make believable mistakes (empty field, different translation or a
 typo) for human-like behaviour. Everything runs locally; there is no backend or telemetry.
 
-Version 3.3.0 includes a full Polish/English interface, an optional session-finished
-notification for hidden or minimized windows, and security Phase 1 (owner-only config
-permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides).
-Statistics, repeating reminders and the full CLI (`start`, `stats`, `remind`,
-`update-check`, `help`, `version`) remain available.
+Version 3.3.1 includes daily update checks (startup, once a day and at session start),
+a tray icon that changes when an update is available, a Ko-fi item in the tray menu,
+a full Polish/English interface, an optional session-finished notification, and security
+Phase 1 (owner-only config permissions, password redaction and `INSTALING_LOGIN` /
+`INSTALING_PASSWORD` overrides). Statistics, repeating reminders and the full CLI
+(`start`, `stats`, `remind`, `update-check`, `help`, `version`) remain available.
 
 ## Install
 
-- Windows: `instaling-bot-3.3.0-setup-win64.exe` from the latest release.
-- macOS: `instaling-bot-3.3.0-macos-arm64.pkg` or `instaling-bot-3.3.0-macos-x64.pkg`.
+- Windows: `instaling-bot-3.3.1-setup-win64.exe` from the latest release.
+- macOS: `instaling-bot-3.3.1-macos-arm64.pkg` or `instaling-bot-3.3.1-macos-x64.pkg`.
 - Linux / terminal: `curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash`
 
 ## Notes

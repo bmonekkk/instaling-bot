@@ -8,7 +8,7 @@ Projekt używa semver-ish `MAJOR.MINOR.PATCH`:
 - **MINOR** — nowe funkcje,
 - **PATCH** — poprawki błędów i bezpieczeństwa.
 
-Tag ma przedrostek `v`, np. `v3.3.0`, ale **tytuł wydania to sam numer**: `3.2.0`.
+Tag ma przedrostek `v`, np. `v3.3.1`, ale **tytuł wydania to sam numer**: `3.2.0`.
 
 ## Jak powstaje wydanie
 

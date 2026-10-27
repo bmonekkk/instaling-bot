@@ -19,13 +19,13 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**3.3.0**) combines three things:
+The current version (**3.3.1**) combines three things:
 
 - 🖥️ a desktop app with a GUI, live log, statistics and a bundled Chrome browser,
 - ⌨️ a full CLI for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
 
-Version 3.3.0 adds a **full Polish/English interface** (settings, dialogs, statistics, tray menu and notifications), an optional **session-finished notification** for hidden or minimized windows, and **security Phase 1**: owner-only permissions for `Config.json`, password redaction in logs, and `INSTALING_LOGIN` / `INSTALING_PASSWORD` environment overrides. Statistics, repeating reminders and the 3.2.x CLI stay unchanged. The project page also gained cleaner metadata and `WebSite` / `SoftwareApplication` structured data.
+Version 3.3.0 added a **full Polish/English interface** (settings, dialogs, statistics, tray menu and notifications), an optional **session-finished notification** for hidden or minimized windows, and **security Phase 1**: owner-only permissions for `Config.json`, password redaction in logs, and `INSTALING_LOGIN` / `INSTALING_PASSWORD` environment overrides. Version 3.3.1 adds **daily update checks** — at startup, once a day and whenever a session starts — plus a **different tray icon** when a newer release is available. Statistics, repeating reminders and the 3.2.x CLI stay unchanged.
 
 Open source, ISC license.
 
@@ -65,9 +65,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.3.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.3.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.3.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-3.3.1-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.3.1-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.3.1-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -102,11 +102,11 @@ Both switches are in **Settings → Reminders and background mode**:
 - On macOS, tray mode hides the Dock icon and switches the app to accessory mode — only the menu bar icon remains, adapting to light/dark mode.
 - After closing the window in tray mode, the app destroys the window (rather than just hiding it) to use less RAM in the background. The interface is recreated when you click the icon.
 - You can start a session from the icon menu (**Start**). When it finishes, you get a system notification with the answer count — provided **Notify me when a session finishes** is enabled and the window is hidden or minimized.
-- The tray icon also offers **Stop**, **Show window** and **Quit**.
+- The tray icon also offers **Stop**, **Show window**, **Support on Ko-fi** and **Quit**, plus an **Update available** item when a newer release exists.
 
 ### 🔄 Updates
 
-The app checks the [latest GitHub release](https://github.com/bmonekkk/instaling-bot/releases/latest) at startup and every few hours. When a newer version appears, a banner with a **Download** button opens the release page. Installers are unsigned, so updating means downloading and running the new installer — the app never downloads or installs anything by itself. You can also check manually with the **Check for updates** button in the console.
+The app checks the [latest GitHub release](https://github.com/bmonekkk/instaling-bot/releases/latest) at startup, once a day and whenever a session starts — including while minimized or in the tray. Finishing a session does not trigger a check. When a newer version appears, a banner with a **Download** button opens the release page and the tray icon changes (a red badge on Windows/Linux, an extra shape on macOS). Installers are unsigned, so updating means downloading and running the new installer — the app never downloads or installs anything by itself. You can also check manually with the **Check for updates** button in the console.
 
 ### 🔐 Installers are unsigned
 
@@ -325,14 +325,12 @@ Before packaging, `npm run dist:win` / `dist:mac` automatically runs `npm run pr
 The macOS installer must be built on macOS. The repository includes a GitHub Actions workflow (`.github/workflows/release.yml`) that builds the Windows `.exe` and the macOS `.pkg` for Apple Silicon and Intel.
 
 
-## 📦 Changes in 3.3.0
+## 📦 Changes in 3.3.1
 
-- 🌍 **Full PL/EN interface.** The menu-bar switch translates settings, error dialogs, statistics, the tray menu and native notifications. The choice is saved as `language` in `Config.json`; engine logs remain in Polish.
-- 🔔 **Session-finished notification.** A new `notifications.session_finished` option (default `true`) shows the result or error when the window is hidden in the tray or minimized. A visible window does not produce a duplicate.
-- 🔐 **Security Phase 1.** `Config.json` gets `600` permissions on macOS/Linux and a private ACL on Windows; passwords are redacted from logs and notifications.
-- 🔑 **Credentials from the environment.** `INSTALING_LOGIN` and `INSTALING_PASSWORD` take precedence over `Config.json`, and the desktop app shows which fields come from the environment.
-- 🔎 **SEO and project page.** Cleaner title and metadata, `WebSite` structured data, an updated `SoftwareApplication` entry, a fresh sitemap `lastmod` and another IndexNow submission.
-- 📚 **Documentation.** README, wiki and the site describe the PL/EN interface, notifications, environment variables and the new security phase.
+- 🔄 **Daily update checks.** The app checks for a new release at startup, once a day, and whenever a session starts — including while minimized or in the tray. Finishing a session does not trigger a check.
+- 🟥 **Tray update icon.** When a newer version is available, the tray icon changes (a red badge on Windows/Linux, an extra shape on macOS) and the menu shows an **Update available** item that opens the release.
+- ☕ **Ko-fi in the tray menu.** **Support on Ko-fi** now sits directly below **Show window**.
+- 📚 **Documentation.** README, wiki, project page and developer notes describe the new update cadence and tray icon.
 
 Earlier changes: [CHANGELOG.md](CHANGELOG.md).
 

@@ -70,6 +70,14 @@ const TRAY_GLYPH = [
     '...#...##...#...',
     '................'
 ];
+// Same glyph with a solid notification block in the top-right corner. macOS
+// template images cannot use colour, so the shape carries the "update" state.
+const TRAY_GLYPH_UPDATE = TRAY_GLYPH.map((row, index) => (
+    index < 4 ? `${row.slice(0, 12)}####` : row
+));
+const UPDATE_CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
+const KOFI_URL = 'https://ko-fi.com/bmonekkk';
+
 const LOG_BUFFER_LIMIT = 2000;
 // The console is cleared two hours after a session ends so overnight background
 // runs do not leave an unreadable wall of text. The env hook is for tests.
@@ -531,6 +539,10 @@ async function startBot() {
         throw new Error(tr('toast.loginRequired'));
     }
 
+    // Refresh the update state when a session starts (not when it ends) so a
+    // long-running background app notices new releases without blocking start.
+    checkUpdates().catch(() => {});
+
     const browser = resolveBundledBrowser();
     botState = freshState();
     botState.running = true;
@@ -661,19 +673,38 @@ function requestStop() {
 }
 
 function trayIcon() {
+    const hasUpdate = Boolean(updateInfo?.available);
     if (process.platform === 'darwin') {
-        return templateTrayIcon();
+        return templateTrayIcon(hasUpdate);
     }
     const iconPath = path.join(app.getAppPath(), 'build', 'icon.png');
     const image = nativeImage.createFromPath(iconPath);
-    return image.isEmpty() ? image : image.resize({width: 16, height: 16});
+    if (image.isEmpty()) return image;
+    return hasUpdate ? updateBadgeImage(image, 16) : image.resize({width: 16, height: 16});
 }
 
-function bitmapFromGlyph(size) {
+// Adds a red corner dot to the coloured tray icon used on Windows/Linux.
+function updateBadgeImage(image, size) {
+    const resized = image.resize({width: size, height: size});
+    const bitmap = Buffer.from(resized.toBitmap());
+    const dot = Math.max(3, Math.round(size / 4));
+    for (let y = 0; y < dot; y++) {
+        for (let x = size - dot; x < size; x++) {
+            const offset = (y * size + x) * 4;
+            bitmap[offset] = 0;
+            bitmap[offset + 1] = 0;
+            bitmap[offset + 2] = 255;
+            bitmap[offset + 3] = 255;
+        }
+    }
+    return nativeImage.createFromBitmap(bitmap, {width: size, height: size});
+}
+
+function bitmapFromGlyph(size, glyph = TRAY_GLYPH) {
     const buffer = Buffer.alloc(size * size * 4);
     const scale = size / 16;
     for (let y = 0; y < size; y++) {
-        const row = TRAY_GLYPH[Math.min(15, Math.floor(y / scale))] ?? '';
+        const row = glyph[Math.min(15, Math.floor(y / scale))] ?? '';
         for (let x = 0; x < size; x++) {
             const on = row[Math.min(15, Math.floor(x / scale))] === '#';
             if (!on) continue;
@@ -683,13 +714,14 @@ function bitmapFromGlyph(size) {
     return buffer;
 }
 
-function templateTrayIcon() {
-    const image = nativeImage.createFromBitmap(bitmapFromGlyph(16), {width: 16, height: 16});
+function templateTrayIcon(hasUpdate = false) {
+    const glyph = hasUpdate ? TRAY_GLYPH_UPDATE : TRAY_GLYPH;
+    const image = nativeImage.createFromBitmap(bitmapFromGlyph(16, glyph), {width: 16, height: 16});
     image.addRepresentation({
         scaleFactor: 2,
         width: 32,
         height: 32,
-        buffer: bitmapFromGlyph(32)
+        buffer: bitmapFromGlyph(32, glyph)
     });
     image.setTemplateImage(true);
     return image;
@@ -764,21 +796,15 @@ function notifyTrayError(message) {
     notifyTrayMessage(tr('notify.startFailed', {message}));
 }
 
-function updateTray() {
-    const enabled = Boolean(configCache?.background?.run_in_tray);
-    if (!enabled) {
-        if (tray) {
-            tray.destroy();
-            tray = null;
-        }
-        return;
-    }
-    if (tray) return;
+function openExternalUrl(url) {
+    if (typeof url !== 'string' || !/^https:\/\//i.test(url)) return;
+    shell.openExternal(url).catch(() => {});
+}
 
-    tray = new Tray(trayIcon());
-    tray.setToolTip('instaling-bot');
-    tray.setContextMenu(Menu.buildFromTemplate([
+function trayMenuTemplate() {
+    const items = [
         {label: tr('tray.show'), click: showWindow},
+        {label: tr('tray.support'), click: () => openExternalUrl(KOFI_URL)},
         {type: 'separator'},
         {
             label: tr('tray.start'),
@@ -789,7 +815,20 @@ function updateTray() {
                 });
             }
         },
-        {label: tr('tray.stop'), click: () => requestStop()},
+        {label: tr('tray.stop'), click: () => requestStop()}
+    ];
+
+    if (updateInfo?.available) {
+        items.push(
+            {type: 'separator'},
+            {
+                label: tr('tray.update', {version: updateInfo.latest}),
+                click: () => openExternalUrl(updateInfo.url)
+            }
+        );
+    }
+
+    items.push(
         {type: 'separator'},
         {
             label: tr('tray.quit'),
@@ -798,8 +837,30 @@ function updateTray() {
                 app.quit();
             }
         }
-    ]));
-    tray.on('click', showWindow);
+    );
+    return items;
+}
+
+function updateTray() {
+    const enabled = Boolean(configCache?.background?.run_in_tray);
+    if (!enabled) {
+        if (tray) {
+            tray.destroy();
+            tray = null;
+        }
+        return;
+    }
+
+    if (!tray) {
+        tray = new Tray(trayIcon());
+        tray.on('click', showWindow);
+    } else {
+        tray.setImage(trayIcon());
+    }
+    tray.setToolTip(updateInfo?.available
+        ? tr('tray.tooltipUpdate', {version: updateInfo.latest})
+        : 'instaling-bot');
+    tray.setContextMenu(Menu.buildFromTemplate(trayMenuTemplate()));
 }
 
 function applyLoginItem(enabled) {
@@ -854,21 +915,28 @@ function startReminderLoop() {
 
 async function checkUpdates() {
     try {
+        const previous = updateInfo;
         updateInfo = {...await checkLatestRelease(app.getVersion()), checkedAt: Date.now()};
         if (updateInfo.available) {
             send('app:update-available', updateInfo);
-            appendLog(tr('log.updateAvailable', {version: updateInfo.latest}));
+            if (!previous?.available || previous.latest !== updateInfo.latest) {
+                appendLog(tr('log.updateAvailable', {version: updateInfo.latest}));
+            }
         }
     } catch (error) {
-        updateInfo = {available: false, error: error.message, checkedAt: Date.now()};
+        // A transient network error must not clear an update we already found.
+        updateInfo = updateInfo?.available
+            ? {...updateInfo, error: error.message, checkedAt: Date.now()}
+            : {available: false, error: error.message, checkedAt: Date.now()};
     }
+    updateTray();
     return updateInfo;
 }
 
 function startUpdateChecks() {
     setTimeout(() => checkUpdates().catch(() => {}), 4000);
     if (updateTimer) clearInterval(updateTimer);
-    updateTimer = setInterval(() => checkUpdates().catch(() => {}), 6 * 60 * 60 * 1000);
+    updateTimer = setInterval(() => checkUpdates().catch(() => {}), UPDATE_CHECK_INTERVAL_MS);
 }
 
 function createWindow(show = true) {

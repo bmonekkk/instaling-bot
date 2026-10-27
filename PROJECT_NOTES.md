@@ -22,12 +22,12 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.3.0) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.3.1) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-3.3.0-setup-win64.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-3.3.1-setup-win64.exe` (gitignored) |
 
 ## Stack
 
@@ -406,6 +406,13 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Windows NSIS installer and macOS PKG builds for arm64/x64 via GitHub Actions.
 - Shared engine/config/words with the CLI, including graceful stop and IPC events.
 
+## What changed in 3.3.1
+
+- Update checks now run at startup, every 24 hours (`UPDATE_CHECK_INTERVAL_MS`) and at every `startBot()` call, but not when a session ends. This covers long-running minimized/tray sessions.
+- `trayIcon()` reads `updateInfo.available`: macOS swaps in `TRAY_GLYPH_UPDATE` (template-safe 4×4 block), Windows/Linux overlay a red badge via `updateBadgeImage()`.
+- `updateTray()` now refreshes an existing tray image, tooltip and context menu instead of returning early. `trayMenuTemplate()` adds Ko-fi below Show window and an Update available item when relevant.
+- Transient update-check errors preserve a previously discovered update, so the badge/banner does not flicker away.
+
 ## What changed in 3.3.0
 
 - Full PL/EN desktop interface via `desktop/renderer/i18n.js`, shared by the main process and renderer. `language` is persisted in `Config.json`; engine logs remain Polish.
@@ -461,8 +468,8 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 
 Copy this into a new chat:
 
-> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.3.0).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.3.1).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
-> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. The desktop has a full PL/EN interface, configurable session-finished notifications, owner-only config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run.
-> Do not regress: cookie handling, notification visibility semantics (visible window = no duplicate), saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, credential redaction, manual-only updates.
+> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. The desktop has a full PL/EN interface, configurable session-finished notifications, owner-only config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides. Update checks run at startup, daily and at session start; the tray icon/menu indicate available updates, and Ko-fi sits under Show window. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run.
+> Do not regress: cookie handling, notification visibility semantics (visible window = no duplicate), update checks not firing on session end, tray icon refresh, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, credential redaction, manual-only updates.
 > Test with `"max_answers": 1`, update `CHANGELOG.md`, and prepare a release.

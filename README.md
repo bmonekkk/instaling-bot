@@ -19,13 +19,13 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**3.3.0**) łączy trzy rzeczy:
+Aktualna wersja (**3.3.1**) łączy trzy rzeczy:
 
 - 🖥️ aplikację desktopową z GUI, logiem na żywo, statystykami i wbudowaną przeglądarką Chrome,
 - ⌨️ pełnoprawne CLI dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-W 3.3.0 doszedł **pełny interfejs PL/EN** (ustawienia, dialogi, statystyki, menu zasobnika i powiadomienia), **przełącznik powiadomienia o zakończeniu sesji** dla okna ukrytego lub zminimalizowanego oraz **pierwszy etap bezpieczeństwa**: uprawnienia `600` dla `Config.json`, maskowanie haseł w logach i zmienne środowiskowe `INSTALING_LOGIN` / `INSTALING_PASSWORD`. Statystyki, powtarzane przypomnienia i CLI z 3.2.x zostają bez zmian. Strona projektu dostała uporządkowane metadane i dane strukturalne `WebSite` / `SoftwareApplication`.
+W 3.3.0 doszedł **pełny interfejs PL/EN** (ustawienia, dialogi, statystyki, menu zasobnika i powiadomienia), **przełącznik powiadomienia o zakończeniu sesji** dla okna ukrytego lub zminimalizowanego oraz **pierwszy etap bezpieczeństwa**: uprawnienia `600` dla `Config.json`, maskowanie haseł w logach i zmienne środowiskowe `INSTALING_LOGIN` / `INSTALING_PASSWORD`. Wersja 3.3.1 dodaje **codzienne sprawdzanie aktualizacji** — przy starcie, raz na dobę i przy rozpoczęciu sesji — oraz **zmienioną ikonę zasobnika**, gdy dostępna jest nowsza wersja. Statystyki, powtarzane przypomnienia i CLI z 3.2.x zostają bez zmian.
 
 Open source, licencja ISC.
 
@@ -65,9 +65,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.3.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.3.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.3.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-3.3.1-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.3.1-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.3.1-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -102,11 +102,11 @@ Oba przełączniki są w **Ustawienia → Przypomnienia i praca w tle**:
 - Na macOS tryb zasobnika chowa ikonę z Docka i przełącza aplikację w tryb akcesoriów — zostaje tylko ikona w menu bar, która dopasowuje się do jasnego/ciemnego motywu.
 - Po zamknięciu okna w trybie zasobnika aplikacja niszczy okno (a nie tylko je ukrywa), żeby w tle zużywać mniej RAM. Interfejs odtworzy się po kliknięciu ikony.
 - Sesję możesz uruchomić z menu ikony (**Start**). Gdy się skończy, dostaniesz powiadomienie systemowe z liczbą odpowiedzi — o ile włączysz **Powiadamiaj o zakończeniu sesji** i okno jest ukryte lub zminimalizowane.
-- Ikona w zasobniku daje też **Stop**, **Pokaż okno** i **Zakończ**.
+- Ikona w zasobniku daje też **Stop**, **Pokaż okno**, **Wesprzyj projekt na Ko-fi** i **Zakończ**, a przy dostępnej aktualizacji — pozycję **Dostępna aktualizacja**.
 
 ### 🔄 Aktualizacje
 
-Aplikacja sprawdza [najnowsze wydanie na GitHubie](https://github.com/bmonekkk/instaling-bot/releases/latest) przy starcie i co kilka godzin. Gdy pojawi się nowsza wersja, u góry okna wyświetli się banner z przyciskiem **Pobierz**, który otwiera stronę wydania. Instalatory są niepodpisane, więc aktualizacja polega na pobraniu i uruchomieniu nowego instalatora — aplikacja nie pobiera ani nie instaluje niczego samodzielnie. Sprawdzenie można też wywołać ręcznie przyciskiem **Sprawdź aktualizacje** w konsoli.
+Aplikacja sprawdza [najnowsze wydanie na GitHubie](https://github.com/bmonekkk/instaling-bot/releases/latest) przy starcie, raz na dobę oraz przy każdym rozpoczęciu sesji — także gdy działa zminimalizowana lub w zasobniku. Zakończenie sesji nie wywołuje sprawdzania. Gdy pojawi się nowsza wersja, u góry okna wyświetli się banner z przyciskiem **Pobierz**, a ikona w zasobniku zmieni się (czerwony znacznik na Windows/Linux, dodatkowy kształt na macOS). Instalatory są niepodpisane, więc aktualizacja polega na pobraniu i uruchomieniu nowego instalatora — aplikacja nie pobiera ani nie instaluje niczego samodzielnie. Sprawdzenie można też wywołać ręcznie przyciskiem **Sprawdź aktualizacje** w konsoli.
 
 ### 🔐 Instalatory są niepodpisane
 
@@ -325,14 +325,12 @@ Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm ru
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
 
 
-## 📦 Zmiany w wersji 3.3.0
+## 📦 Zmiany w wersji 3.3.1
 
-- 🌍 **Pełny interfejs PL/EN.** Przełącznik na pasku menu tłumaczy ustawienia, dialogi błędów, statystyki, menu zasobnika i powiadomienia systemowe. Wybór zapisuje się jako `language` w `Config.json`; logi silnika pozostają po polsku.
-- 🔔 **Powiadomienie o zakończeniu sesji.** Nowe ustawienie `notifications.session_finished` (domyślnie `true`) pokazuje wynik lub błąd, gdy okno jest ukryte w zasobniku albo zminimalizowane. Widoczne okno nie generuje duplikatu powiadomienia.
-- 🔐 **Bezpieczeństwo, etap 1.** `Config.json` otrzymuje uprawnienia `600` na macOS/Linux i prywatną listę ACL na Windows; hasło jest maskowane w logach i powiadomieniach.
-- 🔑 **Dane logowania ze środowiska.** `INSTALING_LOGIN` i `INSTALING_PASSWORD` mają pierwszeństwo przed `Config.json`, a desktop pokazuje, które pola są ustawione przez środowisko.
-- 🔎 **SEO i strona projektu.** Uporządkowany tytuł i metadane, dane strukturalne `WebSite` oraz zaktualizowany `SoftwareApplication`, świeży `lastmod` mapy strony i ponowne zgłoszenie IndexNow.
-- 📚 **Dokumentacja.** README, wiki i strona opisują interfejs PL/EN, powiadomienia, zmienne środowiskowe i nowy etap bezpieczeństwa.
+- 🔄 **Codzienne sprawdzanie aktualizacji.** Aplikacja sprawdza nowe wydanie przy starcie, raz na dobę oraz przy każdym rozpoczęciu sesji — także wtedy, gdy działa zminimalizowana lub w zasobniku. Zakończenie sesji nie uruchamia sprawdzania.
+- 🟥 **Ikona aktualizacji w zasobniku.** Gdy dostępna jest nowsza wersja, ikona zmienia wygląd (czerwony znacznik na Windows/Linux, dodatkowy kształt na macOS), a menu pokazuje pozycję **Dostępna aktualizacja** prowadzącą do wydania.
+- ☕ **Ko-fi w menu zasobnika.** Pozycja **Wesprzyj projekt na Ko-fi** jest bezpośrednio pod **Pokaż okno**.
+- 📚 **Dokumentacja.** README, wiki, strona projektu i notatki deweloperskie opisują nowy rytm aktualizacji i ikonę zasobnika.
 
 Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
 

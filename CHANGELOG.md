@@ -2,6 +2,21 @@
 
 All notable changes to this fork are documented here.
 
+## [3.3.1] - 2026-10-27
+
+### Added
+- Daily update checks (startup, every 24 hours and at every session start) shared by the running app, including minimized/tray mode. Session completion never triggers a check.
+- Tray update state: the icon gains a red badge on Windows/Linux and an extra 4×4 block on the macOS template glyph, the tooltip names the new version, and the tray menu exposes an **Update available** item that opens the release page.
+- **Support on Ko-fi** item in the tray menu, directly below **Show window**.
+
+### Changed
+- Update checks no longer run every six hours; the interval is now 24 hours.
+- A failed update check keeps a previously found update visible instead of clearing the badge and banner.
+
+### Compatibility
+- No config changes. Existing `Config.json`, statistics, reminders and saved words remain compatible.
+- Updates remain manual (download and run the new installer) because builds are unsigned.
+
 ## [3.3.0] - 2026-10-27
 
 ### Added
