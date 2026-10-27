@@ -334,6 +334,10 @@ Health files live at the repository root: `SECURITY.md`, `CONTRIBUTING.md`, `SUP
   `https://bmonekkk.github.io/instaling-bot/` in Google Search Console, verify it (HTML tag
   or HTML file in `docs/`), then submit `https://bmonekkk.github.io/instaling-bot/sitemap.xml`.
   Bing Webmaster Tools can import the property from Search Console.
+- The Search Console HTML-file verification lives at
+  `docs/google0890551163baf2b9.html`. **Do not delete or rename it** — removing it breaks the
+  property verification. Add a new file from Search Console if the project ever gets another
+  property or a custom domain.
 - `robots.txt` in a GitHub Pages project subdirectory is not the host-level file Google
   fetches, so the sitemap must be submitted directly in Search Console.
 - Backlinks (Reddit, forums, project lists) and a custom domain matter more than meta tags
