@@ -5,13 +5,13 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 
-Aktualna wersja (**3.1.1**) łączy trzy rzeczy:
+Aktualna wersja (**3.1.2**) łączy trzy rzeczy:
 
 - aplikację desktopową z GUI, logiem na żywo i wbudowaną przeglądarką Chrome,
 - nadal w pełni działającą wersję CLI (`npm start`) dla Linuksa i terminala,
 - humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-W 3.1.1 doszły też: natywna ikona w menu bar macOS (monochromatyczna, dopasowana do motywu), ukrywanie aplikacji z Docka w trybie zasobnika, powiadomienie o zakończeniu sesji uruchomionej z ikony, okno pomocy przy błędzie lub braku internetu oraz dużo lżejsza praca w tle (okno jest niszczone po zamknięciu).
+W 3.1.2 poprawiono okna pomocy: błąd i brak internetu nie znikają już same po powrocie sieci ani po kliknięciu tła — zamyka je tylko przycisk **Zamknij**. Wcześniej doszły też: natywna ikona w menu bar macOS (monochromatyczna, dopasowana do motywu), ukrywanie aplikacji z Docka w trybie zasobnika, powiadomienie o zakończeniu sesji uruchomionej z ikony, okno pomocy przy błędzie lub braku internetu oraz dużo lżejsza praca w tle (okno jest niszczone po zamknięciu).
 
 Open source, licencja ISC.
 
@@ -45,9 +45,9 @@ Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i for
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.1.1-setup.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.1.1-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.1.1-x64.pkg`
+- **Windows:** `instaling-bot-3.1.2-setup.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.1.2-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.1.2-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -99,7 +99,7 @@ To normalne dla niepodpisanych buildów. Późniejsze wersje mogą dostać podpi
 
 ### 📡 Offline i błędy
 
-Gdy aplikacja nie widzi internetu, pokazuje okno z wyjaśnieniem i dwoma skrótami: **FAQ na stronie** oraz **README**. To samo okno pojawia się przy błędzie bota (np. zmiana układu strony, odrzucone logowanie) — z linkiem do sekcji pomocy, żeby nie trzeba było szukać jej ręcznie.
+Gdy aplikacja nie widzi internetu, pokazuje okno z wyjaśnieniem i dwoma skrótami: **FAQ na stronie** oraz **README**. To samo okno pojawia się przy błędzie bota (np. zmiana układu strony, odrzucone logowanie) — z linkiem do sekcji pomocy, żeby nie trzeba było szukać jej ręcznie. Okno zamyka się **tylko przyciskiem Zamknij** — nie znika samo po powrocie sieci ani po kliknięciu tła.
 
 ### Gdzie aplikacja trzyma dane?
 
@@ -275,6 +275,11 @@ Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm ru
 
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
 
+
+## 📦 Zmiany w wersji 3.1.2
+
+- **Okna błędów zostają na ekranie.** Modal braku internetu i błędu bota zamyka się już tylko przyciskiem **Zamknij** — nie znika po powrocie połączenia ani po kliknięciu ciemnego tła.
+- Komunikat o powrocie internetu nadal pojawia się jako toast, ale nie chowa otwartego okna pomocy.
 
 ## 📦 Zmiany w wersji 3.1.1
 

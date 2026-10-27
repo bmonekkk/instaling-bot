@@ -283,7 +283,7 @@ async function loadState() {
         appState = state;
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v3.1.1';
+        const version = state.version ? `v${state.version}` : 'v3.1.2';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;
@@ -529,9 +529,6 @@ function wireEvents() {
     els.errorClose.addEventListener('click', () => {
         els.errorModal.hidden = true;
     });
-    els.errorModal.addEventListener('click', event => {
-        if (event.target === els.errorModal) els.errorModal.hidden = true;
-    });
     els.errorFaq.addEventListener('click', () => openHelp(FAQ_URL));
     els.errorReadme.addEventListener('click', () => openHelp(README_FAQ_URL));
     window.addEventListener('offline', () => {
@@ -543,7 +540,6 @@ function wireEvents() {
     });
     window.addEventListener('online', () => {
         showToast('Połączenie z internetem wróciło.');
-        if (els.errorModal.dataset.kind === 'offline') els.errorModal.hidden = true;
     });
 
     els.winMinimize.addEventListener('click', () => api?.minimizeWindow());

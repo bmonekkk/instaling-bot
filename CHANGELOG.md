@@ -4,6 +4,15 @@ All notable changes to this fork are documented here.
 
 ## [Unreleased]
 
+## [3.1.2] - 2026-10-27
+
+### Fixed
+- The offline and bot-error modals no longer close themselves when the network comes back. They now stay open until the user presses **Zamknij**.
+- Clicking the dimmed backdrop no longer dismisses the error modal; only the **Zamknij** button closes it. The online event still shows a toast, but it no longer hides the help dialog.
+
+### Changed
+- Version bumped to 3.1.2 in `package.json`, `package-lock.json`, docs, app titlebar and release notes.
+
 ## [3.1.1] - 2026-10-26
 
 ### Added

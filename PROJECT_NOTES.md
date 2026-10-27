@@ -22,12 +22,12 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.1.1) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.1.2) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-3.1.1-setup.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-3.1.2-setup.exe` (gitignored) |
 
 ## Stack
 
@@ -354,6 +354,11 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Update checking in both variants (`src/update.js`, `scripts/check-updates.js`) — notify only, never install.
 - Ko-fi support box and author footer in the app; faster default click pause (2000–4500 ms).
 
+## What changed in 3.1.2
+
+- The offline/error modal is now fully manual: only the **Zamknij** button hides it. Removed the automatic hide on `online` and the backdrop-click dismissal. The `online` event still shows a toast.
+- This fixes the modal flashing for a fraction of a second when the network flaps or when the same click that revealed the dialog landed on the backdrop.
+
 ## What changed in 3.1.1
 
 - macOS tray icon is generated as a monochrome template bitmap, so the menu bar renders it correctly in light and dark mode.
@@ -378,7 +383,7 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 
 Copy this into a new chat:
 
-> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.1.1).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.1.2).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
 > Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. Daily reminder and update checking are shared by desktop and CLI (`npm run remind`, `npm run update-check`).
 > Do not regress: cookie handling, `isVisible()` semantics, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state, manual-only updates.
