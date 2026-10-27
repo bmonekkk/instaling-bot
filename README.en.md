@@ -2,7 +2,7 @@
 
 **🇵🇱 [Polski](README.md) · 🇬🇧 English**
 
-A bot that automatically solves vocabulary exercises on [instaling.pl](https://instaling.pl) — now also as a **desktop app for Windows and macOS**.
+A bot that automatically solves vocabulary exercises on [instaling.pl](https://instaling.pl) — now on **all your devices: Windows, macOS, Android, iOS and the terminal**.
 
 <p align="center">
   <img src="docs/demo.gif" alt="Cat meme — i'm gonna touch u" width="480">

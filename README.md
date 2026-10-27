@@ -2,7 +2,7 @@
 
 **🇵🇱 Polski · 🇬🇧 [English](README.en.md)**
 
-Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) — teraz także jako **aplikacja desktopowa dla Windows i macOS**.
+Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) — teraz na **wszystkich urządzeniach: Windows, macOS, Android, iOS i w terminalu**.
 
 <p align="center">
   <img src="docs/demo.gif" alt="Mem z kotem — i'm gonna touch u" width="480">
