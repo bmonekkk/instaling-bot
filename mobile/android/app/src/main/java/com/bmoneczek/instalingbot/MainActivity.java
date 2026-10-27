@@ -26,6 +26,8 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
@@ -266,7 +268,9 @@ public class MainActivity extends Activity {
         root.setOnApplyWindowInsetsListener((view, windowInsets) -> {
             Insets bars = windowInsets.getInsets(
                     WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
-            view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            // Keep the status bar inset (the title bar stays below it), but let
+            // the WebView run under the transparent navigation bar.
+            view.setPadding(bars.left, bars.top, bars.right, 0);
             return WindowInsets.CONSUMED;
         });
     }
@@ -570,6 +574,20 @@ public class MainActivity extends Activity {
         field.setTextColor(C_INK);
         field.setTextSize(13);
         field.setTypeface(classicTypeface(Typeface.NORMAL));
+        // The numeric keypad has no obvious way out; offer a Done action that
+        // hides the keyboard and drops focus.
+        field.setSingleLine(true);
+        field.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        field.setOnEditorActionListener((view, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                InputMethodManager keyboard =
+                        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (keyboard != null) keyboard.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                view.clearFocus();
+                return true;
+            }
+            return false;
+        });
         GradientDrawable background = new GradientDrawable();
         background.setColor(Color.WHITE);
         background.setStroke(dp(2), C_WINDOW_DARKER);

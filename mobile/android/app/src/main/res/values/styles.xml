@@ -2,12 +2,12 @@
 <resources>
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:statusBarColor">#000080</item>
-        <item name="android:navigationBarColor">#000080</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowBackground">#c0c0c0</item>
         <item name="android:colorAccent">#000080</item>
         <item name="android:colorPrimary">#000080</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <!-- Classic gray dialog so the settings sheet matches the window chrome. -->

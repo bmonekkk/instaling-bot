@@ -190,32 +190,24 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         root.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(root)
 
-        // The system-bar areas continue the navy title gradient instead of
-        // showing the gray window, so the status bar and the home-indicator
-        // strip blend into the header/footer.
+        // The status-bar area continues the navy title gradient (the header
+        // look). The bottom is left transparent: the web page runs under the
+        // home indicator instead of showing a separate bar.
         let topFill = GradientBar(frame: .zero)
         topFill.translatesAutoresizingMaskIntoConstraints = false
         view.insertSubview(topFill, at: 0)
-        let bottomFill = GradientBar(frame: .zero)
-        bottomFill.translatesAutoresizingMaskIntoConstraints = false
-        view.insertSubview(bottomFill, at: 0)
 
         let guide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             root.topAnchor.constraint(equalTo: guide.topAnchor),
             root.leadingAnchor.constraint(equalTo: guide.leadingAnchor),
             root.trailingAnchor.constraint(equalTo: guide.trailingAnchor),
-            root.bottomAnchor.constraint(equalTo: guide.bottomAnchor),
+            root.bottomAnchor.constraint(equalTo: view.bottomAnchor),
 
             topFill.topAnchor.constraint(equalTo: view.topAnchor),
             topFill.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             topFill.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            topFill.bottomAnchor.constraint(equalTo: guide.topAnchor),
-
-            bottomFill.topAnchor.constraint(equalTo: guide.bottomAnchor),
-            bottomFill.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            bottomFill.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            bottomFill.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            topFill.bottomAnchor.constraint(equalTo: guide.topAnchor)
         ])
     }
 
@@ -648,6 +640,19 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 1))
         field.leftViewMode = .always
         field.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        // The number pad has no return key, so add a Done button above it.
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+        toolbar.items = [
+            UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+            UIBarButtonItem(
+                title: language == "en" ? "Done" : "Gotowe",
+                style: .done,
+                target: field,
+                action: #selector(UIResponder.resignFirstResponder)
+            )
+        ]
+        toolbar.sizeToFit()
+        field.inputAccessoryView = toolbar
         return field
     }
 
