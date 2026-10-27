@@ -4,6 +4,10 @@
 
 Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) — teraz także jako **aplikacja desktopowa dla Windows i macOS**.
 
+<p align="center">
+  <img src="docs/demo.gif" alt="instaling-bot — demo" width="480">
+</p>
+
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 **Wiki:** https://github.com/bmonekkk/instaling-bot/wiki

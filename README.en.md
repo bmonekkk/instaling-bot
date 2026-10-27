@@ -4,6 +4,10 @@
 
 A bot that automatically solves vocabulary exercises on [instaling.pl](https://instaling.pl) — now also as a **desktop app for Windows and macOS**.
 
+<p align="center">
+  <img src="docs/demo.gif" alt="instaling-bot — demo" width="480">
+</p>
+
 **Project site:** https://bmonekkk.github.io/instaling-bot/
 **Latest release:** https://github.com/bmonekkk/instaling-bot/releases/latest
 **Wiki:** https://github.com/bmonekkk/instaling-bot/wiki
