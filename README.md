@@ -9,7 +9,6 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 </p>
 
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
-**Poradniki:** [Android](https://bmonekkk.github.io/instaling-bot/android.html) · [iPhone / iPad](https://bmonekkk.github.io/instaling-bot/ios.html) · [Userscript](https://bmonekkk.github.io/instaling-bot/userscript.html) · [CLI](https://bmonekkk.github.io/instaling-bot/cli.html)
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 **Wiki:** https://github.com/bmonekkk/instaling-bot/wiki
 **Dyskusje:** https://github.com/bmonekkk/instaling-bot/discussions

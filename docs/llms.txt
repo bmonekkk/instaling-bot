@@ -15,13 +15,6 @@
 - English README: https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md
 - Mobile architecture: https://github.com/bmonekkk/instaling-bot/blob/master/MOBILE_PLAN.md
 
-## Guides
-
-- Android (APK + Firefox/Tampermonkey): https://bmonekkk.github.io/instaling-bot/android.html
-- iPhone / iPad (Safari Userscripts + SideStore/AltStore IPA): https://bmonekkk.github.io/instaling-bot/ios.html
-- Userscript (Safari and Firefox on Android): https://bmonekkk.github.io/instaling-bot/userscript.html
-- CLI (Linux, macOS, Windows terminal): https://bmonekkk.github.io/instaling-bot/cli.html
-
 ## What it is
 
 instaling-bot automates vocabulary practice on instaling.pl. It logs in, starts or
@@ -29,21 +22,26 @@ resumes a session, reads each prompt, answers with a configurable accuracy, reme
 translations and can make believable mistakes (empty field, different translation or a
 typo) for human-like behaviour. Everything runs locally; there is no backend or telemetry.
 
-Version 4.2.0 aligns every platform. The desktop and CLI keep every earlier feature,
-and a shared engine powers three mobile variants:
+Version 4.2.1 aligns every platform. The desktop and CLI keep every earlier feature,
+and a shared engine powers three mobile variants. Desktop, Android, iOS and the userscript
+all expose the same week/month/year/all statistics panel, a "restore defaults" action
+(keeping login, password and language) and one shared min/max navigation-button click
+speed:
 
 - **Android APK** — native WebView shell with Start/Stop, PL/EN, answer counter,
-  statistics, a ⚙ settings dialog (accuracy, all typing delays, reminder time and its
-  repeat interval), a reminder that repeats every N minutes and stops once a session is
-  finished that day, an update button and `instalingbot://start` / `instalingbot://stop`
-  deep links for Tasker/MacroDroid.
+  statistics, a ⚙ settings dialog (accuracy, all typing delays, navigation speed,
+  reminder time and a frequency dropdown), a reminder that repeats every N minutes and
+  stops once a session is finished that day, a "restore defaults" button, an update
+  button and `instalingbot://start` / `instalingbot://stop` deep links for
+  Tasker/MacroDroid.
 - **iOS IPA** — unsigned build for SideStore/AltStore with the same engine, settings,
-  statistics, a repeating configurable reminder and a URL scheme for Shortcuts. A free
-  Apple ID needs a refresh every 7 days.
+  statistics, a reminder-frequency dropdown, a repeating configurable reminder and a URL
+  scheme for Shortcuts. A free Apple ID needs a refresh every 7 days.
 - **Userscript** — floating panel for Safari on iOS/iPadOS and Firefox on Android, with
-  a persisted settings panel (accuracy, all typing delays, reminder time and repeat,
-  autostart), statistics, an in-page reminder banner, `?autostart=1`, `?lang=en`, GM
-  storage and automatic updates through `@updateURL`.
+  a persisted settings panel (accuracy, all typing delays, navigation speed, reminder
+  time and frequency, autostart), statistics, a "restore defaults" button, an in-page
+  reminder banner, `?autostart=1`, `?lang=en`, GM storage and automatic updates through
+  `@updateURL`. The panel is sized with `100dvh` so it stays inside Safari's viewport.
 
 The website tags every download with OS/minimum version, architecture and format, and
 detects the visitor's device (Windows, macOS ARM64/Intel, Android, iPhone, iPad, Linux)
@@ -52,15 +50,16 @@ downloads the recommended build and scrolls to the matching install tutorial. Ev
 platform uses the same icon generated from `build/icon.png`.
 
 Mobile apps do not store passwords; they reuse the normal website session in the WebView.
-A session runs only while the app or browser tab is open. The full desktop retains
-week/month/year statistics, saved-word export, tray mode and hidden background sessions.
+A session runs only while the app or browser tab is open. Every app — desktop, Android,
+iOS and the userscript — shows week/month/year statistics; the full desktop additionally
+keeps saved-word export, tray mode and hidden background sessions.
 
 ## Install
 
-- Windows: `instaling-bot-4.2.0-setup-win64.exe` from the latest release.
-- macOS: `instaling-bot-4.2.0-macos-arm64.pkg` or `instaling-bot-4.2.0-macos-x64.pkg`.
-- Android: `instaling-bot-4.2.0-android.apk`.
-- iOS: `instaling-bot-4.2.0-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
+- Windows: `instaling-bot-4.2.1-setup-win64.exe` from the latest release.
+- macOS: `instaling-bot-4.2.1-macos-arm64.pkg` or `instaling-bot-4.2.1-macos-x64.pkg`.
+- Android: `instaling-bot-4.2.1-android.apk`.
+- iOS: `instaling-bot-4.2.1-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
 - Linux / terminal: `curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash`
 
 ## Notes

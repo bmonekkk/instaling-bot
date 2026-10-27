@@ -29,17 +29,13 @@ Strona: https://bmonekkk.github.io/instaling-bot/ · Repo: https://github.com/bm
           "key": "4378f80532d5cec0574a28e80a26421e",
           "keyLocation": "https://bmonekkk.github.io/instaling-bot/4378f80532d5cec0574a28e80a26421e.txt",
           "urlList": [
-            "https://bmonekkk.github.io/instaling-bot/",
-            "https://bmonekkk.github.io/instaling-bot/android.html",
-            "https://bmonekkk.github.io/instaling-bot/ios.html",
-            "https://bmonekkk.github.io/instaling-bot/userscript.html",
-            "https://bmonekkk.github.io/instaling-bot/cli.html"
+            "https://bmonekkk.github.io/instaling-bot/"
           ]
         }'
       ```
 
 - [ ] Sprawdź dane strukturalne: **Rich Results Test** i **Schema Markup Validator**
-      (strona ma już `SoftwareApplication`, `SoftwareSourceCode`, `FAQPage`, `BreadcrumbList`).
+      (strona ma już `WebSite`, `SoftwareApplication`, `SoftwareSourceCode`, `FAQPage`).
 - [ ] Sprawdź Core Web Vitals (PageSpeed Insights) — strona jest statyczna, powinno być zielono.
 
 ## 2. Analityka
