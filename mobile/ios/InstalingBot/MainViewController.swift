@@ -82,10 +82,9 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         checkForUpdate()
     }
 
-    // The chrome is a light gray title bar, so keep the status bar text dark
-    // even when the device is in dark mode.
+    // The status bar sits on the navy gradient, so use light status bar icons.
     override var preferredStatusBarStyle: UIStatusBarStyle {
-        .darkContent
+        .lightContent
     }
 
     // MARK: - UI
@@ -191,12 +190,32 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         root.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(root)
 
+        // The system-bar areas continue the navy title gradient instead of
+        // showing the gray window, so the status bar and the home-indicator
+        // strip blend into the header/footer.
+        let topFill = GradientBar(frame: .zero)
+        topFill.translatesAutoresizingMaskIntoConstraints = false
+        view.insertSubview(topFill, at: 0)
+        let bottomFill = GradientBar(frame: .zero)
+        bottomFill.translatesAutoresizingMaskIntoConstraints = false
+        view.insertSubview(bottomFill, at: 0)
+
         let guide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             root.topAnchor.constraint(equalTo: guide.topAnchor),
             root.leadingAnchor.constraint(equalTo: guide.leadingAnchor),
             root.trailingAnchor.constraint(equalTo: guide.trailingAnchor),
-            root.bottomAnchor.constraint(equalTo: guide.bottomAnchor)
+            root.bottomAnchor.constraint(equalTo: guide.bottomAnchor),
+
+            topFill.topAnchor.constraint(equalTo: view.topAnchor),
+            topFill.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            topFill.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            topFill.bottomAnchor.constraint(equalTo: guide.topAnchor),
+
+            bottomFill.topAnchor.constraint(equalTo: guide.bottomAnchor),
+            bottomFill.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomFill.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomFill.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
 
