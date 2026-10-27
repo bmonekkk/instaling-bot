@@ -2,6 +2,18 @@
 
 All notable changes to this fork are documented here.
 
+## [3.3.2] - 2026-10-27
+
+### Changed
+- The desktop no-internet dialog only asks you to check the connection; it no longer appends a "Help: README FAQ" hint for offline errors, and the **README FAQ** button is hidden on those dialogs. The button still appears for other bot errors.
+- README (PL/EN) now shows the two most recent releases instead of only the current one; the full history stays in `CHANGELOG.md`.
+
+### Docs
+- Corrected offline/dialog descriptions in the README and the project page FAQ and `FAQPage` structured data.
+
+### Compatibility
+- No config, data or behaviour changes outside the offline dialog text and button visibility.
+
 ## [3.3.1] - 2026-10-27
 
 ### Added

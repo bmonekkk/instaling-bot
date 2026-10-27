@@ -145,10 +145,10 @@
             'toast.reminder': 'Nie zapomnij o dzisiejszej sesji na InstaLing.',
 
             'error.offlineTitle': 'Brak połączenia z internetem 📡',
-            'error.offlineLogin': 'Bot nie mógł połączyć się z instaling.pl.\n\nSzczegóły: {detail}\n\nSprawdź połączenie z internetem i spróbuj ponownie. Pomoc: FAQ w README.',
+            'error.offlineLogin': 'Bot nie mógł połączyć się z instaling.pl.\n\nSzczegóły: {detail}\n\nSprawdź połączenie z internetem i spróbuj ponownie.',
             'error.offlineStart': 'Nie można rozpocząć sesji bez internetu. Sprawdź połączenie z internetem, a potem naciśnij Start ponownie.',
-            'error.offlineLost': 'Połączenie z siecią zostało utracone. Bot nie będzie mógł odpowiadać na słówka, dopóki internet nie wróci. Sprawdź połączenie z internetem. Pomoc: FAQ w README.',
-            'error.offlineApp': 'Aplikacja nie widzi połączenia z siecią. Sprawdź połączenie z internetem — bez niego bot nie zaloguje się do instaling.pl. Pomoc: FAQ w README.',
+            'error.offlineLost': 'Połączenie z siecią zostało utracone. Bot nie będzie mógł odpowiadać na słówka, dopóki internet nie wróci. Sprawdź połączenie z internetem.',
+            'error.offlineApp': 'Aplikacja nie widzi połączenia z siecią. Sprawdź połączenie z internetem — bez niego bot nie zaloguje się do instaling.pl.',
             'error.botTitle': 'Bot zatrzymał się z błędem ⚠️',
             'error.bot': '{detail}\n\nZajrzyj do FAQ w README — najczęstsze przyczyny to zmiana układu strony, brak Chrome albo odrzucone logowanie.',
 
@@ -330,10 +330,10 @@
             'toast.reminder': "Don't forget today's InstaLing session.",
 
             'error.offlineTitle': 'No internet connection 📡',
-            'error.offlineLogin': 'The bot could not connect to instaling.pl.\n\nDetails: {detail}\n\nCheck your internet connection and try again. Help: README FAQ.',
+            'error.offlineLogin': 'The bot could not connect to instaling.pl.\n\nDetails: {detail}\n\nCheck your internet connection and try again.',
             'error.offlineStart': 'You cannot start a session without internet. Check your connection, then press Start again.',
-            'error.offlineLost': 'The network connection was lost. The bot cannot answer words until the internet returns. Check your connection. Help: README FAQ.',
-            'error.offlineApp': 'The app cannot see a network connection. Check your internet connection — without it the bot cannot log in to instaling.pl. Help: README FAQ.',
+            'error.offlineLost': 'The network connection was lost. The bot cannot answer words until the internet returns. Check your connection.',
+            'error.offlineApp': 'The app cannot see a network connection. Check your internet connection — without it the bot cannot log in to instaling.pl.',
             'error.botTitle': 'The bot stopped with an error ⚠️',
             'error.bot': '{detail}\n\nSee the README FAQ — the most common causes are a page layout change, missing Chrome or rejected login.',
 

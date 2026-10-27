@@ -19,13 +19,13 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**3.3.1**) combines three things:
+The current version (**3.3.2**) combines three things:
 
 - 🖥️ a desktop app with a GUI, live log, statistics and a bundled Chrome browser,
 - ⌨️ a full CLI for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
 
-Version 3.3.0 added a **full Polish/English interface** (settings, dialogs, statistics, tray menu and notifications), an optional **session-finished notification** for hidden or minimized windows, and **security Phase 1**: owner-only permissions for `Config.json`, password redaction in logs, and `INSTALING_LOGIN` / `INSTALING_PASSWORD` environment overrides. Version 3.3.1 adds **daily update checks** — at startup, once a day and whenever a session starts — plus a **different tray icon** when a newer release is available. Statistics, repeating reminders and the 3.2.x CLI stay unchanged.
+Version 3.3.0 added a **full Polish/English interface** (settings, dialogs, statistics, tray menu and notifications), an optional **session-finished notification** for hidden or minimized windows, and **security Phase 1**: owner-only permissions for `Config.json`, password redaction in logs, and `INSTALING_LOGIN` / `INSTALING_PASSWORD` environment overrides. Version 3.3.1 added **daily update checks** — at startup, once a day and whenever a session starts — plus a **different tray icon** when a newer release is available. Version 3.3.2 refines the **no-internet dialog**: it only asks you to check the connection, without pointing at a FAQ you cannot open offline. Statistics, repeating reminders and the 3.2.x CLI stay unchanged.
 
 Open source, ISC license.
 
@@ -65,9 +65,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.3.1-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.3.1-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.3.1-macos-x64.pkg`
+- **Windows:** `instaling-bot-3.3.2-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.3.2-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.3.2-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -119,7 +119,7 @@ This is normal for unsigned builds. Later versions may be signed if a certificat
 
 ### 📡 Offline and errors
 
-When the app cannot reach the internet, it shows a dialog with an explanation and a single **README FAQ** button that leads to the [Troubleshooting](#-troubleshooting) section. The same dialog appears on a bot error (for example a page layout change or rejected login). The dialog closes **only with the Close button** — it does not disappear when the network returns or when you click the background.
+When the app cannot reach the internet, it shows a dialog asking you to check the connection, with a **Close** button — no FAQ link, since the FAQ cannot be opened without internet anyway. The dialog closes **only with the Close button** — it does not disappear when the network returns or when you click the background. On a bot error (for example a page layout change or rejected login) an additional **README FAQ** button leads to the [Troubleshooting](#-troubleshooting) section.
 
 ### 📁 Where does the app keep its data?
 
@@ -292,7 +292,7 @@ Problems are split into the **desktop app** and the **CLI**. The app's error dia
 
 ### 🖥️ Desktop
 
-- **📡 No internet** — check your connection and press **Start** again. The help dialog links to the README FAQ and closes only with the **Close** button.
+- **📡 No internet** — check your connection and press **Start** again. The dialog closes only with the **Close** button.
 - **Chrome missing from the installer** — reinstall the app from the official release.
 - **The bot does not get past login** — check the login and password in the app. The bot types them precisely and retries once if the site temporarily rejects the form.
 - **I want to see what the bot is doing** — enable **Show Chrome window** and **Debug logs**, then look in `pages/` and `screenshots/` in the data folder.
@@ -325,14 +325,31 @@ Before packaging, `npm run dist:win` / `dist:mac` automatically runs `npm run pr
 The macOS installer must be built on macOS. The repository includes a GitHub Actions workflow (`.github/workflows/release.yml`) that builds the Windows `.exe` and the macOS `.pkg` for Apple Silicon and Intel.
 
 
-## 📦 Changes in 3.3.1
+## 📦 Recent changes
+
+### 3.3.2 — 2026-10-27
+
+- 📡 **Clearer no-internet message.** The offline dialog now only asks you to check the connection and no longer points at a FAQ you cannot open without internet. The **README FAQ** button remains for bot errors only.
+- 📚 **Two latest releases in the README.** The changes section now shows the current release plus the previous one; the full history lives in `CHANGELOG.md`.
+- 🧹 **Documentation.** Corrected the offline dialog descriptions in the README and on the project page.
+
+### 3.3.1 — 2026-10-27
 
 - 🔄 **Daily update checks.** The app checks for a new release at startup, once a day, and whenever a session starts — including while minimized or in the tray. Finishing a session does not trigger a check.
 - 🟥 **Tray update icon.** When a newer version is available, the tray icon changes (a red badge on Windows/Linux, an extra shape on macOS) and the menu shows an **Update available** item that opens the release.
 - ☕ **Ko-fi in the tray menu.** **Support on Ko-fi** now sits directly below **Show window**.
 - 📚 **Documentation.** README, wiki, project page and developer notes describe the new update cadence and tray icon.
 
-Earlier changes: [CHANGELOG.md](CHANGELOG.md).
+### 3.3.0 — 2026-10-27
+
+- 🌍 **Full PL/EN interface.** The menu-bar switch translates settings, error dialogs, statistics, the tray menu and native notifications. The choice is saved as `language` in `Config.json`; engine logs remain in Polish.
+- 🔔 **Session-finished notification.** A new `notifications.session_finished` option (default `true`) shows the result or error when the window is hidden in the tray or minimized. A visible window does not produce a duplicate.
+- 🔐 **Security Phase 1.** `Config.json` gets `600` permissions on macOS/Linux and a private ACL on Windows; passwords are redacted from logs and notifications.
+- 🔑 **Credentials from the environment.** `INSTALING_LOGIN` and `INSTALING_PASSWORD` take precedence over `Config.json`, and the desktop app shows which fields come from the environment.
+- 🔎 **SEO and project page.** Cleaner title and metadata, `WebSite` structured data, an updated `SoftwareApplication` entry, a fresh sitemap `lastmod` and another IndexNow submission.
+- 📚 **Documentation.** README, wiki and the site describe the PL/EN interface, notifications, environment variables and the new security phase.
+
+Full history: [CHANGELOG.md](CHANGELOG.md).
 
 
 ## 💬 Community and support

@@ -253,6 +253,9 @@ function showErrorModal(title, message, kind = 'error') {
     els.errorModalTitle.textContent = title;
     els.errorMessage.textContent = message;
     els.errorModal.dataset.kind = kind;
+    // Offline dialogs should only ask for a connection check — the README FAQ
+    // cannot be opened without internet anyway.
+    els.errorReadme.hidden = kind === 'offline';
     els.errorModal.hidden = false;
 }
 
@@ -375,7 +378,7 @@ async function loadState() {
         applyLanguage(state.config?.language ?? language);
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v3.3.1';
+        const version = state.version ? `v${state.version}` : 'v3.3.2';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;

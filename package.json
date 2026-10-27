@@ -1,6 +1,6 @@
 {
   "name": "instaling-bot",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Desktop app and CLI bot for practising vocabulary on instaling.pl (educational automation project)",
   "main": "desktop/main.js",
   "scripts": {

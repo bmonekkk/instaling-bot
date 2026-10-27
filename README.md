@@ -19,13 +19,13 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**3.3.1**) łączy trzy rzeczy:
+Aktualna wersja (**3.3.2**) łączy trzy rzeczy:
 
 - 🖥️ aplikację desktopową z GUI, logiem na żywo, statystykami i wbudowaną przeglądarką Chrome,
 - ⌨️ pełnoprawne CLI dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-W 3.3.0 doszedł **pełny interfejs PL/EN** (ustawienia, dialogi, statystyki, menu zasobnika i powiadomienia), **przełącznik powiadomienia o zakończeniu sesji** dla okna ukrytego lub zminimalizowanego oraz **pierwszy etap bezpieczeństwa**: uprawnienia `600` dla `Config.json`, maskowanie haseł w logach i zmienne środowiskowe `INSTALING_LOGIN` / `INSTALING_PASSWORD`. Wersja 3.3.1 dodaje **codzienne sprawdzanie aktualizacji** — przy starcie, raz na dobę i przy rozpoczęciu sesji — oraz **zmienioną ikonę zasobnika**, gdy dostępna jest nowsza wersja. Statystyki, powtarzane przypomnienia i CLI z 3.2.x zostają bez zmian.
+W 3.3.0 doszedł **pełny interfejs PL/EN** (ustawienia, dialogi, statystyki, menu zasobnika i powiadomienia), **przełącznik powiadomienia o zakończeniu sesji** dla okna ukrytego lub zminimalizowanego oraz **pierwszy etap bezpieczeństwa**: uprawnienia `600` dla `Config.json`, maskowanie haseł w logach i zmienne środowiskowe `INSTALING_LOGIN` / `INSTALING_PASSWORD`. Wersja 3.3.1 dodała **codzienne sprawdzanie aktualizacji** — przy starcie, raz na dobę i przy rozpoczęciu sesji — oraz **zmienioną ikonę zasobnika**, gdy dostępna jest nowsza wersja. Wersja 3.3.2 dopracowuje **okno braku internetu**: prosi tylko o sprawdzenie połączenia, bez odsyłania do FAQ, którego bez sieci i tak nie otworzysz. Statystyki, powtarzane przypomnienia i CLI z 3.2.x zostają bez zmian.
 
 Open source, licencja ISC.
 
@@ -65,9 +65,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.3.1-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.3.1-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.3.1-macos-x64.pkg`
+- **Windows:** `instaling-bot-3.3.2-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.3.2-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.3.2-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -119,7 +119,7 @@ To normalne dla niepodpisanych buildów. Późniejsze wersje mogą dostać podpi
 
 ### 📡 Offline i błędy
 
-Gdy aplikacja nie widzi internetu, pokazuje okno z wyjaśnieniem i jednym przyciskiem **FAQ w README**, który prowadzi do sekcji [Rozwiązywanie problemów](#-rozwiązywanie-problemów). To samo okno pojawia się przy błędzie bota (np. zmiana układu strony, odrzucone logowanie). Okno zamyka się **tylko przyciskiem Zamknij** — nie znika samo po powrocie sieci ani po kliknięciu tła.
+Gdy aplikacja nie widzi internetu, pokazuje okno z prośbą o sprawdzenie połączenia i przyciskiem **Zamknij** — bez odsyłania do FAQ, którego bez sieci i tak nie otworzysz. Okno zamyka się **tylko przyciskiem Zamknij** — nie znika samo po powrocie sieci ani po kliknięciu tła. Przy błędzie bota (np. zmiana układu strony, odrzucone logowanie) pojawia się dodatkowy przycisk **FAQ w README** prowadzący do sekcji [Rozwiązywanie problemów](#-rozwiązywanie-problemów).
 
 ### 📁 Gdzie aplikacja trzyma dane?
 
@@ -292,7 +292,7 @@ Problemy są podzielone na **aplikację desktopową** i **CLI**. Okno błędu w 
 
 ### 🖥️ Desktop
 
-- **📡 Brak internetu** — sprawdź połączenie z internetem i naciśnij **Start** ponownie. Okno pomocy linkuje do FAQ w README i zamyka się tylko przyciskiem **Zamknij**.
+- **📡 Brak internetu** — sprawdź połączenie z internetem i naciśnij **Start** ponownie. Okno zamyka się tylko przyciskiem **Zamknij**.
 - **Brak przeglądarki Chrome w instalatorze** — zainstaluj aplikację ponownie z oficjalnego wydania.
 - **Bot nie przechodzi logowania** — sprawdź login i hasło w aplikacji. Bot wpisuje dane dokładnie i ponawia próbę raz, jeśli strona chwilowo odrzuci formularz.
 - **Chcę zobaczyć, co robi bot** — włącz **Pokaż okno Chrome** i **Logi debug**, a potem zajrzyj do `pages/` i `screenshots/` w folderze danych.
@@ -325,14 +325,31 @@ Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm ru
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
 
 
-## 📦 Zmiany w wersji 3.3.1
+## 📦 Ostatnie zmiany
+
+### 3.3.2 — 2026-10-27
+
+- 📡 **Jaśniejszy komunikat o braku internetu.** Okno offline prosi już tylko o sprawdzenie połączenia i nie odsyła do FAQ, którego bez sieci nie otworzysz. Przycisk **FAQ w README** zostaje wyłącznie przy błędach bota.
+- 📚 **Dwie ostatnie wersje w README.** Sekcja zmian pokazuje teraz bieżące wydanie i poprzednią wersję; pełna historia jest w `CHANGELOG.md`.
+- 🧹 **Dokumentacja.** Poprawione opisy okna offline w README i na stronie projektu.
+
+### 3.3.1 — 2026-10-27
 
 - 🔄 **Codzienne sprawdzanie aktualizacji.** Aplikacja sprawdza nowe wydanie przy starcie, raz na dobę oraz przy każdym rozpoczęciu sesji — także wtedy, gdy działa zminimalizowana lub w zasobniku. Zakończenie sesji nie uruchamia sprawdzania.
 - 🟥 **Ikona aktualizacji w zasobniku.** Gdy dostępna jest nowsza wersja, ikona zmienia wygląd (czerwony znacznik na Windows/Linux, dodatkowy kształt na macOS), a menu pokazuje pozycję **Dostępna aktualizacja** prowadzącą do wydania.
 - ☕ **Ko-fi w menu zasobnika.** Pozycja **Wesprzyj projekt na Ko-fi** jest bezpośrednio pod **Pokaż okno**.
 - 📚 **Dokumentacja.** README, wiki, strona projektu i notatki deweloperskie opisują nowy rytm aktualizacji i ikonę zasobnika.
 
-Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
+### 3.3.0 — 2026-10-27
+
+- 🌍 **Pełny interfejs PL/EN.** Przełącznik na pasku menu tłumaczy ustawienia, dialogi błędów, statystyki, menu zasobnika i powiadomienia systemowe. Wybór zapisuje się jako `language` w `Config.json`; logi silnika pozostają po polsku.
+- 🔔 **Powiadomienie o zakończeniu sesji.** Nowe ustawienie `notifications.session_finished` (domyślnie `true`) pokazuje wynik lub błąd, gdy okno jest ukryte w zasobniku albo zminimalizowane. Widoczne okno nie generuje duplikatu powiadomienia.
+- 🔐 **Bezpieczeństwo, etap 1.** `Config.json` otrzymuje uprawnienia `600` na macOS/Linux i prywatną listę ACL na Windows; hasło jest maskowane w logach i powiadomieniach.
+- 🔑 **Dane logowania ze środowiska.** `INSTALING_LOGIN` i `INSTALING_PASSWORD` mają pierwszeństwo przed `Config.json`, a desktop pokazuje, które pola są ustawione przez środowisko.
+- 🔎 **SEO i strona projektu.** Uporządkowany tytuł i metadane, dane strukturalne `WebSite` oraz zaktualizowany `SoftwareApplication`, świeży `lastmod` mapy strony i ponowne zgłoszenie IndexNow.
+- 📚 **Dokumentacja.** README, wiki i strona opisują interfejs PL/EN, powiadomienia, zmienne środowiskowe i nowy etap bezpieczeństwa.
+
+Pełna historia: [CHANGELOG.md](CHANGELOG.md).
 
 
 ## 💬 Społeczność i wsparcie
