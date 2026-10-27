@@ -30,6 +30,9 @@ body:
       label: Obszar
       options:
         - Aplikacja desktopowa
+        - Aplikacja mobilna (Android)
+        - Aplikacja mobilna (iOS)
+        - Userscript (Safari / Firefox)
         - CLI
         - Statystyki
         - Przypomnienia

@@ -9,6 +9,7 @@
 - [ ] 🐛 Bug fix
 - [ ] ✨ New feature
 - [ ] 📝 Documentation / wiki
+- [ ] 📱 Mobile (Android, iOS or userscript)
 - [ ] 🔐 Security hardening
 - [ ] ♻️ Refactor / maintenance
 - [ ] 🧪 Tests / CI
@@ -27,6 +28,9 @@
 - [ ] `bash -n install.sh`
 - [ ] CLI smoke test (`node bin/instaling-bot.js help`, `stats`, `version`)
 - [ ] Desktop UI checked (screenshots attached if visual)
+- [ ] Mobile only: `npm run build:mobile` and `./gradlew :app:assembleDebug` in `mobile/android`
+- [ ] Mobile only: APK installed on a device/emulator, or `xcodegen generate` + unsigned Xcode build
+- [ ] Mobile only: engine changes covered in `test/mobile-engine.test.js`
 
 ## Checklist
 

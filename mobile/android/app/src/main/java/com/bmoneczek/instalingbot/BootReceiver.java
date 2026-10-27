@@ -13,6 +13,10 @@ public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        // The receiver is exported so the system can wake it after a reboot; only
+        // accept the documented broadcast from anyone else.
+        if (intent == null || !Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) return;
+
         SharedPreferences prefs = context.getSharedPreferences("instaling-bot", Context.MODE_PRIVATE);
         if (!prefs.getBoolean("reminder", false)) return;
 

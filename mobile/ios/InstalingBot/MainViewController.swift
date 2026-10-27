@@ -167,6 +167,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
         configuration.defaultWebpagePreferences.allowsContentJavaScript = true
+        // Page scripts must not open windows or drive the app on their own.
+        configuration.preferences.javaScriptCanOpenWindowsAutomatically = false
 
         let controller = WKUserContentController()
         controller.add(self, name: "instalingBot")
@@ -184,6 +186,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         let boot = """
         (function () {
             if (!window.InstalingBot || window.__instalingBotEngine) { return; }
+            var host = location.hostname.toLowerCase();
+            if (host !== 'instaling.pl' && host.slice(-13) !== '.instaling.pl') { return; }
             window.__instalingBotEngine = window.InstalingBot.create({
                 language: '\(escapedLanguage)',
                 onEvent: function (event) {
@@ -227,6 +231,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         didReceive message: WKScriptMessage
     ) {
         guard message.name == "instalingBot",
+              let pageURL = webView.url, Self.isBotURL(pageURL),
               let body = message.body as? String,
               let data = body.data(using: .utf8),
               let event = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -269,11 +274,48 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
     // MARK: - WKNavigationDelegate
 
+    /// Keeps instaling.pl inside the app and opens everything else in Safari, so a
+    /// random page (or an ad) can never talk to the `instalingBot` message handler.
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        guard let url = navigationAction.request.url else {
+            decisionHandler(.cancel)
+            return
+        }
+        if Self.isBotURL(url) {
+            decisionHandler(.allow)
+            return
+        }
+        if navigationAction.navigationType == .other && navigationAction.targetFrame?.isMainFrame == false {
+            // Sub-resources (images, scripts, ads) stay inside the page.
+            decisionHandler(.allow)
+            return
+        }
+        let scheme = url.scheme?.lowercased() ?? ""
+        if scheme == "http" || scheme == "https" {
+            UIApplication.shared.open(url)
+        }
+        decisionHandler(.cancel)
+    }
+
+    private static func isBotURL(_ url: URL) -> Bool {
+        guard url.scheme?.lowercased() == "https" else { return false }
+        let host = url.host?.lowercased() ?? ""
+        return host == "instaling.pl" || host.hasSuffix(".instaling.pl")
+    }
+
     func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
         pageReady = false
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        guard let url = webView.url, Self.isBotURL(url) else {
+            pageReady = false
+            return
+        }
         pageReady = true
         if pendingStart {
             pendingStart = false

@@ -30,6 +30,12 @@ screenshots/              diagnostyczne zrzuty ekranu
 
 `Config.json`, `SavedWords.json`, `stats.json` i logi nie powinny trafiać do repozytorium.
 
+### Mobile
+
+Aplikacje mobilne **nie czytają `Config.json`** i nie mają osobnego `Config.json` do
+edytowania. Ustawienia i zapamiętane słówka trzymają w pamięci WebView (Android/iOS) albo w
+`GM_setValue` (userscript). Język przełączasz w aplikacji (**PL/EN**), a nie w pliku.
+
 ## Najważniejsze opcje
 
 | Opcja | Znaczenie |

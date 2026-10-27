@@ -39,3 +39,19 @@ updates:
       actions:
         patterns:
           - "*"
+
+  # Android Gradle dependencies (AGP, Gradle wrapper plugins).
+  - package-ecosystem: gradle
+    directory: "/mobile/android"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:30"
+      timezone: "Europe/Warsaw"
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - android
+    commit-message:
+      prefix: deps
+      include: scope

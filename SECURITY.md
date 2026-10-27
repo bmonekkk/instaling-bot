@@ -4,8 +4,9 @@
 
 | Version | Supported |
 |---|---|
-| 3.2.x | ✅ |
-| < 3.2 | ❌ |
+| 4.0.x (desktop, CLI, Android APK, iOS IPA, userscript) | ✅ |
+| 3.3.x | ✅ |
+| < 3.3 | ❌ |
 
 Only the latest release receives security fixes. If you are on an older build, update first:
 [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
@@ -21,7 +22,7 @@ Use GitHub private vulnerability reporting:
 Please include:
 
 - affected version or commit,
-- operating system and install method (desktop installer / CLI / source),
+- operating system and install method (desktop installer / CLI / source / Android APK / iOS IPA / userscript),
 - steps to reproduce or a minimal proof of concept,
 - impact and attack scenario,
 - suggested fix, if you have one.
@@ -38,14 +39,22 @@ In scope:
 - unsafe file writes and path traversal,
 - update-check trust and release/download integrity,
 - dependency vulnerabilities that affect the app,
-- HTML injection / XSS in the desktop UI,
+- HTML injection / XSS in the desktop UI or the userscript panel,
 - unsafe external links opened by the app,
-- installer or packaging issues.
+- installer or packaging issues,
+- the mobile WebView shells: the JavaScript bridge, what page content is allowed to
+  control, navigation rules, stored data and the deep-link/URL-scheme handlers,
+- the userscript: `GM_setValue` storage, page-parameter handling and update delivery,
+- the mobile release pipeline (unsigned APK/IPA builds and their assets).
 
 Out of scope:
 
 - InstaLing terms of service and account bans,
 - unsigned-installer warnings (documented and expected),
+- sideloading the APK/IPA on a rooted/jailbroken device, or re-signing the IPA with your
+  own Apple ID (that is the intended distribution),
+- reminders or the bot stopping when the phone suspends the WebView in the background,
+- someone with physical access to an unlocked phone reading the signed-in website session,
 - social engineering,
 - issues in third-party services or infrastructure,
 - unsupported versions,
@@ -70,6 +79,7 @@ within your own accounts and data, and does not disrupt the service or other use
 
 Luki bezpieczeństwa zgłaszaj **prywatnie** przez
 [GitHub Security Advisories](https://github.com/bmonekkk/instaling-bot/security/advisories/new),
-a nie w publicznym issue. Nie dołączaj prawdziwych danych logowania, ciasteczek, tokenów
+a nie w publicznym issue. Obsługiwane są wersje **4.0.x** i **3.3.x** — obejmuje to desktop,
+CLI, aplikacje mobilne (APK/IPA) i userscript. Nie dołączaj prawdziwych danych logowania, ciasteczek, tokenów
 ani logów z danymi osobowymi. Potwierdzenie zgłoszenia: do 3 dni roboczych. Naprawa
 krytycznych problemów: cel 30 dni. Dziękuję za odpowiedzialne zgłaszanie!

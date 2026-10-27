@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an improvement for the app, CLI, docs or community.
+description: Suggest an improvement for the apps, CLI, docs or community.
 title: "[Feature]: "
 labels: ["enhancement"]
 body:
@@ -18,6 +18,9 @@ body:
       label: Area
       options:
         - Desktop app
+        - Mobile app — Android
+        - Mobile app — iOS
+        - Userscript — Safari / Firefox
         - CLI
         - Statistics
         - Reminders

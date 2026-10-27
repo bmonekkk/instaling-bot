@@ -6,9 +6,12 @@ contact_links:
   - name: 💡 Discussions — Ideas
     url: https://github.com/bmonekkk/instaling-bot/discussions/categories/ideas
     about: Discuss and vote on larger ideas before opening a feature request.
+  - name: 📱 Mobile guide — Android, iOS and userscript
+    url: https://github.com/bmonekkk/instaling-bot/wiki/Mobile
+    about: Installing the APK, the SideStore/AltStore IPA or the Safari userscript, plus mobile limits.
   - name: 📚 Wiki and README FAQ
     url: https://github.com/bmonekkk/instaling-bot/wiki
-    about: Installation, CLI, configuration, troubleshooting and frequently asked questions.
+    about: Installation, mobile, CLI, configuration, troubleshooting and frequently asked questions.
   - name: 🔐 Security policy
     url: https://github.com/bmonekkk/instaling-bot/security/policy
     about: Report vulnerabilities privately. Never open a public issue for a security problem.

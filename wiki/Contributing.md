@@ -37,11 +37,24 @@ npm run desktop     # aplikacja Electron
 npm start           # CLI
 npm run check       # składnia wszystkich plików JS
 npm test            # testy jednostkowe (node:test)
+npm run build:mobile # bundle core.js + userscript do APK/IPA
 npm run stats       # statystyki CLI
 npm run help        # pomoc CLI
 npm run dist:win    # instalator Windows (na Windows)
 npm run dist:mac    # pakiet macOS (na macOS)
 ```
+
+Zmiany w silniku mobilnym (`mobile/engine/`, `src/core/`) testuj przez `npm run build:mobile`
+i `npm test`. APK zbudujesz lokalnie tak (wymaga Android SDK i JDK 21):
+
+```bash
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21
+export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
+cd mobile/android && ./gradlew :app:assembleDebug
+```
+
+Dla iOS: `cd mobile/ios && xcodegen generate`, potem build w Xcode (bez podpisu). IPA jest
+budowana w CI na runnerze macOS.
 
 ## Przed pull requestem
 

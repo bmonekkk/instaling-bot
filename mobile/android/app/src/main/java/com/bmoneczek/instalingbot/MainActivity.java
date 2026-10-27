@@ -23,6 +23,7 @@ import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.webkit.WebResourceRequest;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -93,7 +94,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences("instaling-bot", MODE_PRIVATE);
-        language = prefs.getString("language", "pl");
+        language = "en".equals(prefs.getString("language", "pl")) ? "en" : "pl";
         createNotificationChannel();
         buildUi();
         configureWebView();
@@ -248,8 +249,31 @@ public class MainActivity extends Activity {
         settings.setMediaPlaybackRequiresUserGesture(true);
         settings.setUserAgentString(settings.getUserAgentString() + " instaling-bot-mobile/4.0");
 
+        // The shell reads and writes no local files and stores no credentials; only
+        // the instaling.pl session in this WebView keeps the user signed in.
+        settings.setAllowFileAccess(false);
+        settings.setAllowContentAccess(false);
+        settings.setAllowFileAccessFromFileURLs(false);
+        settings.setAllowUniversalAccessFromFileURLs(false);
+        settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        settings.setSaveFormData(false);
+        settings.setGeolocationEnabled(false);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            settings.setSafeBrowsingEnabled(true);
+        }
+
         webView.addJavascriptInterface(new NativeBridge(), "InstalingBotNative");
         webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                return handleNavigation(request.getUrl());
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return handleNavigation(Uri.parse(url));
+            }
+
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
                 pageReady = false;
@@ -257,11 +281,49 @@ public class MainActivity extends Activity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
+                // The bridge and the bot stay on instaling.pl. Any other document
+                // (ads, external links) is just rendered, never controlled.
+                if (!isBotHost(Uri.parse(url))) {
+                    pageReady = false;
+                    return;
+                }
                 pageReady = true;
                 injectEngine(view);
             }
         });
         webView.loadUrl(START_URL);
+    }
+
+    /**
+     * Keeps instaling.pl inside the app and sends every other link to the system
+     * browser, so page content can never drive the shell or the JS bridge.
+     */
+    private boolean handleNavigation(Uri uri) {
+        if (uri == null) return true;
+        if (isBotHost(uri)) return false;
+        String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
+        if ("http".equals(scheme) || "https".equals(scheme)) {
+            openExternally(uri);
+        }
+        return true;
+    }
+
+    private static boolean isBotHost(Uri uri) {
+        if (uri == null) return false;
+        String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase();
+        if (!"https".equals(scheme)) return false;
+        String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+        return "instaling.pl".equals(host) || host.endsWith(".instaling.pl");
+    }
+
+    private void openExternally(Uri uri) {
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception ignored) {
+            // No browser installed: keep the current page.
+        }
     }
 
     private void injectEngine(WebView view) {
@@ -272,9 +334,11 @@ public class MainActivity extends Activity {
         }
         String boot = "(function(){"
                 + "if(!window.InstalingBot){return;}"
+                + "var host=location.hostname.toLowerCase();"
+                + "if(host!=='instaling.pl'&&host.slice(-13)!=='.instaling.pl'){return;}"
                 + "if(window.__instalingBotEngine){window.__instalingBotEngine.resume();return;}"
                 + "window.__instalingBotEngine=InstalingBot.create({"
-                + "language:'" + language + "',"
+                + "language:'" + ("en".equals(language) ? "en" : "pl") + "',"
                 + "onEvent:function(e){try{InstalingBotNative.postEvent(JSON.stringify(e));}catch(err){}}"
                 + "});"
                 + (pendingStart ? "window.__instalingBotEngine.start();" : "window.__instalingBotEngine.resume();")
@@ -339,6 +403,11 @@ public class MainActivity extends Activity {
     }
 
     private void handleEvent(String json) {
+        // Only the instaling.pl main frame may drive the UI: a third-party iframe
+        // (ads) can reach the bridge but must not be able to rewrite the status bar.
+        if (webView == null || !isBotHost(Uri.parse(webView.getUrl() == null ? "" : webView.getUrl()))) {
+            return;
+        }
         try {
             JSONObject event = new JSONObject(json);
             String type = event.optString("type");
@@ -495,7 +564,7 @@ public class MainActivity extends Activity {
 
     private void handleIntent(Intent intent) {
         Uri data = intent == null ? null : intent.getData();
-        if (data == null) return;
+        if (data == null || !"instalingbot".equals(data.getScheme())) return;
         if ("start".equals(data.getHost())) requestStart();
         if ("stop".equals(data.getHost())) stopBot();
     }

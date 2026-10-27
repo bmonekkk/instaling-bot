@@ -1,5 +1,5 @@
 name: Bug report
-description: Report a reproducible problem with the desktop app or CLI.
+description: Report a reproducible problem with the desktop app, the mobile builds or the CLI.
 title: "[Bug]: "
 labels: ["bug", "needs triage"]
 body:
@@ -21,6 +21,9 @@ body:
       options:
         - Desktop app — Windows
         - Desktop app — macOS
+        - Android APK — mobile app
+        - iOS IPA — mobile app (SideStore/AltStore)
+        - Userscript — Safari iOS / Firefox Android
         - CLI — Linux
         - CLI — macOS
         - CLI — Windows
@@ -33,8 +36,8 @@ body:
     id: version
     attributes:
       label: Version
-      description: The version shown in the title bar or by `instaling-bot version`.
-      placeholder: "3.2.0"
+      description: The version shown in the title bar, the mobile status bar or by `instaling-bot version`.
+      placeholder: "4.0.0"
     validations:
       required: true
 
@@ -42,7 +45,7 @@ body:
     id: environment
     attributes:
       label: Operating system and install method
-      placeholder: "Windows 11 24H2, setup-win64.exe / macOS 15 arm64, pkg / Ubuntu 24.04, install.sh"
+      placeholder: "Windows 11 24H2, setup-win64.exe / macOS 15 arm64, pkg / Android 15, APK / iOS 18, IPA via SideStore / Ubuntu 24.04, install.sh"
     validations:
       required: true
 

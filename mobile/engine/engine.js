@@ -253,22 +253,16 @@ function createEngine({
         log(t('log.newWord'), 'warn');
         persistRun();
 
-        let clicked = await clickFirst(SELECTORS.dontKnowNew, 5000);
+        const clicked = await clickFirst(SELECTORS.dontKnowNew, 5000);
         if (!clicked) {
             const dontKnow = await dom.findByText(TEXT.dontKnow, 2500, shouldContinue);
-            if (dontKnow) {
-                dom.click(dontKnow);
-                clicked = true;
-            }
+            if (dontKnow) dom.click(dontKnow);
         }
         await dom.wait(randomBetween(config.delays.check_min, config.delays.check_max));
-        let advanced = await clickFirst(SELECTORS.nextWord, 10000);
+        const advanced = await clickFirst(SELECTORS.nextWord, 10000);
         if (!advanced) {
             const next = await dom.findByText(TEXT.next, 2500, shouldContinue);
-            if (next) {
-                dom.click(next);
-                advanced = true;
-            }
+            if (next) dom.click(next);
         }
         await dom.wait(randomBetween(config.delays.next_word_min, config.delays.next_word_max));
         emit({type: 'progress'});

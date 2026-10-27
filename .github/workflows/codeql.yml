@@ -20,21 +20,35 @@ permissions:
 
 jobs:
   analyze:
-    name: Analyze JavaScript
+    name: Analyze (${{ matrix.language }})
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        language: ["javascript-typescript"]
+        include:
+          - language: javascript-typescript
+            build-mode: none
+          # The Android shell is plain Java. Scan it without building so the runner
+          # needs no Android SDK.
+          - language: java-kotlin
+            build-mode: none
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+
+      - name: Set up JDK
+        if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
           queries: security-and-quality
 
       - name: Perform CodeQL analysis
