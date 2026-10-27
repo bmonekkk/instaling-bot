@@ -250,7 +250,7 @@ Template for all options: [`config/Config.defaults.json`](config/Config.defaults
   - `login` — login or e-mail
   - `password` — password
 - `sites` — sites used
-  - `login` — login page
+  - `login` — login page; must use HTTPS and belong to `instaling.pl` (the bot refuses to start with any other address)
 - `delays` — wait times in milliseconds (1 s = 1000 ms); the bot picks a random value between min and max
   - `click_min` / `click_max` — default delay after clicking a button
   - `type_min` / `type_max` — delay per single letter

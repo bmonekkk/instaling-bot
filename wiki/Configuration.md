@@ -63,3 +63,6 @@ i [README → Humanizacja](https://github.com/bmonekkk/instaling-bot#-humanizacj
 Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer. Dane trafiają
 do plików w folderze aplikacji. Nie publikuj `Config.json` ani logów — usuń z nich dane
 osobowe przed wklejeniem do issue.
+
+Adres `sites.login` jest walidowany: musi używać HTTPS i należeć do `instaling.pl`. Dzięki
+temu zmodyfikowany `Config.json` nie może przekierować loginu i hasła na obcą stronę.

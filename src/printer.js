@@ -20,8 +20,8 @@ function blue(text) {
     return log(chalk.blue(text));
 }
 
-function error(text) {
-    console.error(text);
+function error(value) {
+    console.error(value instanceof Error ? value.message : String(value));
 }
 
 module.exports = {

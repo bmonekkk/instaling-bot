@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const {DEFAULT_LOGIN_URL, normalizeLoginUrl} = require('./urls.js');
 
 // The desktop app runs the engine against a writable user-data directory, so the
 // config path can be provided explicitly. The CLI keeps using config/Config.json.
@@ -27,9 +28,20 @@ const credentials = raw.credentials ?? {
     password: raw.password ?? ''
 };
 
+// Never navigate to a login page outside instaling.pl: the bot types the
+// credentials there, and file-provided URLs must not be able to redirect them.
+const sites = raw.sites && typeof raw.sites === 'object' ? raw.sites : {};
+let loginUrl;
+try {
+    loginUrl = normalizeLoginUrl(sites.login ?? DEFAULT_LOGIN_URL);
+} catch (error) {
+    throw new Error(`Invalid sites.login in ${configPath}: ${error.message}`);
+}
+
 module.exports = {
     ...raw,
     credentials,
     login: credentials.login ?? '',
-    password: credentials.password ?? ''
+    password: credentials.password ?? '',
+    loginUrl
 };

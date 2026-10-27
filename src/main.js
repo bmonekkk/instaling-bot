@@ -173,7 +173,7 @@ async function login(page) {
     });
 
     blue(`[LOGIN] Logging in as \`${config.login}\`...`);
-    await page.goto(config.sites.login, {waitUntil: 'domcontentloaded', timeout: 60000});
+    await page.goto(config.loginUrl, {waitUntil: 'domcontentloaded', timeout: 60000});
 
     // The Google consent dialog covers the whole login form on instaling.pl.
     await dismissConsent(page);
@@ -185,12 +185,20 @@ async function login(page) {
         if (attempt > 1) {
             yellow('[LOGIN] Login was rejected, retrying once...');
             await delay(1200);
-            await page.goto(config.sites.login, {waitUntil: 'domcontentloaded', timeout: 60000});
+            await page.goto(config.loginUrl, {waitUntil: 'domcontentloaded', timeout: 60000});
             await dismissConsent(page);
         }
 
-        const loginValue = await typeExact(page, SELECTORS.loginEmail, config.login, getRandomInt(18, 35));
-        const passwordValue = await typeExact(page, SELECTORS.loginPassword, config.password, getRandomInt(18, 35));
+        let loginValue;
+        let passwordValue;
+        try {
+            loginValue = await typeExact(page, SELECTORS.loginEmail, config.login, getRandomInt(18, 35));
+            passwordValue = await typeExact(page, SELECTORS.loginPassword, config.password, getRandomInt(18, 35));
+        } catch {
+            // Never let a browser or typing error carry the credentials into the
+            // error log; the user gets a fixed message instead.
+            throw new Error('Could not fill the login form correctly');
+        }
         if (loginValue !== config.login || passwordValue !== config.password) {
             throw new Error('Could not fill the login form correctly');
         }
