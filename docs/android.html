@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="favicon-96.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <title>instaling-bot na Androidzie — APK (sideload) i Firefox z Tampermonkey</title>
+    <meta name="description" content="Jak zainstalować instaling-bot na Androidzie: pobierz APK (Android 7+, uniwersalny), zezwól na instalację z tego źródła, zaloguj się na instaling.pl i naciśnij Start. Alternatywa bez APK: Firefox z Tampermonkey i ten sam userscript.">
+    <meta name="keywords" content="instaling bot android, instaling apk, bot do instaling na telefonie, instaling.pl apk, tampermonkey android, firefox userscript instaling">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://bmonekkk.github.io/instaling-bot/android.html">
+    <link rel="alternate" hreflang="pl" href="https://bmonekkk.github.io/instaling-bot/android.html">
+    <link rel="alternate" hreflang="x-default" href="https://bmonekkk.github.io/instaling-bot/android.html">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="instaling-bot — wydania" href="https://github.com/bmonekkk/instaling-bot/releases.atom">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="instaling-bot na Androidzie — APK i Firefox z Tampermonkey">
+    <meta property="og:description" content="Instalacja krok po kroku: APK (Android 7+), uprawnienie do instalacji z tego źródła, logowanie i Start. Alternatywa bez APK: Firefox z Tampermonkey.">
+    <meta property="og:url" content="https://bmonekkk.github.io/instaling-bot/android.html">
+    <meta property="og:site_name" content="instaling-bot">
+    <meta property="og:locale" content="pl_PL">
+    <meta property="og:image" content="https://bmonekkk.github.io/instaling-bot/social-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="instaling-bot na Androidzie — APK i Tampermonkey">
+    <meta name="twitter:description" content="Pobierz APK (Android 7+) albo użyj Firefoksa z Tampermonkey i tego samego userscriptu.">
+    <meta name="twitter:image" content="https://bmonekkk.github.io/instaling-bot/social-preview.png">
+    <link rel="stylesheet" href="site.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "instaling-bot", "item": "https://bmonekkk.github.io/instaling-bot/"},
+            {"@type": "ListItem", "position": 2, "name": "Android", "item": "https://bmonekkk.github.io/instaling-bot/android.html"}
+        ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "inLanguage": "pl-PL",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Jak zainstalować instaling-bot na Androidzie?",
+                "acceptedAnswer": {"@type": "Answer", "text": "Pobierz plik instaling-bot-4.2.0-android.apk z najnowszego wydania, otwórz go i zezwól na instalację z tego źródła. Zaloguj się na instaling.pl w aplikacji, wejdź na stronę i naciśnij Start. APK nie jest w Play Store."}
+            },
+            {
+                "@type": "Question",
+                "name": "Czy instaling-bot działa na Androidzie bez APK?",
+                "acceptedAnswer": {"@type": "Answer", "text": "Tak. Chrome na Androidzie nie obsługuje userscriptów, ale Firefox tak — zainstaluj Tampermonkey lub Violentmonkey i dodaj ten sam plik instaling-bot.user.js. Panel bota pojawi się na stronie instaling.pl."}
+            },
+            {
+                "@type": "Question",
+                "name": "Jakie są wymagania instaling-bot na Androidzie?",
+                "acceptedAnswer": {"@type": "Answer", "text": "APK działa na Androidzie 7 lub nowszym na każdej architekturze (brak natywnego kodu). Aplikacja nie zapisuje hasła — korzysta z normalnej sesji strony instaling.pl."}
+            }
+        ]
+    }
+    </script>
+</head>
+<body>
+<div class="window">
+    <div class="titlebar">
+        <span class="titlebar-icon">🤖</span>
+        <span class="titlebar-text">instaling-bot — Android</span>
+        <span class="titlebar-buttons" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
+    </div>
+
+    <nav class="menubar" aria-label="Menu">
+        <span><a href="index.html">Strona główna</a></span>
+        <span><a href="android.html">Android</a></span>
+        <span><a href="ios.html">iPhone / iPad</a></span>
+        <span><a href="userscript.html">Userscript</a></span>
+        <span><a href="cli.html">CLI</a></span>
+    </nav>
+
+    <main class="content">
+        <h1>instaling-bot na <span>Androidzie</span></h1>
+        <p class="lead">Dwa sposoby, żeby uruchomić bota na telefonie z Androidem: <strong>aplikacja APK</strong> (natywna powłoka z panelem ustawień) albo <strong>Firefox z Tampermonkey</strong> i tym samym plikiem <code>.user.js</code>, bez instalowania APK.</p>
+
+        <div class="badges">
+            <span class="badge">Android 7+</span>
+            <span class="badge">Uniwersalny APK</span>
+            <span class="badge">Bez Play Store</span>
+            <span class="badge">PL / EN</span>
+        </div>
+
+        <p class="actions">
+            <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.0/instaling-bot-4.2.0-android.apk">Pobierz APK (Android 7+)</a>
+            <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js">Pobierz userscript</a>
+        </p>
+
+        <section class="panel">
+            <h2>Instalacja aplikacji APK — krok po kroku</h2>
+            <ol>
+                <li>Na telefonie otwórz <a href="https://github.com/bmonekkk/instaling-bot/releases/latest">najnowsze wydanie</a> i pobierz plik <code>instaling-bot-4.2.0-android.apk</code>.</li>
+                <li>Otwórz pobrany plik. Android zapyta o zgodę na instalację z tego źródła — włącz ją dla przeglądarki lub menedżera plików.</li>
+                <li>Uruchom aplikację i zaloguj się na <code>instaling.pl</code> w oknie, które się otworzy.</li>
+                <li>Wejdź na stronę instaling.pl i naciśnij <strong>Start</strong>. Bot poprowadzi sesję do końca.</li>
+                <li>Wejdź w <strong>⚙</strong>, żeby ustawić poprawność odpowiedzi, czasy pisania, godzinę przypomnienia i jego powtarzanie.</li>
+            </ol>
+            <p class="note"><strong>APK jest niepodpisany przez store.</strong> Nie ma go w Play Store; przy pierwszym uruchomieniu Play Protect może pokazać ostrzeżenie — to normalne dla buildów bez certyfikatu.</p>
+        </section>
+
+        <section class="panel">
+            <h2>Alternatywa bez APK: Firefox + Tampermonkey</h2>
+            <p>Chrome na Androidzie nie obsługuje userscriptów, ale Firefox tak. Ten wariant nie wymaga instalowania pliku APK — wystarczy przeglądarka i ten sam userscript, którego używa Safari na iOS.</p>
+            <ol>
+                <li>Zainstaluj <strong>Firefox</strong> na Androidzie.</li>
+                <li>Dodaj rozszerzenie <strong>Tampermonkey</strong> albo <strong>Violentmonkey</strong> z listy dodatków Firefoksa.</li>
+                <li>Otwórz <code>instaling-bot.user.js</code> i zatwierdź instalację w menedżerze userscriptów.</li>
+                <li>Wejdź na instaling.pl — w prawym dolnym rogu pojawi się panel bota (logo 🤖).</li>
+            </ol>
+            <p>Szczegóły panelu i aktualizacji opisuje poradnik <a href="userscript.html">userscript instaling-bot</a>.</p>
+        </section>
+
+        <section class="panel">
+            <h2>Co potrafi wersja na Androida</h2>
+            <div class="grid">
+                <ul>
+                    <li>Wspólny silnik odpowiedzi z wersją desktop i CLI.</li>
+                    <li>Panel ustawień: poprawność, pauza po kliknięciu, opóźnienie liter, szansa na literówkę i na pauzę.</li>
+                    <li>Natywne przypomnienie o codziennej sesji z powtarzaniem co N minut; milknie, gdy dzień jest zaliczony.</li>
+                </ul>
+                <ul>
+                    <li>Statystyki: dzień, skuteczność, seria.</li>
+                    <li>Deep linki <code>instalingbot://start</code> i <code>instalingbot://stop</code> dla Taskera i MacroDroida.</li>
+                    <li>Bez zapisywania hasła — korzysta z normalnej sesji strony.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Częste pytania</h2>
+            <p><strong>Czy sesja działa po zablokowaniu telefonu?</strong> Nie. System może wstrzymać WebView w tle, więc zostaw aplikację (albo kartę Firefoksa) na pierwszym planie do końca sesji.</p>
+            <p><strong>Czy APK działa na każdej architekturze?</strong> Tak — nie zawiera natywnego kodu, więc jeden plik obsługuje wszystkie telefony z Androidem 7+.</p>
+            <p><strong>Czy aplikacja zapisuje moje hasło?</strong> Nie. Korzysta z ciasteczek normalnej sesji strony, tak jak przeglądarka.</p>
+        </section>
+
+        <footer>
+            <p><a href="index.html">← Wróć na stronę główną</a> · <a href="ios.html">Wersja na iPhone / iPad</a> · <a href="userscript.html">Userscript</a> · <a href="cli.html">CLI</a></p>
+            <p>Projekt jest kontynuacją <a href="https://github.com/PanSzelescik/instaling-bot">PanSzelescik/instaling-bot</a>. Licencja <a href="https://github.com/bmonekkk/instaling-bot/blob/master/LICENSE">ISC</a>. Niepowiązany z InstaLing; projekt edukacyjny.</p>
+        </footer>
+    </main>
+
+    <div class="statusbar">
+        <span>Gotowe</span>
+        <span>instaling-bot · Android</span>
+    </div>
+</div>
+
+<div class="taskbar">
+    <button class="start" type="button"><span class="start-icon">▣</span> Start</button>
+    <span class="task">🤖 instaling-bot</span>
+    <span class="tray" aria-hidden="true">🔊</span>
+    <span class="clock" id="clock" title="Czas: Europa/Warszawa">--:--</span>
+</div>
+
+<script src="page.js" defer></script>
+<script src="analytics.js" defer></script>
+</body>
+</html>

@@ -15,6 +15,13 @@
 - English README: https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md
 - Mobile architecture: https://github.com/bmonekkk/instaling-bot/blob/master/MOBILE_PLAN.md
 
+## Guides
+
+- Android (APK + Firefox/Tampermonkey): https://bmonekkk.github.io/instaling-bot/android.html
+- iPhone / iPad (Safari Userscripts + SideStore/AltStore IPA): https://bmonekkk.github.io/instaling-bot/ios.html
+- Userscript (Safari and Firefox on Android): https://bmonekkk.github.io/instaling-bot/userscript.html
+- CLI (Linux, macOS, Windows terminal): https://bmonekkk.github.io/instaling-bot/cli.html
+
 ## What it is
 
 instaling-bot automates vocabulary practice on instaling.pl. It logs in, starts or
