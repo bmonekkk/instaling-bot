@@ -19,7 +19,7 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**4.2.1**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
+Aktualna wersja (**4.2.2**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
 
 - 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
 - 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, ustawienia sesji, statystyki i konfigurowalne przypomnienia,
@@ -27,7 +27,7 @@ Aktualna wersja (**4.2.1**) to wydanie spójności — desktop, telefon i usersc
 - ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-Wersja 4.2.1 wyrównuje możliwości wszystkich platform: desktop, Android, iOS i userscript mają ten sam **panel statystyk** (tydzień / miesiąc / rok / wszystko: sesje, odpowiedzi, skuteczność, nowe słówka, czas, aktywne dni), przycisk **Przywróć domyślne** (resetuje wszystko poza loginem, hasłem i językiem) oraz jedno wspólne ustawienie **szybkości klikania przycisków** (`nav_min` / `nav_max`) używane przy „dalej", logowaniu i starcie sesji. Częstotliwość przypomnienia wybierasz teraz z listy także na Androidzie i iOS (raz dziennie, co 15/30/60/120/180 min), a godzina przypomnienia jest wyrównana do lewej. Panel userscriptu nie wychodzi już poza ekran w Safari (`100dvh`). Statystyki mobilne liczą sesje i czas trwania tak samo jak desktop. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
+Wersja 4.2.2 poprawia **szybkość klikania przycisków** (`nav_min` / `nav_max`): instaling.pl przeładowuje stronę przy „dalej", „kontynuuj" i starcie sesji, a pauza była wcześniej liczona tylko w obrębie jednej strony — znikała po przeładowaniu, więc przejście między słówkami było zawsze tak szybkie jak wczytanie strony. Silnik zapisuje teraz termin pauzy przed kliknięciem i dolicza resztę na świeżej stronie, na desktopie i telefonie. Do tego desktop honoruje to ustawienie również przy starcie i kontynuacji sesji. Wydanie 4.2.1 wyrównało możliwości wszystkich platform: wspólny **panel statystyk** (tydzień / miesiąc / rok / wszystko: sesje, odpowiedzi, skuteczność, nowe słówka, czas, aktywne dni), przycisk **Przywróć domyślne** (resetuje wszystko poza loginem, hasłem i językiem), listę częstotliwości przypomnienia na Androidzie i iOS (raz dziennie, co 15/30/60/120/180 min) z godziną wyrównaną do lewej oraz panel userscriptu, który nie wychodzi już poza ekran w Safari (`100dvh`). Statystyki mobilne liczą sesje i czas trwania tak samo jak desktop. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
 
 Open source, licencja ISC.
 
@@ -66,9 +66,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.2.1-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.2.1-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.2.1-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.2.2-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.2.2-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.2.2-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -145,11 +145,11 @@ Pliki można edytować także ręcznie — aplikacja używa tego samego formatu 
 
 ## 📱 Mobile: Android i iOS
 
-Wersja 4.2.1 wyrównuje telefon z desktopem. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, opóźnienia klikania i pisania, szybkość klikania przycisków, szanse na pauzę i literówkę, godzina i częstotliwość przypomnienia) oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok / wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni). W każdym panelu ustawień jest **Przywróć domyślne**. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
+Wersja 4.2.2 naprawia tempo klikania przycisków na telefonie (pauza działa teraz też po przeładowaniu strony). Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, opóźnienia klikania i pisania, szybkość klikania przycisków, szanse na pauzę i literówkę, godzina i częstotliwość przypomnienia) oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok / wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni). W każdym panelu ustawień jest **Przywróć domyślne**. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
 
 ### 🤖 Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.2.1-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Pobierz `instaling-bot-4.2.2-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
@@ -179,7 +179,7 @@ Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **pane
 
 Dla osób, które wolą osobną aplikację:
 
-1. Pobierz `instaling-bot-4.2.1-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.2.2-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
@@ -407,6 +407,12 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 
 ## 📦 Ostatnie zmiany
+
+### 4.2.2 — 2026-10-28
+
+- ⏱️ **Naprawione tempo klikania przycisków na telefonie.** Pauza `nav_min` / `nav_max` była liczona tylko w obrębie jednej strony, więc gdy instaling.pl przeładował stronę przy „dalej" / „kontynuuj" / starcie sesji, opóźnienie znikało i przejście między słówkami było zawsze tak szybkie jak wczytanie strony. Silnik zapisuje teraz termin pauzy przed kliknięciem (`navUntil`) i dolicza resztę na świeżej stronie, więc przejście naprawdę czeka `nav_min`–`nav_max`. Dwa nowe testy pilnują tego zachowania.
+- 🖥️ **Desktop też czeka przy starcie i kontynuacji sesji.** `nav_min` / `nav_max` sterują teraz nie tylko „dalej", ale i przyciskami startu / kontynuacji / nowej sesji (wspólny helper `navDelays()`).
+- 🔢 **Porządki.** Wersja podniesiona do `4.2.2` (userscript `4.2.3`) w `package.json`, projekcie iOS (`MARKETING_VERSION` 4.2.2 / `CURRENT_PROJECT_VERSION` 40202), interfejsie desktopu, stronie, README (PL/EN), wiki, `docs/llms.txt`, `PROJECT_NOTES.md` i notatkach wydania.
 
 ### 4.2.1 — 2026-10-28
 

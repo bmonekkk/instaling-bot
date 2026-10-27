@@ -19,7 +19,7 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**4.2.1**) is a consistency release — desktop, phone and userscript look and behave the same:
+The current version (**4.2.2**) is a consistency release — desktop, phone and userscript look and behave the same:
 
 - 🖥️ **desktop** for Windows and macOS: GUI, live log, statistics and a bundled Chrome,
 - 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, session settings, statistics and configurable reminders,
@@ -27,7 +27,7 @@ The current version (**4.2.1**) is a consistency release — desktop, phone and 
 - ⌨️ a full **CLI** for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
 
-Version 4.2.1 levels the capabilities of every platform: desktop, Android, iOS and the userscript all show the same **statistics panel** (week / month / year / all: sessions, answers, accuracy, new words, total time, active days), a **restore-defaults** button (resets everything except login, password and language) and one shared **navigation-button click speed** setting (`nav_min` / `nav_max`) used for "next", login and starting a session. Reminder frequency is now a dropdown on Android and iOS too (once a day, every 15/30/60/120/180 min), and the reminder time is left-aligned. The userscript panel no longer overflows on Safari (`100dvh`). Mobile statistics record sessions and duration exactly like the desktop. The mobile apps still never store your password — they keep the normal, persistent website session. Desktop and CLI keep every earlier feature.
+Version 4.2.2 fixes the **navigation-button click speed** (`nav_min` / `nav_max`). instaling.pl reloads the page on "next", "continue" and session start, and the pause used to be counted only within a single page — it was lost on reload, so the between-word transition was always as fast as the page load. The engine now stores the pause deadline before the click and waits out the remainder on the fresh page, on desktop and on phones; the desktop also honors the setting when starting or continuing a session. Version 4.2.1 levelled the capabilities of every platform: the same **statistics panel** (week / month / year / all: sessions, answers, accuracy, new words, total time, active days), a **restore-defaults** button (resets everything except login, password and language), a reminder-frequency dropdown on Android and iOS too (once a day, every 15/30/60/120/180 min) with a left-aligned time, and a userscript panel that no longer overflows on Safari (`100dvh`). Mobile statistics record sessions and duration exactly like the desktop. The mobile apps still never store your password — they keep the normal, persistent website session. Desktop and CLI keep every earlier feature.
 
 Open source, ISC license.
 
@@ -66,9 +66,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.2.1-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.2.1-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.2.1-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.2.2-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.2.2-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.2.2-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -145,11 +145,11 @@ You can edit the files by hand too — the app uses the same format as the CLI.
 
 ## 📱 Mobile: Android and iOS
 
-Version 4.2.1 brings the phone up to desktop parity. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, clicking and typing delays, navigation-button click speed, pause and typo chances, reminder time and frequency) and **full statistics** with week / month / year / all tabs (sessions, answers, accuracy, new words, total time and active days). Every settings panel has a **restore-defaults** button. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
+Version 4.2.2 fixes the navigation-button click speed on the phone (the pause now survives the page reload). The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, clicking and typing delays, navigation-button click speed, pause and typo chances, reminder time and frequency) and **full statistics** with week / month / year / all tabs (sessions, answers, accuracy, new words, total time and active days). Every settings panel has a **restore-defaults** button. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
 
 ### 🤖 Android: APK (recommended)
 
-1. Download `instaling-bot-4.2.1-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Download `instaling-bot-4.2.2-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Open the file and allow installation from this source when Android asks.
 3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
 4. Open the learning page and press **Start** in the top bar.
@@ -179,7 +179,7 @@ The panel has Start/Stop, PL/EN, an answer counter, a toggleable **statistics pa
 
 For people who prefer a separate app:
 
-1. Download `instaling-bot-4.2.1-ios.ipa` from the latest release.
+1. Download `instaling-bot-4.2.2-ios.ipa` from the latest release.
 2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
 3. Sign in to `instaling.pl` in the app and press **Start**.
 
@@ -407,6 +407,12 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 
 
 ## 📦 Recent changes
+
+### 4.2.2 — 2026-10-28
+
+- ⏱️ **Fixed navigation-button click speed on the phone.** The `nav_min` / `nav_max` pause was counted only within a single page, so when instaling.pl reloaded the page on "next" / "continue" / session start the delay was lost and the between-word transition was always as fast as the page load. The engine now stores the pause deadline before the click (`navUntil`) and waits out the remainder on the fresh page, so a transition really waits `nav_min`–`nav_max`. Two new tests lock this in.
+- 🖥️ **Desktop waits on start and continue too.** `nav_min` / `nav_max` now also drive the start / continue / new-session buttons, not just "next" (shared `navDelays()` helper).
+- 🔢 **Housekeeping.** Version bumped to `4.2.2` (userscript `4.2.3`) in `package.json`, the iOS project (`MARKETING_VERSION` 4.2.2 / `CURRENT_PROJECT_VERSION` 40202), the desktop renderer, the website, README (PL/EN), wiki, `docs/llms.txt`, `PROJECT_NOTES.md` and the release notes.
 
 ### 4.2.1 — 2026-10-28
 

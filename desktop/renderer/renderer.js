@@ -383,7 +383,7 @@ async function loadState() {
         applyLanguage(state.config?.language ?? language);
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v4.2.1';
+        const version = state.version ? `v${state.version}` : 'v4.2.2';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;

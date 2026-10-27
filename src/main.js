@@ -139,6 +139,21 @@ async function start() {
 }
 
 // STEPS
+// One shared "navigation button" pace for "next word", login and session start /
+// continue, matching the mobile engine. `nav_min`/`nav_max` are preferred, the
+// legacy `next_word_min`/`next_word_max` pair keeps older configs working.
+function navDelays() {
+    return [
+        config.delays?.nav_min ?? config.delays?.next_word_min ?? 2000,
+        config.delays?.nav_max ?? config.delays?.next_word_max ?? 4500
+    ];
+}
+
+function navPause() {
+    const [min, max] = navDelays();
+    return delay(getRandomInt(min, max));
+}
+
 async function login(page) {
     if (config.debug) {
         page.on('console', message => console.log(`${message.type().slice(0, 3).toUpperCase()} ${message.text()}`))
@@ -226,6 +241,7 @@ async function startSession(page) {
     // Navigation buttons should react quickly. If the page takes longer, the
     // selectors below keep waiting for the actual content.
     await clickAndWait(page, startButton, 2500);
+    await navPause();
     await delay(getRandomInt(200, 400));
     await dismissConsent(page, {timeout: 2000});
 
@@ -233,11 +249,13 @@ async function startSession(page) {
     const continueButton = await findSelector(page, SELECTORS.continueSession, 8000);
     if (continueButton) {
         await clickAndWait(page, continueButton, 2500);
+        await navPause();
         green('[START] Continued previous session!');
     } else {
         const newButton = await findSelector(page, SELECTORS.newSession, 8000);
         if (newButton) {
             await clickAndWait(page, newButton, 2500);
+            await navPause();
             green('[START] Started new session!');
         }
     }
@@ -350,12 +368,7 @@ async function answerQuestion(page) {
     });
 
     blue(`[ANSWER ${i}] Next word!`);
-    await clickWait(
-        page,
-        SELECTORS.nextWord,
-        config.delays?.nav_min ?? config.delays?.next_word_min,
-        config.delays?.nav_max ?? config.delays?.next_word_max
-    );
+    await clickWait(page, SELECTORS.nextWord, ...navDelays());
 }
 
 async function newWord(page) {
@@ -367,12 +380,7 @@ async function newWord(page) {
     await clickWait(page, SELECTORS.dontKnowNew, config.delays?.check_min, config.delays?.check_max);
     await savePage(page, `${i}_new_word_1`);
     blue(`[ANSWER ${i}] Next word!`);
-    await clickWait(
-        page,
-        SELECTORS.nextWord,
-        config.delays?.nav_min ?? config.delays?.next_word_min,
-        config.delays?.nav_max ?? config.delays?.next_word_max
-    );
+    await clickWait(page, SELECTORS.nextWord, ...navDelays());
 }
 
 async function isSessionFinished(page) {

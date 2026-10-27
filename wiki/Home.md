@@ -3,7 +3,7 @@
 Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instaling.pl) —
 aplikacja desktopowa dla Windows i macOS, APK/IPA na telefon oraz CLI dla Linuksa i terminala.
 
-**Wersja:** 4.2.1
+**Wersja:** 4.2.2
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Wydania:** https://github.com/bmonekkk/instaling-bot/releases
 **Dyskusje:** https://github.com/bmonekkk/instaling-bot/discussions

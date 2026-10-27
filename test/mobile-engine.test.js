@@ -199,6 +199,84 @@ test('mobile engine resumes a persisted run after a page reload', async () => {
     dom.window.close();
 });
 
+test('mobile engine persists the nav deadline before clicking next', async () => {
+    const dom = setupDom();
+    const storage = memoryStorage({
+        savedWords: [{polish: 'dom', english: 'house', sentence: 'I have a house.'}]
+    });
+    // Spy on the raw writes so we can prove the pause is persisted before the
+    // click (and therefore survives the page reload the site performs).
+    const written = [];
+    const originalSet = storage.set.bind(storage);
+    storage.set = (key, value) => {
+        if (key === 'navUntil') written.push(value);
+        return originalSet(key, value);
+    };
+
+    const engine = createEngine({storage, config: fastConfig, language: 'pl', onEvent: () => {}});
+    await engine.start();
+    await waitForStatus(engine, 'finished');
+
+    assert.ok(written.some(value => Number(value) > Date.now() - 60000), 'a future nav deadline was stored');
+    assert.equal(storage.get('navUntil', null), 0);
+    dom.window.close();
+});
+
+test('mobile engine waits out a navigation pause that a page reload interrupted', async () => {
+    // The old document clicked "next" and died; only the persisted deadline and
+    // the run survive into the next word's page.
+    const dom = new JSDOM(`<!doctype html><html><body>
+        <div id="word">house</div>
+        <button id="next_word">Dalej</button>
+    </body></html>`, {url: 'https://instaling.pl/learning'});
+
+    globalThis.window = dom.window;
+    globalThis.document = dom.window.document;
+    globalThis.Event = dom.window.Event;
+    globalThis.KeyboardEvent = dom.window.KeyboardEvent;
+    globalThis.MouseEvent = dom.window.MouseEvent;
+    globalThis.PointerEvent = dom.window.PointerEvent ?? dom.window.MouseEvent;
+    globalThis.HTMLInputElement = dom.window.HTMLInputElement;
+    globalThis.HTMLTextAreaElement = dom.window.HTMLTextAreaElement;
+    globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
+    dom.window.Element.prototype.getClientRects = () => [{width: 100, height: 20}];
+    dom.window.HTMLElement.prototype.scrollIntoView = () => {};
+
+    dom.window.document.querySelector('#next_word').addEventListener('click', () => {
+        dom.window.document.body.innerHTML = '<p>Koniec sesji. Gratulacje!</p>';
+    });
+
+    const storage = memoryStorage({
+        savedWords: [],
+        run: {
+            running: true,
+            answers: 0,
+            correct: 0,
+            wrong: 0,
+            newWords: 0,
+            startedAt: Date.now(),
+            used: ['house'],
+            pending: {polish: 'dom', typed: 'house', valid: 'house', sentence: '', mistake: null}
+        },
+        navUntil: Date.now() + 400
+    });
+    const engine = createEngine({
+        storage,
+        config: {valid_chance: 1, delays: {type_min: 1, type_max: 2, type_pause_chance: 0, typo_chance: 0, nav_min: 1, nav_max: 2}},
+        language: 'pl',
+        onEvent: () => {}
+    });
+
+    const started = Date.now();
+    assert.equal(engine.resume(), true);
+    const state = await waitForStatus(engine, 'finished');
+    const elapsed = Date.now() - started;
+
+    assert.equal(state.answers, 1, state.lastError);
+    assert.ok(elapsed >= 300, `resume waited out the pending navigation pause (waited ${elapsed}ms)`);
+    dom.window.close();
+});
+
 test('mobile engine finishes a pending answer on the result page after navigation', async () => {
     // Simulates the real site reload: the check click destroyed the old document,
     // and only the persisted run survives into the result page.

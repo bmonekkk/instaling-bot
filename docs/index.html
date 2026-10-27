@@ -22,7 +22,7 @@
     <link rel="alternate" type="application/atom+xml" title="instaling-bot — wydania" href="https://github.com/bmonekkk/instaling-bot/releases.atom">
     <meta property="og:type" content="website">
     <meta property="og:title" content="instaling-bot — bot do instaling.pl (Windows, macOS, Linux CLI)">
-    <meta property="og:description" content="Desktop, Android, iOS i CLI. Automatyczne rozwiązywanie słówek, live log i wspólny silnik. Wersja 4.2.1 z APK, niepodpisaną IPA, userscriptem do Safari, pełnymi ustawieniami czasów i przypomnieniami z powtarzaniem. Open source, ISC.">
+    <meta property="og:description" content="Desktop, Android, iOS i CLI. Automatyczne rozwiązywanie słówek, live log i wspólny silnik. Wersja 4.2.2 z APK, niepodpisaną IPA, userscriptem do Safari, pełnymi ustawieniami czasów i przypomnieniami z powtarzaniem. Open source, ISC.">
     <meta property="og:url" content="https://bmonekkk.github.io/instaling-bot/">
     <meta property="og:site_name" content="instaling-bot">
     <meta property="og:locale" content="pl_PL">
@@ -54,7 +54,7 @@
         "@type": "SoftwareApplication",
         "name": "instaling-bot",
         "alternateName": "Instaling Bot",
-        "softwareVersion": "4.2.1",
+        "softwareVersion": "4.2.2",
         "applicationCategory": "EducationalApplication",
         "applicationSubCategory": "Language learning automation",
         "operatingSystem": "Windows 10/11, macOS 13+, Linux, Android 7+, iOS/iPadOS 16+",
@@ -121,7 +121,7 @@
                 "name": "Jak zainstalować instaling-bot na Androidzie?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Pobierz plik instaling-bot-4.2.1-android.apk z najnowszego wydania, otwórz go i zezwól na instalację z tego źródła. Zaloguj się na instaling.pl w aplikacji, wejdź na stronę instaling.pl i naciśnij Start. APK nie jest w Play Store."
+                    "text": "Pobierz plik instaling-bot-4.2.2-android.apk z najnowszego wydania, otwórz go i zezwól na instalację z tego źródła. Zaloguj się na instaling.pl w aplikacji, wejdź na stronę instaling.pl i naciśnij Start. APK nie jest w Play Store."
                 }
             },
             {
@@ -224,7 +224,7 @@
 <div class="window">
     <div class="titlebar">
         <span class="titlebar-icon">🤖</span>
-        <span class="titlebar-text">instaling-bot — v4.2.1</span>
+        <span class="titlebar-text">instaling-bot — v4.2.2</span>
         <span class="titlebar-buttons" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
     </div>
 
@@ -237,7 +237,7 @@
 
     <main class="content">
         <h1>instaling<span>-bot</span></h1>
-        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 4.2.1 to <strong>desktop dla Windows i macOS</strong>, <strong>APK na Androida</strong>, <strong>IPA i userscript na iOS</strong> oraz pełne CLI — ze wspólnym silnikiem, interfejsem <strong>PL/EN</strong>, humanizacją pisania, statystykami (także na telefonie) i natywnymi przypomnieniami.</p>
+        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 4.2.2 to <strong>desktop dla Windows i macOS</strong>, <strong>APK na Androida</strong>, <strong>IPA i userscript na iOS</strong> oraz pełne CLI — ze wspólnym silnikiem, interfejsem <strong>PL/EN</strong>, humanizacją pisania, statystykami (także na telefonie) i natywnymi przypomnieniami.</p>
 
         <div class="badges">
             <span class="badge">Windows</span>
@@ -250,12 +250,12 @@
             <span class="badge">Statystyki</span>
             <span class="badge">Przypomnienia</span>
             <span class="badge">Ustawienia</span>
-            <span class="badge">v4.2.1</span>
+            <span class="badge">v4.2.2</span>
             <span class="badge">ISC License</span>
         </div>
 
         <p class="actions">
-            <a class="btn primary" id="hero-primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-setup-win64.exe">Pobierz dla Windows (.exe)</a>
+            <a class="btn primary" id="hero-primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-setup-win64.exe">Pobierz dla Windows (.exe)</a>
             <a class="btn" id="hero-other" href="#downloads">Pobierz dla innego systemu</a>
         </p>
 
@@ -267,12 +267,12 @@
         </section>
 
         <section class="panel highlight">
-            <h2>Nowość w 4.2.1: statystyki wszędzie i wygodniejsze ustawienia</h2>
+            <h2>Nowość w 4.2.2: naprawiona szybkość klikania przycisków</h2>
             <div class="grid">
                 <ul>
+                    <li><strong>Szybkość klikania przycisków działa też po przeładowaniu.</strong> instaling.pl przeładowuje stronę przy „dalej", „kontynuuj" i starcie sesji; wcześniej pauza `nav_min` / `nav_max` liczyła się tylko na jednej stronie i znikała, więc przejście między słówkami było zawsze tak szybkie jak wczytanie strony. Teraz silnik zapisuje termin pauzy i dolicza resztę na świeżej stronie — na desktopie i telefonie, także przy starcie i kontynuacji sesji.</li>
                     <li><strong>Statystyki na każdej platformie</strong> — desktop, Android, iOS i userscript pokazują ten sam panel z zakładkami tydzień / miesiąc / rok / wszystko: sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni.</li>
                     <li><strong>Przywróć domyślne</strong> — jeden przycisk w każdym interfejsie resetuje wszystkie ustawienia (poza loginem, hasłem i językiem).</li>
-                    <li><strong>Szybkość klikania przycisków</strong> — jedno wspólne min/max dla przycisków „dalej”, logowania i startu, na desktopie i telefonie.</li>
                 </ul>
                 <ul>
                     <li><strong>Przypomnienia jak na desktopie</strong> — częstotliwość wybierasz teraz z listy (raz dziennie, co 15/30/60/120/180 min) także na Androidzie i iOS, a godzina jest wyrównana do lewej.</li>
@@ -310,8 +310,8 @@
                         <span class="dl-tag arch" title="Architektura procesora">x64</span>
                         <span class="dl-tag format" title="Format pakietu">.exe (NSIS)</span>
                     </div>
-                    <span class="filename">instaling-bot-4.2.1-setup-win64.exe</span>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-setup-win64.exe">Pobierz .exe</a>
+                    <span class="filename">instaling-bot-4.2.2-setup-win64.exe</span>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-setup-win64.exe">Pobierz .exe</a>
                 </div>
                 <div class="download-card" id="dl-mac-arm64">
                     <span class="rec-badge">Zalecane dla Twojego urządzenia</span>
@@ -321,8 +321,8 @@
                         <span class="dl-tag arch" title="Architektura procesora">ARM64</span>
                         <span class="dl-tag format" title="Format pakietu">.pkg</span>
                     </div>
-                    <span class="filename">instaling-bot-4.2.1-macos-arm64.pkg</span>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-macos-arm64.pkg">Pobierz .pkg</a>
+                    <span class="filename">instaling-bot-4.2.2-macos-arm64.pkg</span>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-macos-arm64.pkg">Pobierz .pkg</a>
                 </div>
                 <div class="download-card" id="dl-mac-x64">
                     <span class="rec-badge">Zalecane dla Twojego urządzenia</span>
@@ -332,8 +332,8 @@
                         <span class="dl-tag arch" title="Architektura procesora">x64</span>
                         <span class="dl-tag format" title="Format pakietu">.pkg</span>
                     </div>
-                    <span class="filename">instaling-bot-4.2.1-macos-x64.pkg</span>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-macos-x64.pkg">Pobierz .pkg</a>
+                    <span class="filename">instaling-bot-4.2.2-macos-x64.pkg</span>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-macos-x64.pkg">Pobierz .pkg</a>
                 </div>
                 <div class="download-card" id="dl-android">
                     <span class="rec-badge">Zalecane dla Twojego urządzenia</span>
@@ -343,8 +343,8 @@
                         <span class="dl-tag arch" title="Architektura: brak natywnego kodu, APK działa na każdej architekturze">uniwersalny</span>
                         <span class="dl-tag format" title="Format pakietu">.apk</span>
                     </div>
-                    <span class="filename">instaling-bot-4.2.1-android.apk</span>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-android.apk">Pobierz .apk</a>
+                    <span class="filename">instaling-bot-4.2.2-android.apk</span>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-android.apk">Pobierz .apk</a>
                 </div>
                 <div class="download-card" id="dl-userscript">
                     <span class="rec-badge">Zalecane dla Twojego urządzenia</span>
@@ -366,8 +366,8 @@
                         <span class="dl-tag arch" title="Architektura procesora">ARM64</span>
                         <span class="dl-tag format" title="Format pakietu">.ipa (niepodpisany)</span>
                     </div>
-                    <span class="filename">instaling-bot-4.2.1-ios.ipa</span>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-ios.ipa">Pobierz .ipa</a>
+                    <span class="filename">instaling-bot-4.2.2-ios.ipa</span>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-ios.ipa">Pobierz .ipa</a>
                 </div>
                 <div class="download-card" id="dl-cli">
                     <span class="rec-badge">Zalecane dla Twojego urządzenia</span>
@@ -470,7 +470,7 @@
         <section class="panel" id="english" lang="en">
             <h2>English summary</h2>
             <p><strong>instaling-bot</strong> is an open-source (ISC) bot for <a href="https://instaling.pl">instaling.pl</a> vocabulary practice. It ships as a desktop app for Windows 10/11 and macOS 13+ with a bundled Chrome for Testing, an Android APK, an unsigned iOS IPA, a Safari/Firefox userscript, and a Node.js 22+ CLI for Linux, macOS and Windows. Every variant shares the same answer engine: it starts or resumes a session, answers prompts, remembers translations and can deliberately make believable mistakes for human-like behaviour.</p>
-            <p>Version 4.2.1 brings the platforms fully in line: a week/month/year/all statistics panel on desktop, Android, iOS and the userscript; a “restore defaults” button in every interface (keeping login, password and language); one shared min/max control for navigation-button click speed; and reminder-frequency dropdowns on mobile that match the desktop select, with the reminder time left-aligned. The userscript settings panel no longer overflows on Safari (100dvh with a 100vh fallback), and mobile session statistics record sessions and duration exactly like the desktop. Earlier 4.2.x work — the shared classic theme, full timing controls, repeatable native reminders and the removed answer limit — carries over unchanged. The iOS IPA is unsigned and needs SideStore/AltStore with a 7-day refresh on a free Apple ID; the Safari userscript is the easiest iPhone/iPad path. Mobile sessions run only while the app or tab is open, and no version stores your password — the shell keeps the normal, persistent website session.</p>
+            <p>Version 4.2.2 fixes the shared navigation-button click speed (`nav_min` / `nav_max`): instaling.pl reloads on “next”, “continue” and session start, and the pause used to be lost on reload, so the between-word transition was always as fast as the page load. It now survives the reload on desktop and on phones, and the desktop also honors it when starting or continuing a session. Version 4.2.1 brought the platforms fully in line: a week/month/year/all statistics panel on desktop, Android, iOS and the userscript; a “restore defaults” button in every interface (keeping login, password and language); a reminder-frequency dropdown on mobile that matches the desktop select, with the reminder time left-aligned; and a userscript settings panel that no longer overflows on Safari (100dvh with a 100vh fallback). Mobile session statistics record sessions and duration exactly like the desktop. Earlier 4.2.x work — the shared classic theme, full timing controls, repeatable native reminders and the removed answer limit — carries over unchanged. The iOS IPA is unsigned and needs SideStore/AltStore with a 7-day refresh on a free Apple ID; the Safari userscript is the easiest iPhone/iPad path. Mobile sessions run only while the app or tab is open, and no version stores your password — the shell keeps the normal, persistent website session.</p>
             <p>Read the <a href="https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md">English README</a>, browse the <a href="https://github.com/bmonekkk/instaling-bot/wiki">wiki</a> or ask in <a href="https://github.com/bmonekkk/instaling-bot/discussions">Discussions</a>.</p>
         </section>
 
@@ -486,7 +486,7 @@
 
     <div class="statusbar">
         <span>Gotowe</span>
-        <span>v4.2.1 · Windows · macOS · Android · iOS · Linux</span>
+        <span>v4.2.2 · Windows · macOS · Android · iOS · Linux</span>
     </div>
 </div>
 
@@ -525,11 +525,11 @@
         // label, download URL (or in-page anchor) and the install tutorial to
         // scroll to after the click for each detected platform.
         var HERO = {
-            win: ['Pobierz dla Windows (.exe)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-setup-win64.exe', '#install-desktop'],
-            'mac-arm64': ['Pobierz dla macOS ARM64 (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-macos-arm64.pkg', '#install-desktop'],
-            'mac-x64': ['Pobierz dla macOS Intel (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-macos-x64.pkg', '#install-desktop'],
-            mac: ['Pobierz dla macOS ARM64 (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-macos-arm64.pkg', '#downloads'],
-            android: ['Pobierz dla Android (.apk)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.1/instaling-bot-4.2.1-android.apk', '#mobile'],
+            win: ['Pobierz dla Windows (.exe)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-setup-win64.exe', '#install-desktop'],
+            'mac-arm64': ['Pobierz dla macOS ARM64 (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-macos-arm64.pkg', '#install-desktop'],
+            'mac-x64': ['Pobierz dla macOS Intel (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-macos-x64.pkg', '#install-desktop'],
+            mac: ['Pobierz dla macOS ARM64 (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-macos-arm64.pkg', '#downloads'],
+            android: ['Pobierz dla Android (.apk)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.2/instaling-bot-4.2.2-android.apk', '#mobile'],
             iphone: ['Pobierz dla iPhone (userscript)', 'https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js', '#mobile'],
             ipad: ['Pobierz dla iPad (userscript)', 'https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js', '#mobile'],
             linux: ['Zobacz instalację CLI', '#cli', '#cli'],

@@ -50,6 +50,10 @@ const PERIOD_DAYS = {
 const FINISHED_PATTERN = /koniec|zakończ|gratulacje|wyniki|podsumowanie|nie ma już|finished|completed|results/i;
 const RUN_KEY = 'run';
 const CONFIG_KEY = 'config';
+// Deadline (ms since epoch) of the navigation pause ("next"/"continue"/start).
+// instaling.pl reloads the page on those clicks, which destroys an in-page
+// setTimeout, so the deadline is persisted and re-applied on the fresh page.
+const NAV_KEY = 'navUntil';
 // Only the user-facing settings the shells expose are persisted: the answer
 // accuracy and the humanization controls shared with the desktop Advanced
 // section. Everything else (internal timings) stays at its default.
@@ -233,7 +237,7 @@ function createEngine({
     onEvent = () => {},
     language = 'pl',
     config: initialConfig = {},
-    version = '4.2.1'
+    version = '4.2.2'
 } = {}) {
     const state = {
         version,
@@ -284,6 +288,29 @@ function createEngine({
     const randomBetween = (min, max) => Math.round(min + Math.random() * (max - min));
     // Shared delay before/after navigation clicks ("next", login/start, continue).
     const navWait = () => randomBetween(config.delays.nav_min, config.delays.nav_max);
+    // Remembers when the current navigation pause ends *before* the click, so it
+    // survives the page reload the site performs on "next"/"continue". Without
+    // it the delay would run as an in-page timer and die on navigation, making
+    // every word transition as fast as the page load.
+    function beginNavWait() {
+        storage.set(NAV_KEY, Date.now() + navWait());
+    }
+    // Waits out the remaining navigation pause. Called right after a navigation
+    // click (AJAX case) and at the start of every tick, which is where a fresh
+    // page after a reload picks the wait back up.
+    async function endNavWait() {
+        const deadline = Number(storage.get(NAV_KEY, 0)) || 0;
+        if (!deadline) return;
+        const remaining = deadline - Date.now();
+        if (remaining > 0) await dom.wait(remaining);
+        // Do not step on a newer navigation planned while we waited.
+        if ((Number(storage.get(NAV_KEY, 0)) || 0) === deadline) storage.set(NAV_KEY, 0);
+    }
+    async function clickWithNav(click) {
+        beginNavWait();
+        click();
+        await endNavWait();
+    }
 
     function setStatus(status) {
         state.status = status;
@@ -392,36 +419,35 @@ function createEngine({
         }, delay);
     }
 
-    async function clickFirst(selectors, timeout = 4000) {
+    async function clickFirst(selectors, timeout = 4000, nav = false) {
         const element = await dom.find(selectors, timeout, shouldContinue);
         if (!element) return false;
+        if (nav) beginNavWait();
         dom.click(element);
+        if (nav) await endNavWait();
         return true;
     }
 
     async function startSession() {
         log(t('log.starting'));
-        if (await clickFirst(SELECTORS.startSession, 3000)) {
-            await dom.wait(navWait());
-        }
-        let continued = await clickFirst(SELECTORS.continueSession, 5000);
-        if (!continued) continued = await clickFirst(SELECTORS.newSession, 4000);
+        await clickFirst(SELECTORS.startSession, 3000, true);
+        let continued = await clickFirst(SELECTORS.continueSession, 5000, true);
+        if (!continued) continued = await clickFirst(SELECTORS.newSession, 4000, true);
         if (!continued) {
             const continueText = await dom.findByText(TEXT.continue, 2000, shouldContinue);
             if (continueText) {
-                dom.click(continueText);
+                await clickWithNav(() => dom.click(continueText));
                 continued = true;
             }
         }
         if (!continued) {
             const startText = await dom.findByText(TEXT.start, 2500, shouldContinue);
             if (startText) {
-                dom.click(startText);
-                await dom.wait(navWait());
-                await clickFirst(SELECTORS.newSession, 4000);
+                await clickWithNav(() => dom.click(startText));
+                await clickFirst(SELECTORS.newSession, 4000, true);
             }
         }
-        await dom.wait(navWait());
+        await endNavWait();
     }
 
     async function handleNewWord() {
@@ -435,12 +461,11 @@ function createEngine({
             if (dontKnow) dom.click(dontKnow);
         }
         await dom.wait(randomBetween(config.delays.check_min, config.delays.check_max));
-        const advanced = await clickFirst(SELECTORS.nextWord, 10000);
+        const advanced = await clickFirst(SELECTORS.nextWord, 10000, true);
         if (!advanced) {
             const next = await dom.findByText(TEXT.next, 2500, shouldContinue);
-            if (next) dom.click(next);
+            if (next) await clickWithNav(() => dom.click(next));
         }
-        await dom.wait(navWait());
         emit({type: 'progress'});
     }
 
@@ -479,12 +504,11 @@ function createEngine({
     async function advanceNext() {
         const next = await dom.find(SELECTORS.nextWord, 12000, shouldContinue);
         if (next) {
-            dom.click(next);
+            await clickWithNav(() => dom.click(next));
         } else {
             const fallback = await dom.findByText(TEXT.next, 2000, shouldContinue);
-            if (fallback) dom.click(fallback);
+            if (fallback) await clickWithNav(() => dom.click(fallback));
         }
-        await dom.wait(navWait());
         log(t('log.next'));
         emit({type: 'progress'});
     }
@@ -555,6 +579,7 @@ function createEngine({
         state.running = false;
         clearTimer();
         storage.set(RUN_KEY, null);
+        storage.set(NAV_KEY, 0);
         recordStats();
         if (reason === 'stopped') {
             setStatus('stopped');
@@ -580,6 +605,9 @@ function createEngine({
         if (!state.running || busy) return;
         busy = true;
         try {
+            // A page reload kills the in-page navigation timer; pick the pause
+            // back up here, before the next word is read or answered.
+            await endNavWait();
             if (await dom.find(SELECTORS.loginEmail, 250, shouldContinue)) {
                 throw new Error(t('error.noStart'));
             }
@@ -602,8 +630,7 @@ function createEngine({
                 }
                 const next = await dom.find(SELECTORS.nextWord, 800, shouldContinue);
                 if (next) {
-                    dom.click(next);
-                    await dom.wait(navWait());
+                    await clickWithNav(() => dom.click(next));
                 } else if (!startAttempted) {
                     startAttempted = true;
                     await startSession();
@@ -629,6 +656,7 @@ function createEngine({
         state.pending = null;
         used = [];
         startAttempted = false;
+        storage.set(NAV_KEY, 0);
         persistRun();
         setStatus('starting');
         emit({type: 'progress'});

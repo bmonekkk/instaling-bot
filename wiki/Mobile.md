@@ -1,6 +1,8 @@
 # 📱 Mobile: Android i iOS
 
-Wersja 4.2.1 wyrównuje telefon z desktopem. Wszystkie warianty mobilne używają tego samego
+Wersja 4.2.2 naprawia tempo klikania przycisków na telefonie — pauza `nav_min` / `nav_max`
+działa teraz też po przeładowaniu strony przez instaling.pl (przy „dalej", „kontynuuj" i
+starcie sesji). Wszystkie warianty mobilne używają tego samego
 silnika co desktop: odpowiedzi, literówki, zapamiętywanie słówek i interfejs PL/EN. Mają
 też te same **ustawienia** (poprawność odpowiedzi, czasy pisania i klikania, szybkość
 klikania przycisków, literówki, godzina i częstotliwość przypomnienia), przycisk
@@ -13,7 +15,7 @@ otwartej aplikacji lub karcie — telefon może wstrzymać WebView w tle.
 
 ## Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.2.1-android.apk` z
+1. Pobierz `instaling-bot-4.2.2-android.apk` z
    [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik i zezwól na instalację z tego źródła.
 3. Zaloguj się na `instaling.pl` w aplikacji.
@@ -62,7 +64,7 @@ jeszcze ukończona.
 
 ## iOS: IPA dla SideStore / AltStore
 
-1. Pobierz `instaling-bot-4.2.1-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.2.2-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj IPA.
 3. Zaloguj się na `instaling.pl` i naciśnij **Start**.
 

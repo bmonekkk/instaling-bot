@@ -37,7 +37,7 @@ body:
     attributes:
       label: Version
       description: The version shown in the title bar, the mobile status bar or by `instaling-bot version`.
-      placeholder: "4.2.1"
+      placeholder: "4.2.2"
     validations:
       required: true
 

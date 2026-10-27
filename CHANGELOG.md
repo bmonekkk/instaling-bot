@@ -2,6 +2,15 @@
 
 All notable changes to this fork are documented here.
 
+## [4.2.2] - 2026-10-28
+
+### Fixed
+- **Navigation-click speed on the phones now really applies.** instaling.pl reloads the page on "next"/"continue"/"start", which destroyed the in-page `setTimeout` that held the `nav_min`/`nav_max` pause. The pause looked right only when the click stayed on the same page; the between-word transition was always as fast as the page load. The shared engine now stores the pause deadline (`navUntil`) before the click and re-applies the remainder at the start of the next tick, so both the result-page "next" and the session "continue"/start wait out `nav_min`/`nav_max` even across a full reload. Covered by two new tests.
+- **Desktop session start / continue / new-session now honor `nav_min`/`nav_max`** as well. A shared `navDelays()` helper replaced the inline fallbacks and is reused for the between-word "next".
+
+### Changed
+- Version bumped to `4.2.2` (userscript `4.2.3`) across `package.json`, the iOS project (`MARKETING_VERSION` 4.2.2 / `CURRENT_PROJECT_VERSION` 40202), the engine default, the desktop renderer, the website, `docs/llms.txt`, README (PL/EN), the wiki, `PROJECT_NOTES.md` and the release notes.
+
 ## [4.2.1] - 2026-10-28
 
 ### Added
