@@ -7,7 +7,14 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private static let startURL = URL(string: "https://instaling.pl/")!
     private static let releasesURL = URL(string: "https://github.com/bmonekkk/instaling-bot/releases/latest")!
     private static let apiURL = URL(string: "https://api.github.com/repos/bmonekkk/instaling-bot/releases/latest")!
-    private static let reminderIdentifier = "instalingbot.daily"
+    // iOS keeps at most 64 pending local notifications, so a repeating reminder
+    // is emulated with a bounded batch of one-shot triggers that the app
+    // rebuilds every time it opens, when the settings change and when a
+    // session finishes for the day.
+    private static let reminderIdentifierPrefix = "instalingbot.daily"
+    private static let maxReminderRequests = 60
+    private static let reminderIdentifiers: [String] =
+        (0..<maxReminderRequests).map { "\(reminderIdentifierPrefix).\($0)" }
     private static let defaultReminderHour = 17
     private static let defaultReminderMinute = 0
 
@@ -30,14 +37,20 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private var lastStatus = "idle"
 
     private let labels: [String: [String]] = [
-        "pl": ["Start", "Stop", "Gotowy", "Uruchamianie…", "Pracuję…", "Zatrzymywanie…",
+        "pl": ["Start", "Stop", "Gotowy", "Uruchamianie...", "Pracuję...", "Zatrzymywanie...",
                "Sesja zakończona", "Błąd", "Zatrzymano", "Aktualizacja",
-               "Ustawienia sesji", "Poprawność odpowiedzi (%)", "Limit odpowiedzi (0 = brak limitu)",
-               "Godzina przypomnienia", "Zapisz", "Anuluj", "Zapisano ustawienia"],
-        "en": ["Start", "Stop", "Ready", "Starting…", "Working…", "Stopping…",
+               "Ustawienia sesji", "Poprawność odpowiedzi (%)", "Powtarzaj przypomnienie (min, 0 = raz dziennie)",
+               "Godzina przypomnienia", "Zapisz", "Anuluj", "Zapisano ustawienia",
+               "Humanizacja pisania", "Pauza po kliknięciu min (ms)", "Pauza po kliknięciu max (ms)",
+               "Opóźnienie liter min (ms)", "Opóźnienie liter max (ms)",
+               "Szansa na literówkę (%)", "Szansa na pauzę (%)"],
+        "en": ["Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                "Session finished", "Error", "Stopped", "Update",
-               "Session settings", "Answer accuracy (%)", "Answer limit (0 = no limit)",
-               "Reminder time", "Save", "Cancel", "Settings saved"]
+               "Session settings", "Answer accuracy (%)", "Repeat reminder (min, 0 = once a day)",
+               "Reminder time", "Save", "Cancel", "Settings saved",
+               "Typing humanization", "Min delay after a click (ms)", "Max delay after a click (ms)",
+               "Min letter delay (ms)", "Max letter delay (ms)",
+               "Typo chance (%)", "Pause chance (%)"]
     ]
 
     private func label(_ index: Int) -> String {
@@ -216,7 +229,17 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             if (host !== 'instaling.pl' && host.slice(-13) !== '.instaling.pl') { return; }
             window.__instalingBotEngine = window.InstalingBot.create({
                 language: '\(escapedLanguage)',
-                config: { valid_chance: \(validChance), max_answers: \(maxAnswers) },
+                config: {
+                    valid_chance: \(validChance),
+                    delays: {
+                        click_min: \(clickMin),
+                        click_max: \(clickMax),
+                        type_min: \(typeMin),
+                        type_max: \(typeMax),
+                        type_pause_chance: \(pauseChance),
+                        typo_chance: \(typoChance)
+                    }
+                },
                 onEvent: function (event) {
                     try {
                         window.webkit.messageHandlers.instalingBot.postMessage({
@@ -299,6 +322,18 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         case "finished":
             startButton.isEnabled = true
             stopButton.isEnabled = false
+            let answers = (event["state"] as? [String: Any])?["answers"] as? Int ?? 0
+            let reason = event["reason"] as? String ?? ""
+            if answers > 0, reason != "error" {
+                // Today's session is done: drop any reminder still queued for
+                // today and queue the next days instead.
+                UserDefaults.standard.set(Self.dateKey(), forKey: "last_session_date")
+                UNUserNotificationCenter.current()
+                    .removePendingNotificationRequests(withIdentifiers: Self.reminderIdentifiers)
+                if UserDefaults.standard.bool(forKey: "reminder") {
+                    scheduleReminder(fromTomorrow: true)
+                }
+            }
         default:
             break
         }
@@ -415,8 +450,27 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         return min(1, max(0, stored ?? 0.8))
     }
 
-    private var maxAnswers: Int {
-        max(0, UserDefaults.standard.integer(forKey: "max_answers"))
+    private func intSetting(_ key: String, _ fallback: Int) -> Int {
+        UserDefaults.standard.object(forKey: key) == nil
+            ? fallback
+            : UserDefaults.standard.integer(forKey: key)
+    }
+
+    private func doubleSetting(_ key: String, _ fallback: Double) -> Double {
+        UserDefaults.standard.object(forKey: key) == nil
+            ? fallback
+            : UserDefaults.standard.double(forKey: key)
+    }
+
+    private var clickMin: Int { max(0, intSetting("click_min", 2000)) }
+    private var clickMax: Int { max(0, intSetting("click_max", 4500)) }
+    private var typeMin: Int { max(0, intSetting("type_min", 90)) }
+    private var typeMax: Int { max(0, intSetting("type_max", 230)) }
+    private var typoChance: Double { min(1, max(0, doubleSetting("typo_chance", 0.15))) }
+    private var pauseChance: Double { min(1, max(0, doubleSetting("type_pause_chance", 0.12))) }
+
+    private var reminderRepeat: Int {
+        max(0, intSetting("reminder_repeat", 0))
     }
 
     private var reminderHour: Int {
@@ -431,18 +485,22 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             : UserDefaults.standard.integer(forKey: "reminder_minute")
     }
 
-    /// Settings sheet: answer accuracy, answer limit and reminder time, the
-    /// same three options the Android shell and the userscript expose.
+    /// Settings sheet: answer accuracy, the humanization delays shared with the
+    /// desktop Advanced section, the reminder time and its repeat interval.
     @objc private func openSettings() {
         let controller = UIViewController()
         controller.view.backgroundColor = UIColor(red: 0.067, green: 0.094, blue: 0.153, alpha: 1)
         controller.title = label(10)
 
+        let scroll = UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        controller.view.addSubview(scroll)
+
         let stack = UIStackView()
         stack.axis = .vertical
-        stack.spacing = 10
+        stack.spacing = 8
         stack.translatesAutoresizingMaskIntoConstraints = false
-        controller.view.addSubview(stack)
+        scroll.addSubview(stack)
 
         let heading = UILabel()
         heading.text = label(10)
@@ -454,9 +512,25 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         stack.addArrangedSubview(makeFieldLabel(label(11)))
         stack.addArrangedSubview(validityField)
 
-        let limitField = makeNumberField(String(maxAnswers))
-        stack.addArrangedSubview(makeFieldLabel(label(12)))
-        stack.addArrangedSubview(limitField)
+        stack.addArrangedSubview(makeSectionLabel(label(17)))
+        let clickMinField = makeNumberField(String(clickMin))
+        stack.addArrangedSubview(makeFieldLabel(label(18)))
+        stack.addArrangedSubview(clickMinField)
+        let clickMaxField = makeNumberField(String(clickMax))
+        stack.addArrangedSubview(makeFieldLabel(label(19)))
+        stack.addArrangedSubview(clickMaxField)
+        let typeMinField = makeNumberField(String(typeMin))
+        stack.addArrangedSubview(makeFieldLabel(label(20)))
+        stack.addArrangedSubview(typeMinField)
+        let typeMaxField = makeNumberField(String(typeMax))
+        stack.addArrangedSubview(makeFieldLabel(label(21)))
+        stack.addArrangedSubview(typeMaxField)
+        let typoField = makeNumberField(String(Int((typoChance * 100).rounded())))
+        stack.addArrangedSubview(makeFieldLabel(label(22)))
+        stack.addArrangedSubview(typoField)
+        let pauseField = makeNumberField(String(Int((pauseChance * 100).rounded())))
+        stack.addArrangedSubview(makeFieldLabel(label(23)))
+        stack.addArrangedSubview(pauseField)
 
         let timePicker = UIDatePicker()
         timePicker.datePickerMode = .time
@@ -469,6 +543,10 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         }
         stack.addArrangedSubview(makeFieldLabel(label(13)))
         stack.addArrangedSubview(timePicker)
+
+        let repeatField = makeNumberField(String(reminderRepeat))
+        stack.addArrangedSubview(makeFieldLabel(label(12)))
+        stack.addArrangedSubview(repeatField)
 
         let buttons = UIStackView()
         buttons.axis = .horizontal
@@ -492,12 +570,24 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         save.addAction(UIAction { [weak self] _ in
             guard let self else { return }
             let percent = min(100, max(0, Int(validityField.text ?? "") ?? 80))
-            let limit = max(0, Int(limitField.text ?? "") ?? 0)
+            let clickMinValue = min(120000, max(0, Int(clickMinField.text ?? "") ?? 2000))
+            let clickMaxValue = max(clickMinValue, min(120000, max(0, Int(clickMaxField.text ?? "") ?? 4500)))
+            let typeMinValue = min(5000, max(0, Int(typeMinField.text ?? "") ?? 90))
+            let typeMaxValue = max(typeMinValue, min(5000, max(0, Int(typeMaxField.text ?? "") ?? 230)))
+            let typoValue = min(100, max(0, Int(typoField.text ?? "") ?? 15))
+            let pauseValue = min(100, max(0, Int(pauseField.text ?? "") ?? 12))
+            let repeatValue = min(1440, max(0, Int(repeatField.text ?? "") ?? 0))
             let time = Calendar.current.dateComponents([.hour, .minute], from: timePicker.date)
             UserDefaults.standard.set(Double(percent) / 100, forKey: "valid_chance")
-            UserDefaults.standard.set(limit, forKey: "max_answers")
+            UserDefaults.standard.set(clickMinValue, forKey: "click_min")
+            UserDefaults.standard.set(clickMaxValue, forKey: "click_max")
+            UserDefaults.standard.set(typeMinValue, forKey: "type_min")
+            UserDefaults.standard.set(typeMaxValue, forKey: "type_max")
+            UserDefaults.standard.set(Double(typoValue) / 100, forKey: "typo_chance")
+            UserDefaults.standard.set(Double(pauseValue) / 100, forKey: "type_pause_chance")
             UserDefaults.standard.set(time.hour ?? Self.defaultReminderHour, forKey: "reminder_hour")
             UserDefaults.standard.set(time.minute ?? Self.defaultReminderMinute, forKey: "reminder_minute")
+            UserDefaults.standard.set(repeatValue, forKey: "reminder_repeat")
             self.applyConfigToEngine()
             if UserDefaults.standard.bool(forKey: "reminder") {
                 self.scheduleReminder()
@@ -511,9 +601,15 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         stack.addArrangedSubview(buttons)
 
         NSLayoutConstraint.activate([
-            stack.topAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            stack.leadingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            stack.trailingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+            scroll.topAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.topAnchor),
+            scroll.leadingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.leadingAnchor),
+            scroll.trailingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.trailingAnchor),
+            scroll.bottomAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.bottomAnchor),
+            stack.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor, constant: 20),
+            stack.leadingAnchor.constraint(equalTo: scroll.contentLayoutGuide.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: scroll.contentLayoutGuide.trailingAnchor, constant: -20),
+            stack.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor, constant: -24),
+            stack.widthAnchor.constraint(equalTo: scroll.frameLayoutGuide.widthAnchor, constant: -40)
         ])
 
         present(controller, animated: true)
@@ -540,9 +636,20 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         return view
     }
 
+    private func makeSectionLabel(_ text: String) -> UILabel {
+        let view = UILabel()
+        view.text = text
+        view.textColor = .white
+        view.font = .boldSystemFont(ofSize: 15)
+        return view
+    }
+
     private func applyConfigToEngine() {
         let script = "window.__instalingBotEngine && window.__instalingBotEngine.setConfig({"
-            + "valid_chance:\(validChance),max_answers:\(maxAnswers)})"
+            + "valid_chance:\(validChance),"
+            + "delays:{click_min:\(clickMin),click_max:\(clickMax),"
+            + "type_min:\(typeMin),type_max:\(typeMax),"
+            + "type_pause_chance:\(pauseChance),typo_chance:\(typoChance)}})"
         webView?.evaluateJavaScript(script)
     }
 
@@ -591,20 +698,24 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             }
         } else {
             UNUserNotificationCenter.current().removePendingNotificationRequests(
-                withIdentifiers: [Self.reminderIdentifier]
+                withIdentifiers: Self.reminderIdentifiers
             )
         }
         refreshReminderButton()
     }
 
-    private func scheduleReminder() {
+    /// Queues the reminder notifications. With `repeat_minutes` at 0 it fires
+    /// once a day; otherwise it repeats every N minutes. Either way the batch
+    /// stops mattering as soon as a session finishes today, because finishing a
+    /// session clears the queue and reschedules from tomorrow.
+    private func scheduleReminder(fromTomorrow: Bool = false) {
         let center = UNUserNotificationCenter.current()
-        center.removePendingNotificationRequests(withIdentifiers: [Self.reminderIdentifier])
+        center.removePendingNotificationRequests(withIdentifiers: Self.reminderIdentifiers)
         guard UserDefaults.standard.bool(forKey: "reminder") else { return }
-
-        var components = DateComponents()
-        components.hour = reminderHour
-        components.minute = reminderMinute
+        if !fromTomorrow,
+           UserDefaults.standard.string(forKey: "last_session_date") == Self.dateKey() {
+            return
+        }
 
         let english = language == "en"
         let content = UNMutableNotificationContent()
@@ -614,13 +725,37 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             : "Otwórz instaling-bot i rozpocznij sesję. Przypomnienie wyłączysz w aplikacji."
         content.sound = .default
 
-        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: true)
-        let request = UNNotificationRequest(
-            identifier: Self.reminderIdentifier,
-            content: content,
-            trigger: trigger
-        )
-        center.add(request, withCompletionHandler: nil)
+        let calendar = Calendar.current
+        var fireDate = calendar.date(
+            bySettingHour: reminderHour, minute: reminderMinute, second: 0, of: Date()
+        ) ?? Date()
+        if fromTomorrow || fireDate <= Date() {
+            fireDate = calendar.date(byAdding: .day, value: 1, to: fireDate) ?? fireDate
+        }
+
+        let repeatMinutes = reminderRepeat
+        let step = repeatMinutes > 0 ? repeatMinutes * 60 : 24 * 60 * 60
+
+        for index in 0..<Self.maxReminderRequests {
+            let components = calendar.dateComponents(
+                [.year, .month, .day, .hour, .minute], from: fireDate
+            )
+            let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "\(Self.reminderIdentifierPrefix).\(index)",
+                content: content,
+                trigger: trigger
+            )
+            center.add(request, withCompletionHandler: nil)
+            fireDate = calendar.date(byAdding: .second, value: step, to: fireDate) ?? fireDate
+        }
+    }
+
+    private static func dateKey(_ date: Date = Date()) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
     }
 
     private func refreshReminderButton() {
@@ -647,7 +782,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                   let tag = json["tag_name"] as? String
             else { return }
 
-            let current = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.1.0"
+            let current = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.2.0"
             guard Self.isNewer(tag, than: current) else { return }
 
             DispatchQueue.main.async {

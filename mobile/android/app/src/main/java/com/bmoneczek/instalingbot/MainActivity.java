@@ -28,9 +28,12 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,18 +79,30 @@ public class MainActivity extends Activity {
 
     private static final String[][] LABELS = {
             // pl
-            {"Start", "Stop", "Gotowy", "Uruchamianie…", "Pracuję…", "Zatrzymywanie…",
-                    "Sesja zakończona", "Błąd", "Zatrzymano", "Codzienne przypomnienie",
-                    "Włącz przypomnienie", "Wyłącz przypomnienie", "Aktualizacja",
-                    "Ustawienia sesji", "Poprawność odpowiedzi (%)", "Limit odpowiedzi (0 = brak limitu)",
-                    "Zapisz", "Anuluj", "Godzina przypomnienia", "Zapisano ustawienia"},
+            {"Start", "Stop", "Gotowy", "Uruchamianie...", "Pracuj\u0119...", "Zatrzymywanie...",
+                    "Sesja zako\u0144czona", "B\u0142\u0105d", "Zatrzymano", "Codzienne przypomnienie",
+                    "W\u0142\u0105cz przypomnienie", "Wy\u0142\u0105cz przypomnienie", "Aktualizacja",
+                    "Ustawienia sesji", "Poprawno\u015b\u0107 odpowiedzi (%)", "Powtarzaj przypomnienie",
+                    "Zapisz", "Anuluj", "Godzina przypomnienia", "Zapisano ustawienia",
+                    "Humanizacja pisania", "Pauza po klikni\u0119ciu min (ms)",
+                    "Pauza po klikni\u0119ciu max (ms)", "Op\u00f3\u017anienie liter min (ms)",
+                    "Op\u00f3\u017anienie liter max (ms)", "Szansa na liter\u00f3wk\u0119 (%)",
+                    "Szansa na pauz\u0119 (%)", "Raz dziennie", "Co 15 minut", "Co 30 minut",
+                    "Co godzin\u0119", "Co 2 godziny", "Co 3 godziny"},
             // en
-            {"Start", "Stop", "Ready", "Starting…", "Working…", "Stopping…",
+            {"Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                     "Session finished", "Error", "Stopped", "Daily reminder",
                     "Enable reminder", "Disable reminder", "Update",
-                    "Session settings", "Answer accuracy (%)", "Answer limit (0 = no limit)",
-                    "Save", "Cancel", "Reminder time", "Settings saved"}
+                    "Session settings", "Answer accuracy (%)", "Repeat reminder",
+                    "Save", "Cancel", "Reminder time", "Settings saved",
+                    "Typing humanization", "Min delay after a click (ms)",
+                    "Max delay after a click (ms)", "Min letter delay (ms)",
+                    "Max letter delay (ms)", "Typo chance (%)",
+                    "Pause chance (%)", "Once a day", "Every 15 minutes", "Every 30 minutes",
+                    "Every hour", "Every 2 hours", "Every 3 hours"}
     };
+    // Repeat choices in minutes, matching the desktop select.
+    private static final int[] REPEAT_MINUTES = {0, 15, 30, 60, 120, 180};
 
     private String label(int index) {
         return LABELS["en".equals(language) ? 1 : 0][index];
@@ -376,13 +391,24 @@ public class MainActivity extends Activity {
                 + "window.__instalingBotEngine=InstalingBot.create({"
                 + "language:'" + ("en".equals(language) ? "en" : "pl") + "',"
                 + "config:{valid_chance:" + prefs.getFloat("valid_chance", 0.8f)
-                + ",max_answers:" + prefs.getInt("max_answers", 0) + "},"
+                + ",delays:" + delaysJson() + "},"
                 + "onEvent:function(e){try{InstalingBotNative.postEvent(token,JSON.stringify(e));}catch(err){}}"
                 + "});"
                 + (pendingStart ? "window.__instalingBotEngine.start();" : "window.__instalingBotEngine.resume();")
                 + "})();";
         pendingStart = false;
-        view.evaluateJavascript(core + "\n" + boot, value -> refreshStats());
+        view.evaluateJavascript(core + "\n" + boot, null);
+        refreshStats();
+    }
+
+    /** Serializes the humanization delays for the injected engine config. */
+    private String delaysJson() {
+        return "{click_min:" + prefs.getInt("click_min", 2000)
+                + ",click_max:" + prefs.getInt("click_max", 4500)
+                + ",type_min:" + prefs.getInt("type_min", 90)
+                + ",type_max:" + prefs.getInt("type_max", 230)
+                + ",type_pause_chance:" + prefs.getFloat("type_pause_chance", 0.12f)
+                + ",typo_chance:" + prefs.getFloat("typo_chance", 0.15f) + "}";
     }
 
     private String readAsset(String name) {
@@ -444,9 +470,25 @@ public class MainActivity extends Activity {
         content.addView(fieldLabel(label(14)));
         content.addView(validity);
 
-        final EditText limit = numberField(prefs.getInt("max_answers", 0));
-        content.addView(fieldLabel(label(15)));
-        content.addView(limit);
+        content.addView(sectionLabel(label(20)));
+        final EditText clickMin = numberField(prefs.getInt("click_min", 2000));
+        content.addView(fieldLabel(label(21)));
+        content.addView(clickMin);
+        final EditText clickMax = numberField(prefs.getInt("click_max", 4500));
+        content.addView(fieldLabel(label(22)));
+        content.addView(clickMax);
+        final EditText typeMin = numberField(prefs.getInt("type_min", 90));
+        content.addView(fieldLabel(label(23)));
+        content.addView(typeMin);
+        final EditText typeMax = numberField(prefs.getInt("type_max", 230));
+        content.addView(fieldLabel(label(24)));
+        content.addView(typeMax);
+        final EditText typoChance = numberField(Math.round(prefs.getFloat("typo_chance", 0.15f) * 100));
+        content.addView(fieldLabel(label(25)));
+        content.addView(typoChance);
+        final EditText pauseChance = numberField(Math.round(prefs.getFloat("type_pause_chance", 0.12f) * 100));
+        content.addView(fieldLabel(label(26)));
+        content.addView(pauseChance);
 
         final int[] time = {reminderHour(), reminderMinute()};
         final Button timeButton = new Button(this);
@@ -460,10 +502,24 @@ public class MainActivity extends Activity {
                 }, time[0], time[1], true).show());
         content.addView(timeButton);
 
+        final Spinner repeat = new Spinner(this);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, repeatLabels());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        repeat.setAdapter(adapter);
+        repeat.setSelection(indexOfRepeat(reminderRepeat()));
+        content.addView(fieldLabel(label(15)));
+        content.addView(repeat);
+
+        ScrollView scroll = new ScrollView(this);
+        scroll.addView(content);
+
         new AlertDialog.Builder(this)
                 .setTitle(label(13))
-                .setView(content)
-                .setPositiveButton(label(16), (dialog, which) -> saveSettings(validity, limit, time))
+                .setView(scroll)
+                .setPositiveButton(label(16), (dialog, which) -> saveSettings(
+                        validity, clickMin, clickMax, typeMin, typeMax,
+                        typoChance, pauseChance, time, repeat.getSelectedItemPosition()))
                 .setNegativeButton(label(17), null)
                 .show();
     }
@@ -484,14 +540,56 @@ public class MainActivity extends Activity {
         return labelView;
     }
 
-    private void saveSettings(EditText validity, EditText limit, int[] time) {
+    private TextView sectionLabel(String text) {
+        TextView labelView = new TextView(this);
+        labelView.setText(text);
+        labelView.setTextSize(13);
+        labelView.setTypeface(Typeface.DEFAULT_BOLD);
+        labelView.setPadding(0, dp(14), 0, dp(2));
+        return labelView;
+    }
+
+    private String[] repeatLabels() {
+        return new String[]{
+                label(27), label(28), label(29), label(30), label(31), label(32)
+        };
+    }
+
+    private static int indexOfRepeat(int minutes) {
+        for (int index = 0; index < REPEAT_MINUTES.length; index++) {
+            if (REPEAT_MINUTES[index] == minutes) return index;
+        }
+        return 0;
+    }
+
+    private int reminderRepeat() {
+        return prefs.getInt("reminder_repeat", 0);
+    }
+
+    private void saveSettings(EditText validity, EditText clickMin, EditText clickMax,
+                              EditText typeMin, EditText typeMax, EditText typoChance,
+                              EditText pauseChance, int[] time, int repeatIndex) {
         int percent = clamp(parseInt(validity.getText().toString(), 80), 0, 100);
-        int maxAnswers = Math.max(0, parseInt(limit.getText().toString(), 0));
+        int cMin = clamp(parseInt(clickMin.getText().toString(), 2000), 0, 120000);
+        int cMax = clamp(parseInt(clickMax.getText().toString(), 4500), 0, 120000);
+        int tMin = clamp(parseInt(typeMin.getText().toString(), 90), 0, 5000);
+        int tMax = clamp(parseInt(typeMax.getText().toString(), 230), 0, 5000);
+        int typo = clamp(parseInt(typoChance.getText().toString(), 15), 0, 100);
+        int pause = clamp(parseInt(pauseChance.getText().toString(), 12), 0, 100);
+        if (cMax < cMin) cMax = cMin;
+        if (tMax < tMin) tMax = tMin;
+        int repeat = REPEAT_MINUTES[clamp(repeatIndex, 0, REPEAT_MINUTES.length - 1)];
         prefs.edit()
                 .putFloat("valid_chance", percent / 100f)
-                .putInt("max_answers", maxAnswers)
+                .putInt("click_min", cMin)
+                .putInt("click_max", cMax)
+                .putInt("type_min", tMin)
+                .putInt("type_max", tMax)
+                .putFloat("typo_chance", typo / 100f)
+                .putFloat("type_pause_chance", pause / 100f)
                 .putInt("reminder_hour", time[0])
                 .putInt("reminder_minute", time[1])
+                .putInt("reminder_repeat", repeat)
                 .apply();
         applyConfigToEngine();
         if (prefs.getBoolean("reminder", false)) scheduleReminder();
@@ -503,7 +601,7 @@ public class MainActivity extends Activity {
         if (webView == null || !pageReady) return;
         String js = "window.__instalingBotEngine&&window.__instalingBotEngine.setConfig({"
                 + "valid_chance:" + prefs.getFloat("valid_chance", 0.8f) + ","
-                + "max_answers:" + prefs.getInt("max_answers", 0) + "})";
+                + "delays:" + delaysJson() + "})";
         webView.evaluateJavascript(js, null);
     }
 
@@ -599,6 +697,15 @@ public class MainActivity extends Activity {
             } else if ("finished".equals(type)) {
                 startButton.setEnabled(true);
                 stopButton.setEnabled(false);
+                int finishedAnswers = state == null ? 0 : state.optInt("answers", 0);
+                String reason = event.optString("reason", "");
+                if (finishedAnswers > 0 && !"error".equals(reason)) {
+                    // Remember that today's session is done so the repeat
+                    // reminder stops until tomorrow.
+                    prefs.edit().putString("last_session_date", dateKey(Calendar.getInstance())).apply();
+                    NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    if (manager != null) manager.cancel(9);
+                }
             }
             if ("answered".equals(type) || "progress".equals(type)
                     || "saved".equals(type) || "finished".equals(type)) {
@@ -665,8 +772,12 @@ public class MainActivity extends Activity {
         if (next.getTimeInMillis() <= System.currentTimeMillis()) {
             next.add(Calendar.DAY_OF_YEAR, 1);
         }
+        // 0 = once a day; otherwise repeat every N minutes until the receiver
+        // sees a completed session for the current day.
+        int repeat = reminderRepeat();
+        long interval = repeat > 0 ? repeat * 60_000L : AlarmManager.INTERVAL_DAY;
         alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, next.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, pending);
+                interval, pending);
     }
 
     private void cancelReminder() {
@@ -675,6 +786,15 @@ public class MainActivity extends Activity {
         PendingIntent pending = PendingIntent.getBroadcast(this, 7, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         alarms.cancel(pending);
+        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (manager != null) manager.cancel(9);
+    }
+
+    static String dateKey(Calendar calendar) {
+        return String.format(java.util.Locale.ROOT, "%04d-%02d-%02d",
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH) + 1,
+                calendar.get(Calendar.DAY_OF_MONTH));
     }
 
     @Override

@@ -11,7 +11,7 @@
 <div class="app" id="app">
     <header class="titlebar" id="titlebar">
         <span class="titlebar-icon" aria-hidden="true">🤖</span>
-        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.1.0</span></span>
+        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.2.0</span></span>
         <div class="window-controls">
             <button class="window-button" id="win-minimize" type="button" data-i18n-title="window.minimize" data-i18n-aria-label="window.minimize" title="Minimalizuj" aria-label="Minimalizuj">_</button>
             <button class="window-button" id="win-maximize" type="button" data-i18n-title="window.maximize" data-i18n-aria-label="window.maximize" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
@@ -56,7 +56,7 @@
                     <strong data-i18n="guide.title">Szybki start</strong>
                     <ol>
                         <li data-i18n="guide.step1">Wpisz login i hasło do InstaLing.</li>
-                        <li data-i18n="guide.step2">Ustaw poprawność odpowiedzi i limit (0 = bez limitu).</li>
+                        <li data-i18n="guide.step2">Ustaw poprawność odpowiedzi i tempo pisania.</li>
                         <li data-i18n-html="guide.step3">Naciśnij <b>Start</b>. Chrome otworzy się osobno, a postęp zobaczysz w konsoli.</li>
                     </ol>
                     <p data-i18n-html="guide.note">Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer. Statystyki sesji znajdziesz przyciskiem <b>Statystyki</b> w konsoli.</p>
@@ -88,11 +88,6 @@
                             <span class="range-scale"><span>0%</span><span>50%</span><span>100%</span></span>
                         </label>
                         <div class="row two">
-                            <label class="field" for="max-answers">
-                                <span data-i18n="behavior.limit">Limit odpowiedzi</span>
-                                <input id="max-answers" type="number" min="0" max="10000" step="1" value="0">
-                                <span class="hint inline" data-i18n="behavior.limitHint">0 = bez limitu</span>
-                            </label>
                             <div class="check-stack">
                                 <label class="check"><input id="show-browser" type="checkbox"> <span data-i18n="behavior.showBrowser">Pokaż okno Chrome</span></label>
                                 <label class="check"><input id="mute-audio" type="checkbox"> <span data-i18n="behavior.muteAudio">Wycisz dźwięk</span></label>
@@ -233,7 +228,7 @@
         <span class="status-cell" id="footer-status" data-i18n="footer.ready">Gotowy</span>
         <span class="status-cell grow" id="footer-path" data-i18n-title="footer.dataFolder" title="Folder danych">—</span>
         <button class="status-cell link" id="footer-author" type="button" data-i18n-title="footer.author" title="Profil autora na GitHubie">by bmonekkk</button>
-        <span class="status-cell" id="footer-version">v4.1.0</span>
+        <span class="status-cell" id="footer-version">v4.2.0</span>
     </footer>
 </div>
 

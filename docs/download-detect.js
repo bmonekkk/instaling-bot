@@ -13,7 +13,7 @@
 })(typeof self !== 'undefined' ? self : this, function () {
     const LABELS = {
         win: 'Windows (x64)',
-        'mac-arm64': 'macOS · Apple Silicon (ARM64)',
+        'mac-arm64': 'macOS · ARM64',
         'mac-x64': 'macOS · Intel (x64)',
         mac: 'macOS',
         android: 'Android',

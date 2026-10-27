@@ -452,10 +452,6 @@ async function run() {
                     yellow('[STOP] Stop requested.');
                     break;
                 }
-                if (config.max_answers > 0 && i >= config.max_answers) {
-                    yellow(`[DONE] Reached max_answers limit (${config.max_answers}).`);
-                    break;
-                }
                 await answerQuestion(page);
             }
             return await handleStop(page, 0);

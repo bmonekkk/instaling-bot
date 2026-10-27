@@ -1,10 +1,23 @@
-# Security audit — instaling-bot 4.1.0
+# Security audit — instaling-bot 4.2.0
 
 Scope: desktop (Electron), CLI + shared core, browser userscript, Android WebView APK,
 iOS WKWebView IPA, website, and the CI/release pipeline. This is a **self-assessment**, not
 an external penetration test, and it does **not** claim the project is fully secure. Every
-finding below is either fixed in 4.1.0, mitigated by design, or listed as an accepted
-limitation.
+finding below is either fixed (in 4.1.0 or 4.2.0), mitigated by design, or listed as an
+accepted limitation.
+
+## Fixes shipped in 4.2.0
+
+| ID | Finding | Severity | Change |
+|---|---|---|---|
+| D4 | The Android `evaluateJavascript` callback captured a value it never used, raising CodeQL `java/unused-parameter`. | Code quality | `MainActivity.java` no longer captures the unused parameter in the callback. No behaviour change, no new trust boundary. |
+
+The rest of the 4.2.0 mobile work does not change the security surface: the shells and the
+userscript now expose the same timing controls the desktop already had (still only stored in
+`SharedPreferences`/`UserDefaults`/GM storage and clamped by the engine's `USER_DELAY_KEYS`/
+`DELAY_BOUNDS`), native reminders repeat through the existing `AlarmManager`/local-notification
+paths and stop once the day's session is done, and the userscript's reminder is an in-page
+banner rather than a background notification. No `Config.json` access, no credential storage.
 
 ## Summary of fixes shipped in 4.1.0
 
@@ -36,7 +49,8 @@ limitation.
   `SharedPreferences`/`UserDefaults`; the site session lives in the WebView cookie store.
 - **Userscript / engine:** no `eval`/`new Function`, no untrusted `innerHTML`; `@match`
   limited to `instaling.pl`; GM storage namespaced and parse-safe; persisted config limited
-  to `valid_chance`/`max_answers` and clamped; stale runs (>15 min) are not resumed.
+  to `valid_chance` and the user timing controls, and clamped; stale runs (>15 min) are not
+  resumed.
 - **Website:** no external subresources, no forms, no dynamic HTML injection, all output via
   `textContent`/`setAttribute` from static maps.
 - **CI:** PR/CodeQL workflows are read-only, no `pull_request_target`, no secrets echoed,
@@ -72,14 +86,14 @@ tool. They are **not** claiming to be solved.
    can be prefilled). The password lives in renderer memory while the window is open.
 6. **Supply chain (Low–Medium).** GitHub Actions are pinned to mutable major tags rather
    than commit SHAs; `release.yml` grants workflow-wide `contents: write`; no build
-   provenance/SBOM. Hardening planned but not part of 4.1.0.
+   provenance/SBOM. Hardening planned but not part of 4.2.0.
 7. **Swift is not covered by CodeQL** (JS/TS and Java/Kotlin only).
 
 ## Reproducing the checks
 
 ```sh
 npm run check          # syntax-check every source file
-npm test               # 72 tests, including urls/credentials/config-adjacent suites
+npm test               # unit tests, including urls/credentials/config-adjacent suites
 npm audit              # 0 known vulnerabilities
 npm run build:mobile   # bundles userscript + both WebView cores
 cd mobile/android && ./gradlew assembleRelease

@@ -19,7 +19,7 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**4.1.0**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
+Aktualna wersja (**4.2.0**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
 
 - 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
 - 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, ustawienia sesji, statystyki i konfigurowalne przypomnienia,
@@ -27,7 +27,7 @@ Aktualna wersja (**4.1.0**) to wydanie spójności — desktop, telefon i usersc
 - ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-Wersja 4.1.0 wyrównuje doświadczenie na wszystkich platformach: te same oznaczenia pobierania (system, architektura, format), automatyczne wykrywanie urządzenia na stronie, jedna ikona wszędzie oraz ustawienia poprawności, limitu i godziny przypomnienia również na telefonie i w userscripcie. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
+Wersja 4.2.0 wyrównuje możliwości wszystkich platform: telefon i userscript mają teraz wszystkie desktopowe ustawienia tempa pisania i klikania (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`) obok poprawności odpowiedzi, a natywne przypomnienia na Androidzie i iOS potrafią powtarzać się co N minut i wyłączają się po zaliczeniu dzisiejszej sesji. Userscript nie wysyła już powiadomień w tle — po otwarciu karty po godzinie przypomnienia pokazuje dyskretny baner na stronie. Okno desktopu, panel userscriptu i strona projektu dzielą jeden klasyczny wygląd (jasnoszary, Tahoma / MS Sans Serif, kwadratowe beleczki, granatowy pasek tytułu). Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Limit odpowiedzi zniknął: uruchomienie po prostu podąża za stroną do końca sesji. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
 
 Open source, licencja ISC.
 
@@ -51,7 +51,7 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 | Logowanie | w aplikacji | normalne logowanie na stronie | normalne logowanie na stronie | w aplikacji |
 | Przeglądarka | Chrome for Testing w instalatorze | WebView systemowy | Twoja przeglądarka | Puppeteer |
 | Statystyki | tydzień, miesiąc, rok, całość | dzień, skuteczność i seria dni | dzień, skuteczność i seria dni | `instaling-bot stats` |
-| Przypomnienia | systemowe + toast, co N minut | codziennie o wybranej godzinie | — | `instaling-bot remind` |
+| Przypomnienia | systemowe + toast, co N minut | natywne, co N minut po wybranej godzinie | baner na stronie po otwarciu karty | `instaling-bot remind` |
 | Automatyzacja | zasobnik, autostart | `instalingbot://start` / `stop` | `?autostart=1` | polecenia CLI |
 | Aktualizacja | nowy instalator | przycisk **Aktualizacja** | auto przez `@updateURL` | nowy `curl` |
 
@@ -66,9 +66,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.1.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.1.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.1.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.2.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.2.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.2.0-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -77,7 +77,7 @@ Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie tr
 1. Uruchom instalator.
 2. Otwórz **instaling-bot**.
 3. Wpisz login i hasło do InstaLing.
-4. Ustaw poprawność odpowiedzi (`80%` domyślnie) i limit odpowiedzi (`0` = bez limitu).
+4. Ustaw poprawność odpowiedzi (`80%` domyślnie).
 5. Naciśnij **Start**.
 
 Bot otworzy osobne okno Chrome, zaloguje się, rozpocznie lub kontynuuje sesję i będzie odpowiadał na słówka. Postęp, licznik odpowiedzi i błędy widać w konsoli aplikacji. Przycisk **Statystyki** pokazuje sesje, odpowiedzi, skuteczność i czas z ostatnich 7 dni, 30 dni, roku lub całego okresu.
@@ -145,20 +145,20 @@ Pliki można edytować także ręcznie — aplikacja używa tego samego formatu 
 
 ## 📱 Mobile: Android i iOS
 
-Wersja 4.1.0 wyrównuje telefon z desktopem. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, limit, godzina przypomnienia) i **statystyki** (dzisiejsze odpowiedzi, skuteczność, seria dni). Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
+Wersja 4.2.0 wyrównuje telefon z desktopem. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, opóźnienia klikania i pisania, szanse na pauzę i literówkę, godzina przypomnienia) i **statystyki** (dzisiejsze odpowiedzi, skuteczność, seria dni). Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
 
 ### 🤖 Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.1.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Pobierz `instaling-bot-4.2.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
 
 Górny pasek ma przełącznik **PL/EN**, przypomnienie ⏰, ustawienia ⚙, Start i Stop. Pod paskiem widać status, licznik odpowiedzi oraz dzisiejsze statystyki. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
 
-**Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, limit odpowiedzi i **godzinę przypomnienia**. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
+**Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, opóźnienia klikania i pisania (`click_min` / `click_max`, `type_min` / `type_max`), szansę na pauzę (`type_pause_chance`), szansę na literówkę (`typo_chance`) oraz **godzinę przypomnienia**. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
 
-**Przypomnienie:** dotknij ⏰, aby włączyć codzienne powiadomienie o wybranej godzinie (domyślnie **17:00**). Android 13+ poprosi o zgodę na powiadomienia. Przypomnienie przetrwa restart telefonu.
+**Przypomnienie:** dotknij ⏰, aby włączyć codzienne powiadomienie o wybranej godzinie (domyślnie **17:00**). Podobnie jak w desktopie możesz je powtarzać co N minut, a przypomnienia przestają przychodzić, gdy dzisiejsza sesja jest już ukończona. Android 13+ poprosi o zgodę na powiadomienia. Przypomnienie przetrwa restart telefonu.
 
 **Automatyzacja:** aplikacja obsługuje deep linki `instalingbot://start` i `instalingbot://stop`. W Taskerze, MacroDroidzie lub innym automacie dodaj akcję „Otwórz URL/Intent”, aby uruchomić sesję np. po połączeniu z domowym Wi-Fi. Bot nadal potrzebuje otwartej aplikacji i zalogowanej sesji.
 
@@ -171,17 +171,17 @@ Chrome na iOS nie obsługuje rozszerzeń, ale Safari tak:
 3. Otwórz [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) w Safari i zaimportuj skrypt w Userscripts.
 4. Wejdź na `instaling.pl`, zaloguj się i dotknij pływającego przycisku 🤖.
 
-Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi i statystyki. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, limit i autostart — wartości zapisują się trwale w pamięci rozszerzenia. Słowa również zapisują się między sesjami. Skrypt aktualizuje się sam przez `@updateURL`.
+Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi i statystyki. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, wszystkie desktopowe opóźnienia pisania i klikania (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`) oraz autostart — wartości zapisują się trwale w pamięci rozszerzenia. Słowa również zapisują się między sesjami. Userscript nie wysyła powiadomień przeglądarki: gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona, pokazuje mały baner na stronie. Skrypt aktualizuje się sam przez `@updateURL`.
 
 ### 🍏 iOS: IPA dla SideStore / AltStore
 
 Dla osób, które wolą osobną aplikację:
 
-1. Pobierz `instaling-bot-4.1.0-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.2.0-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
-IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, ustawienia sesji ze statystykami, konfigurowalne przypomnienie i przycisk aktualizacji.
+IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, ustawienia sesji (poprawność, opóźnienia pisania i klikania, szanse na pauzę i literówkę) ze statystykami, powtarzalne przypomnienie i przycisk aktualizacji.
 
 **Skróty (Shortcuts):** aplikacja przyjmuje `instalingbot://start` i `instalingbot://stop`, więc możesz uruchomić sesję z automatyzacji iOS. Sesja działa tylko, gdy aplikacja jest na pierwszym planie.
 
@@ -196,7 +196,6 @@ Możesz też otworzyć stronę z parametrami: `?autostart=1` uruchamia sesję po
 - Sesja działa tylko przy **otwartej aplikacji lub karcie**. Telefon może wstrzymać WebView po przejściu w tło; nie ma ukrytej pracy w tle. Zostaw aplikację na pierwszym planie.
 - Aplikacje mobilne **nie zapisują hasła** — logujesz się normalnie na stronie, a ciasteczka zostają w WebView (Android dopisuje je do trwałej sesji przy każdym przejściu w tło).
 - APK i IPA są **niepodpisane przez store**. Instalujesz je na własną odpowiedzialność; nie ma ich w Play Store ani App Store.
-- Przypomnienie mobilne ma **konfigurowalną godzinę**, ale nadal jest pojedynczym powiadomieniem dziennie, bez powtarzania co N minut jak w desktopie.
 - Pełne statystyki tygodnia/miesiąca/roku i eksport słówek pozostają w wersji desktopowej; mobile pokazują dzień, skuteczność i serię dni.
 
 
@@ -294,6 +293,7 @@ npx puppeteer browsers install chrome
 - Odpowiada poprawnie w `valid_chance` przypadków (domyślnie 80%).
 - Gdy ma odpowiedzieć źle, losuje jeden z trzech błędów: puste pole, inne zapisane tłumaczenie albo wiarygodną literówkę.
 - Zapisuje nowo poznane tłumaczenia w `SavedWords.json`.
+- Odpowiada, aż strona zakończy sesję — nie ma już limitu liczby odpowiedzi.
 - Sam zamyka Chrome i zapisuje słówka po zakończeniu.
 
 ## 🧠 Humanizacja pisania
@@ -328,7 +328,6 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
   - `check_min` / `check_max` — oczekiwanie na sprawdzenie odpowiedzi
   - `next_word_min` / `next_word_max` — oczekiwanie między słówkami
 - `valid_chance` — jaka część odpowiedzi ma być poprawna (`1` = 100%, `0.8` = 80%); przy nieudanej próbie bot losuje jeden z trzech błędów: puste pole, inne zapisane tłumaczenie (fallback: literówka) lub literówkę
-- `max_answers` — maksymalna liczba odpowiedzi w jednym uruchomieniu (`0` = bez limitu, przydatne do testów)
 - `show_browser` — pokazuje okno Chrome; ustaw `false` na serwerze bez GUI
 - `mute_audio` — wycisza dźwięk przeglądarki
 - `window_width` / `window_height` — rozmiar okna Chrome
@@ -406,6 +405,17 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 
 ## 📦 Ostatnie zmiany
+
+### 4.2.0 — 2026-10-27
+
+- ⌨️ **Pełne tempo pisania na telefonie i w userscripcie.** Android, iOS i userscript mają teraz wszystkie desktopowe opóźnienia i szanse: `click_min` / `click_max`, `type_min` / `type_max`, `typo_chance` i `type_pause_chance`, obok poprawności odpowiedzi (`valid_chance`).
+- 🧹 **Bez limitu odpowiedzi.** Opcja `max_answers` została usunięta wszędzie; uruchomienie po prostu podąża za stroną do końca sesji, a wskazówki „ustaw 1, żeby przetestować" zniknęły z dokumentacji.
+- 🔔 **Powtarzalne przypomnienia mobilne.** Natywne przypomnienia na Androidzie i iOS powtarzają się co N minut jak w desktopie i przestają przychodzić, gdy dzisiejsza sesja jest ukończona.
+- 🌐 **Userscript bez powiadomień w tle.** Zamiast powiadomień przeglądarki skrypt pokazuje mały baner na stronie, gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona; prawdziwe powiadomienia zostają aplikacjom mobilnym i systemowi.
+- 🎨 **Jednolity wygląd.** Okno desktopu, panel userscriptu i strona projektu dzielą jeden klasyczny styl: jasnoszary, Tahoma / MS Sans Serif, kwadratowe beleczki i granatowy pasek tytułu.
+- 🏠 **Strona projektu.** Nowy główny przycisk „Pobierz dla <twojego systemu>" pobiera zalecany build i przewija do pasującej instrukcji, obok jest „Pobierz dla innego systemu"; karty pokazują tylko system i minimalną wersję, architekturę oraz format, doszła sekcja **O bocie** (czym jest, jak działa i jak wykrywalny), dokumentacja CLI ograniczyła się do `--help` i linku do GitHuba, a odznaki odzwierciedlają Androida, iOS, userscript, PL/EN, statystyki, przypomnienia, ustawienia i wykrywanie urządzeń.
+- 📅 **Trwalsze przypomnienia Androida.** APK śledzi `dateKey` / `last_session_date` i planuje powtarzalne przypomnienia; powłoka iOS odbudowuje ograniczoną partię powiadomień jednorazowych.
+- 🐛 **Porządki.** Naprawiono alert CodeQL `java/unused-parameter` w powłoce Androida; wersję podbito w `package.json`, projekcie iOS (xcodegen: `MARKETING_VERSION` 4.2.0, `CURRENT_PROJECT_VERSION` 40200), domyślnych ustawieniach silnika, interfejsie desktopu, stronie, README, wiki, `docs/llms.txt`, `PROJECT_NOTES.md` i notatkach wydania.
 
 ### 4.1.0 — 2026-10-27
 

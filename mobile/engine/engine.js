@@ -39,14 +39,39 @@ const DEFAULT_CONFIG = {
 const FINISHED_PATTERN = /koniec|zakończ|gratulacje|wyniki|podsumowanie|nie ma już|finished|completed|results/i;
 const RUN_KEY = 'run';
 const CONFIG_KEY = 'config';
-// Only user-facing settings are persisted; the timing/delay block stays internal.
-const PERSISTED_CONFIG_KEYS = ['valid_chance', 'max_answers'];
+// Only the user-facing settings the shells expose are persisted: the answer
+// accuracy and the humanization controls shared with the desktop Advanced
+// section. Everything else (internal timings) stays at its default.
+const PERSISTED_CONFIG_KEYS = ['valid_chance'];
+const USER_DELAY_KEYS = [
+    'click_min',
+    'click_max',
+    'type_min',
+    'type_max',
+    'type_pause_chance',
+    'typo_chance'
+];
+// [min, max, integer] for every user-facing delay. Milliseconds for the timing
+// pairs, a 0-1 fraction for the probabilities.
+const DELAY_BOUNDS = {
+    click_min: [0, 120000, true],
+    click_max: [0, 120000, true],
+    type_min: [0, 5000, true],
+    type_max: [0, 5000, true],
+    type_pause_chance: [0, 1, false],
+    typo_chance: [0, 1, false]
+};
 
 function pickPersistedConfig(value = {}) {
     const out = {};
     for (const key of PERSISTED_CONFIG_KEYS) {
         if (value?.[key] !== undefined) out[key] = value[key];
     }
+    const delays = {};
+    for (const key of USER_DELAY_KEYS) {
+        if (value?.delays?.[key] !== undefined) delays[key] = value.delays[key];
+    }
+    if (Object.keys(delays).length > 0) out.delays = delays;
     return out;
 }
 
@@ -58,9 +83,22 @@ function sanitizeConfig(value = {}) {
             ? Math.min(1, Math.max(0, chance))
             : DEFAULT_CONFIG.valid_chance;
     }
-    if (out.max_answers !== undefined) {
-        const limit = Number.parseInt(out.max_answers, 10);
-        out.max_answers = Number.isFinite(limit) && limit > 0 ? limit : 0;
+    if (out.delays && typeof out.delays === 'object') {
+        const delays = {...out.delays};
+        for (const key of USER_DELAY_KEYS) {
+            if (delays[key] === undefined) continue;
+            const parsed = Number(delays[key]);
+            if (!Number.isFinite(parsed)) {
+                delete delays[key];
+                continue;
+            }
+            const [min, max, integer] = DELAY_BOUNDS[key];
+            const clamped = Math.min(max, Math.max(min, parsed));
+            delays[key] = integer ? Math.round(clamped) : clamped;
+        }
+        if (delays.click_max < delays.click_min) delays.click_max = delays.click_min;
+        if (delays.type_max < delays.type_min) delays.type_max = delays.type_min;
+        out.delays = delays;
     }
     return out;
 }
@@ -120,7 +158,7 @@ function createEngine({
     onEvent = () => {},
     language = 'pl',
     config: initialConfig = {},
-    version = '4.1.0'
+    version = '4.2.0'
 } = {}) {
     const state = {
         version,
@@ -136,12 +174,18 @@ function createEngine({
         pending: null
     };
 
-    let config = {
+    const storedConfig = sanitizeConfig(storage.get(CONFIG_KEY, {}) ?? {});
+    const providedConfig = sanitizeConfig(initialConfig);
+    let config = sanitizeConfig({
         ...DEFAULT_CONFIG,
-        ...sanitizeConfig(storage.get(CONFIG_KEY, {}) ?? {}),
-        ...sanitizeConfig(initialConfig),
-        delays: {...DEFAULT_CONFIG.delays, ...(initialConfig.delays ?? {})}
-    };
+        ...storedConfig,
+        ...providedConfig,
+        delays: {
+            ...DEFAULT_CONFIG.delays,
+            ...(storedConfig.delays ?? {}),
+            ...(initialConfig.delays ?? {})
+        }
+    });
     let words = storage.get('savedWords', []);
     if (!Array.isArray(words)) words = [];
     state.savedWords = words.length;
@@ -462,12 +506,6 @@ function createEngine({
                 return;
             }
 
-            if (config.max_answers > 0 && state.answers >= config.max_answers) {
-                log(t('log.limitReached', {limit: config.max_answers}), 'warn');
-                finalize('complete');
-                return;
-            }
-
             const answerForm = await dom.find(SELECTORS.answer, 600, shouldContinue);
             const newWordForm = await dom.find(SELECTORS.newWordForm, 300, shouldContinue);
 
@@ -544,11 +582,11 @@ function createEngine({
     }
 
     function setConfig(next = {}) {
-        config = {
+        config = sanitizeConfig({
             ...config,
-            ...sanitizeConfig(next),
+            ...next,
             delays: {...config.delays, ...(next.delays ?? {})}
-        };
+        });
         storage.set(CONFIG_KEY, pickPersistedConfig(config));
         return {...config};
     }
@@ -595,6 +633,8 @@ function createEngine({
 
 module.exports = {
     DEFAULT_CONFIG,
+    DELAY_BOUNDS,
+    USER_DELAY_KEYS,
     accuracy,
     computeStreak,
     createEngine,

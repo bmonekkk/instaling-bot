@@ -6,9 +6,9 @@ Pobierz plik z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/r
 
 | System | Plik |
 |---|---|
-| Windows 10/11 (x64) | `instaling-bot-4.1.0-setup-win64.exe` |
-| macOS 13+ (Apple Silicon) | `instaling-bot-4.1.0-macos-arm64.pkg` |
-| macOS 13+ (Intel) | `instaling-bot-4.1.0-macos-x64.pkg` |
+| Windows 10/11 (x64) | `instaling-bot-4.2.0-setup-win64.exe` |
+| macOS 13+ (Apple Silicon) | `instaling-bot-4.2.0-macos-arm64.pkg` |
+| macOS 13+ (Intel) | `instaling-bot-4.2.0-macos-x64.pkg` |
 
 Instalator zawiera Chrome for Testing — **nie trzeba instalować Node.js ani Chrome**.
 
@@ -27,8 +27,8 @@ statystyki i przypomnienia zostają w folderze danych.
 
 | System | Plik |
 |---|---|
-| Android 7+ | `instaling-bot-4.1.0-android.apk` |
-| iOS 16+ (SideStore/AltStore) | `instaling-bot-4.1.0-ios.ipa` |
+| Android 7+ | `instaling-bot-4.2.0-android.apk` |
+| iOS 16+ (SideStore/AltStore) | `instaling-bot-4.2.0-ios.ipa` |
 | Safari iOS / Firefox Android | `instaling-bot.user.js` |
 
 APK instalujesz jak każdy plik spoza sklepu (zezwól na instalację z tego źródła). IPA jest
@@ -88,7 +88,7 @@ instaling-bot start
 ## Pierwsze uruchomienie
 
 1. Wpisz login i hasło do InstaLing.
-2. Ustaw `valid_chance` (domyślnie 80%) i `max_answers` (0 = bez limitu).
+2. Ustaw `valid_chance` (domyślnie 80%) i opcjonalnie czasy pisania oraz klikania.
 3. Naciśnij **Start** / uruchom `instaling-bot start`.
 4. Bot otworzy Chrome, zaloguje się i zacznie odpowiadać.
 

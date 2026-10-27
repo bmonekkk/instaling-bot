@@ -35,7 +35,8 @@ public class BootReceiver extends BroadcastReceiver {
         if (next.getTimeInMillis() <= System.currentTimeMillis()) {
             next.add(Calendar.DAY_OF_YEAR, 1);
         }
-        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, next.getTimeInMillis(),
-                AlarmManager.INTERVAL_DAY, pending);
+        int repeat = Math.max(0, prefs.getInt("reminder_repeat", 0));
+        long interval = repeat > 0 ? repeat * 60_000L : AlarmManager.INTERVAL_DAY;
+        alarms.setInexactRepeating(AlarmManager.RTC_WAKEUP, next.getTimeInMillis(), interval, pending);
     }
 }

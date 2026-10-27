@@ -30,7 +30,7 @@
 
             'guide.title': 'Szybki start',
             'guide.step1': 'Wpisz login i hasło do InstaLing.',
-            'guide.step2': 'Ustaw poprawność odpowiedzi i limit (0 = bez limitu).',
+            'guide.step2': 'Ustaw poprawność odpowiedzi i tempo pisania.',
             'guide.step3': 'Naciśnij <b>Start</b>. Chrome otworzy się osobno, a postęp zobaczysz w konsoli.',
             'guide.note': 'Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer. Statystyki sesji znajdziesz przyciskiem <b>Statystyki</b> w konsoli.',
 
@@ -46,8 +46,6 @@
 
             'behavior.legend': 'Zachowanie',
             'behavior.validity': 'Poprawność odpowiedzi',
-            'behavior.limit': 'Limit odpowiedzi',
-            'behavior.limitHint': '0 = bez limitu',
             'behavior.showBrowser': 'Pokaż okno Chrome',
             'behavior.muteAudio': 'Wycisz dźwięk',
 
@@ -215,7 +213,7 @@
 
             'guide.title': 'Quick start',
             'guide.step1': 'Enter your InstaLing login and password.',
-            'guide.step2': 'Set the answer accuracy and limit (0 = no limit).',
+            'guide.step2': 'Set the answer accuracy and typing speed.',
             'guide.step3': 'Press <b>Start</b>. Chrome opens separately and progress appears in the console.',
             'guide.note': 'The bot runs locally. It never sends your credentials or words to any server. Session statistics are available with the <b>Statistics</b> button in the console.',
 
@@ -231,8 +229,6 @@
 
             'behavior.legend': 'Behavior',
             'behavior.validity': 'Answer accuracy',
-            'behavior.limit': 'Answer limit',
-            'behavior.limitHint': '0 = no limit',
             'behavior.showBrowser': 'Show the Chrome window',
             'behavior.muteAudio': 'Mute audio',
 

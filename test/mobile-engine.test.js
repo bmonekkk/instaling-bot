@@ -264,39 +264,53 @@ test('mobile i18n keeps PL and EN in sync', () => {
     }
 });
 
-test('sanitizeConfig clamps accuracy and normalizes the answer limit', () => {
+test('sanitizeConfig clamps accuracy and the humanization delays', () => {
     assert.deepEqual(sanitizeConfig({valid_chance: 2}), {valid_chance: 1});
     assert.deepEqual(sanitizeConfig({valid_chance: -1}), {valid_chance: 0});
     assert.deepEqual(sanitizeConfig({valid_chance: 'x'}), {valid_chance: 0.8});
-    assert.deepEqual(sanitizeConfig({max_answers: '12'}), {max_answers: 12});
-    assert.deepEqual(sanitizeConfig({max_answers: -5}), {max_answers: 0});
-    assert.deepEqual(sanitizeConfig({max_answers: 'x'}), {max_answers: 0});
+    assert.deepEqual(
+        sanitizeConfig({delays: {click_min: -5, typo_chance: 5}}),
+        {delays: {click_min: 0, typo_chance: 1}}
+    );
+    assert.deepEqual(sanitizeConfig({delays: {type_max: 'x'}}), {delays: {}});
+    // Internal timings the shells do not expose are passed through untouched.
+    assert.deepEqual(sanitizeConfig({delays: {check_min: 3000}}), {delays: {check_min: 3000}});
 });
 
-test('setConfig persists only the user-facing settings', () => {
+test('setConfig persists the user-facing settings', () => {
     const storage = memoryStorage();
     const engine = createEngine({storage, language: 'pl', onEvent: () => {}});
 
-    engine.setConfig({valid_chance: 0.5, max_answers: 30, delays: {click_min: 1}});
+    engine.setConfig({valid_chance: 0.5, delays: {click_min: 1, click_max: 3, typo_chance: 0.2}});
 
-    assert.deepEqual(storage.get('config', null), {valid_chance: 0.5, max_answers: 30});
+    assert.deepEqual(storage.get('config', null), {
+        valid_chance: 0.5,
+        delays: {
+            click_min: 1,
+            click_max: 3,
+            type_min: 90,
+            type_max: 230,
+            type_pause_chance: 0.12,
+            typo_chance: 0.2
+        }
+    });
     assert.equal(engine.getConfig().delays.click_min, 1);
 });
 
 test('a new engine restores persisted settings and the shell can override them', () => {
-    const storage = memoryStorage({config: {valid_chance: 0.25, max_answers: 7}});
+    const storage = memoryStorage({config: {valid_chance: 0.25, delays: {click_min: 500}}});
     const restored = createEngine({storage, language: 'pl', onEvent: () => {}});
     assert.equal(restored.getConfig().valid_chance, 0.25);
-    assert.equal(restored.getConfig().max_answers, 7);
+    assert.equal(restored.getConfig().delays.click_min, 500);
 
     const overridden = createEngine({
         storage,
-        config: {valid_chance: 0.9, max_answers: 0},
+        config: {valid_chance: 0.9, delays: {click_min: 2000}},
         language: 'pl',
         onEvent: () => {}
     });
     assert.equal(overridden.getConfig().valid_chance, 0.9);
-    assert.equal(overridden.getConfig().max_answers, 0);
+    assert.equal(overridden.getConfig().delays.click_min, 2000);
 });
 
 test('accuracy and streak helpers ignore empty days', () => {
@@ -339,60 +353,4 @@ test('getStats aggregates days and exposes today, total, session and streak', ()
     assert.equal(stats.session.accuracy, 75);
     assert.equal(stats.savedWords, 1);
     assert.equal(stats.streak, 2);
-});
-
-test('max_answers ends the run after the configured number of answers', async () => {
-    // A page that keeps asking new words, so the run can only stop on the limit.
-    const dom = new JSDOM(`<!doctype html><html><body>
-        <div id="question">
-            <div class="usage_example">I have a house.</div>
-            <div class="translations">dom</div>
-        </div>
-        <input id="answer" type="text">
-        <button id="check">Sprawdź</button>
-        <div id="word" hidden></div>
-        <button id="next_word" hidden>Dalej</button>
-    </body></html>`, {url: 'https://instaling.pl/learning'});
-
-    globalThis.window = dom.window;
-    globalThis.document = dom.window.document;
-    globalThis.Event = dom.window.Event;
-    globalThis.KeyboardEvent = dom.window.KeyboardEvent;
-    globalThis.MouseEvent = dom.window.MouseEvent;
-    globalThis.PointerEvent = dom.window.PointerEvent ?? dom.window.MouseEvent;
-    globalThis.HTMLInputElement = dom.window.HTMLInputElement;
-    globalThis.HTMLTextAreaElement = dom.window.HTMLTextAreaElement;
-    globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
-    dom.window.Element.prototype.getClientRects = () => [{width: 100, height: 20}];
-    dom.window.HTMLElement.prototype.scrollIntoView = () => {};
-
-    const doc = dom.window.document;
-    doc.querySelector('#check').addEventListener('click', () => {
-        doc.querySelector('#word').textContent = 'house';
-        doc.querySelector('#word').hidden = false;
-        doc.querySelector('#next_word').hidden = false;
-    });
-    doc.querySelector('#next_word').addEventListener('click', () => {
-        doc.querySelector('#answer').value = '';
-        doc.querySelector('#word').hidden = true;
-        doc.querySelector('#next_word').hidden = true;
-    });
-
-    const storage = memoryStorage({
-        savedWords: [{polish: 'dom', english: 'house', sentence: ''}]
-    });
-    const events = [];
-    const engine = createEngine({
-        storage,
-        config: {...fastConfig, idle_resume_ms: 20, max_answers: 1},
-        language: 'pl',
-        onEvent: event => events.push(event)
-    });
-
-    await engine.start();
-    const state = await waitForStatus(engine, 'finished');
-    assert.equal(state.status, 'finished', state.lastError);
-    assert.equal(state.answers, 1);
-    assert.ok(events.some(event => event.type === 'log' && /limit/i.test(event.message)));
-    dom.window.close();
 });

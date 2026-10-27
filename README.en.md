@@ -19,7 +19,7 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**4.1.0**) is a consistency release — desktop, phone and userscript look and behave the same:
+The current version (**4.2.0**) is a consistency release — desktop, phone and userscript look and behave the same:
 
 - 🖥️ **desktop** for Windows and macOS: GUI, live log, statistics and a bundled Chrome,
 - 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, session settings, statistics and configurable reminders,
@@ -27,7 +27,7 @@ The current version (**4.1.0**) is a consistency release — desktop, phone and 
 - ⌨️ a full **CLI** for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
 
-Version 4.1.0 aligns the experience across every platform: identical download tags (system, architecture, format), automatic device detection on the website, one icon everywhere, and the same accuracy/limit/reminder-time settings on phones and in the userscript. The mobile apps still never store your password — they keep the normal, persistent website session. Desktop and CLI keep every earlier feature.
+Version 4.2.0 levels the capabilities of every platform: phones and the userscript now expose all desktop typing and clicking pace settings (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`) alongside answer accuracy, and native reminders on Android and iOS can now repeat every N minutes and stop once today's session is finished. The userscript no longer sends background notifications — when a tab opens after the reminder time it shows a small in-page banner. The desktop window, the userscript panel and the project site share one classic look (light gray, Tahoma / MS Sans Serif, square bevels, navy title bar). The mobile apps still never store your password — they keep the normal, persistent website session. The answer limit is gone: a run simply follows the page until the session ends. Desktop and CLI keep every earlier feature.
 
 Open source, ISC license.
 
@@ -51,7 +51,7 @@ Support is entirely voluntary and not required to use the project. The project i
 | Login | In the app | Normal website login | Normal website login | In the app |
 | Browser | Chrome for Testing bundled | System WebView | Your browser | Puppeteer |
 | Statistics | week, month, year, all time | day, accuracy and streak | day, accuracy and streak | `instaling-bot stats` |
-| Reminders | Native + toast, optionally every N minutes | Daily at a configurable time | — | `instaling-bot remind` |
+| Reminders | Native + toast, optionally every N minutes | Native, every N minutes after the chosen time | In-page banner when a tab opens | `instaling-bot remind` |
 | Automation | Tray, autostart | `instalingbot://start` / `stop` | `?autostart=1` | CLI commands |
 | Updating | New installer | **Update** button | Automatic via `@updateURL` | Re-run `curl` |
 
@@ -66,9 +66,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.1.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.1.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.1.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.2.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.2.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.2.0-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -77,7 +77,7 @@ The desktop installer includes its own Chrome for Testing browser. You do not ne
 1. Run the installer.
 2. Open **instaling-bot**.
 3. Enter your InstaLing login and password.
-4. Set the answer accuracy (`80%` by default) and the answer limit (`0` = no limit).
+4. Set the answer accuracy (`80%` by default).
 5. Press **Start**.
 
 The bot opens a separate Chrome window, logs in, starts or resumes a session and answers the vocabulary prompts. Progress, the answer counter and errors are shown in the app console. The **Statistics** button shows sessions, answers, accuracy and time for the last 7 days, 30 days, a year or all time.
@@ -145,20 +145,20 @@ You can edit the files by hand too — the app uses the same format as the CLI.
 
 ## 📱 Mobile: Android and iOS
 
-Version 4.1.0 brings the phone up to desktop parity. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, answer limit, reminder time) and **statistics** (today's answers, accuracy, streak). The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
+Version 4.2.0 brings the phone up to desktop parity. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, clicking and typing delays, pause and typo chances, reminder time) and **statistics** (today's answers, accuracy, streak). The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
 
 ### 🤖 Android: APK (recommended)
 
-1. Download `instaling-bot-4.1.0-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Download `instaling-bot-4.2.0-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Open the file and allow installation from this source when Android asks.
 3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
 4. Open the learning page and press **Start** in the top bar.
 
 The top bar has a **PL/EN** switch, a ⏰ reminder, ⚙ settings, Start and Stop. Below it you see the status, the answer counter and today's statistics. When a newer release exists, the app shows an **Update** button linking to GitHub.
 
-**Settings:** tap ⚙ to change answer accuracy, the answer limit and the **reminder time**. Values are saved in the app and apply immediately, without a restart.
+**Settings:** tap ⚙ to change answer accuracy, clicking and typing delays (`click_min` / `click_max`, `type_min` / `type_max`), the pause chance (`type_pause_chance`), the typo chance (`typo_chance`) and the **reminder time**. Values are saved in the app and apply immediately, without a restart.
 
-**Reminder:** tap ⏰ to enable a daily notification at your chosen time (default **17:00**). Android 13+ asks for notification permission. The reminder survives a reboot.
+**Reminder:** tap ⏰ to enable a daily notification at your chosen time (default **17:00**). Like the desktop app you can repeat it every N minutes, and reminders stop once today's session is finished. Android 13+ asks for notification permission. The reminder survives a reboot.
 
 **Automation:** the app handles `instalingbot://start` and `instalingbot://stop` deep links. In Tasker, MacroDroid or a similar tool, add an "Open URL/Intent" action to start a session, for example when you connect to your home Wi-Fi. The bot still needs the app open and the website session signed in.
 
@@ -171,17 +171,17 @@ Chrome on iOS does not support extensions, but Safari does:
 3. Open [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) in Safari and import it into Userscripts.
 4. Visit `instaling.pl`, sign in and tap the floating 🤖 button.
 
-The panel has Start/Stop, PL/EN, an answer counter and statistics. Expand **Settings** to change answer accuracy, the answer limit and autostart — values persist in the extension storage, and saved words persist between sessions too. The script updates itself through `@updateURL`.
+The panel has Start/Stop, PL/EN, an answer counter and statistics. Expand **Settings** to change answer accuracy, all the desktop clicking and typing delays (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`) and autostart — values persist in the extension storage, and saved words persist between sessions too. The script sends no browser notifications: when you open a tab after the reminder time and today's session is not done, it shows a small in-page banner. It updates itself through `@updateURL`.
 
 ### 🍏 iOS: IPA for SideStore / AltStore
 
 For people who prefer a separate app:
 
-1. Download `instaling-bot-4.1.0-ios.ipa` from the latest release.
+1. Download `instaling-bot-4.2.0-ios.ipa` from the latest release.
 2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
 3. Sign in to `instaling.pl` in the app and press **Start**.
 
-The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, session settings with statistics, a configurable reminder and an update button.
+The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, session settings (accuracy, typing and clicking delays, pause and typo chances) with statistics, a repeatable reminder and an update button.
 
 **Shortcuts:** the app accepts `instalingbot://start` and `instalingbot://stop`, so an iOS automation can start a session. The session only runs while the app is in the foreground.
 
@@ -196,7 +196,6 @@ You can also open the page with parameters: `?autostart=1` starts a session afte
 - A session runs only while the **app or tab is open**. The phone may suspend a WebView in the background; there is no hidden background mode. Keep the app in the foreground.
 - The mobile apps **do not store your password** — you sign in normally on the website, and cookies stay in the WebView (Android flushes them to the persistent session whenever the app leaves the foreground).
 - The APK and IPA are **not store-signed**. Install them at your own risk; they are not in the Play Store or App Store.
-- The mobile reminder has a **configurable time**, but it is still a single daily notification without the desktop's repeat-every-N-minutes option.
 - Full week/month/year statistics and saved-word export remain desktop-only; mobile shows the day, accuracy and streak.
 
 
@@ -294,6 +293,7 @@ npx puppeteer browsers install chrome
 - Answers correctly in `valid_chance` cases (80% by default).
 - When it is supposed to answer wrong, it picks one of three mistakes: an empty field, a different saved translation or a believable typo.
 - Saves newly learned translations in `SavedWords.json`.
+- Keeps answering until the page ends the session — there is no answer limit any more.
 - Closes Chrome and saves the words when finished.
 
 ## 🧠 Typing humanization
@@ -328,7 +328,6 @@ Template for all options: [`config/Config.defaults.json`](config/Config.defaults
   - `check_min` / `check_max` — wait for an answer to be checked
   - `next_word_min` / `next_word_max` — wait between words
 - `valid_chance` — the share of answers that should be correct (`1` = 100%, `0.8` = 80%); on a failed attempt the bot picks one of three mistakes: an empty field, a different saved translation (fallback: a typo) or a typo
-- `max_answers` — maximum number of answers in one run (`0` = no limit, useful for tests)
 - `show_browser` — shows the Chrome window; set `false` on a headless server
 - `mute_audio` — mutes browser audio
 - `window_width` / `window_height` — Chrome window size
@@ -346,7 +345,7 @@ The default click delay is now `2000`–`4500` ms.
 
 ## 🆘 Troubleshooting
 
-Problems are split into the **desktop app** and the **CLI**. The app's error dialog links directly to this section — it no longer opens a separate FAQ page.
+Problems are split into the **desktop app**, **mobile** and the **CLI**. The app's error dialog links directly to this section — it no longer opens a separate FAQ page.
 
 ### 🖥️ Desktop
 
@@ -406,6 +405,17 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 
 
 ## 📦 Recent changes
+
+### 4.2.0 — 2026-10-27
+
+- ⌨️ **Full typing pace on phones and the userscript.** Android, iOS and the userscript now expose all desktop delays and chances: `click_min` / `click_max`, `type_min` / `type_max`, `typo_chance` and `type_pause_chance`, alongside answer accuracy (`valid_chance`).
+- 🧹 **No answer limit.** The `max_answers` option was removed everywhere; a run simply follows the page until the session ends, and "set it to 1 to test" tips are gone from the docs.
+- 🔔 **Repeatable mobile reminders.** Native reminders on Android and iOS now repeat every N minutes like the desktop app and stop once today's session is finished.
+- 🌐 **Userscript without background notifications.** Instead of browser notifications the script shows a small in-page banner when you open a tab after the reminder time and today's session is not done; real notifications are left to the phone apps and the OS.
+- 🎨 **One visual language.** The desktop window, the userscript panel and the project site share one classic look: light gray, Tahoma / MS Sans Serif, square bevels and a navy title bar.
+- 🏠 **Project site.** A new primary "Download for <your system>" button fetches the recommended build and scrolls to the matching tutorial, next to a "Download for another system" button; cards show only the system and minimum version, architecture and format; a new **About** section explains what the bot is, how it works and how detectable it is; the CLI docs shrink to `--help` and the GitHub link, and the badges reflect Android, iOS, userscript, PL/EN, stats, reminders, settings and device detection.
+- 📅 **More durable Android reminders.** The APK tracks `dateKey` / `last_session_date` and schedules repeat reminders; the iOS shell rebuilds a bounded batch of one-shot notifications.
+- 🐛 **Housekeeping.** Fixed the CodeQL `java/unused-parameter` alert in the Android shell; bumped the version in `package.json`, the iOS project (xcodegen: `MARKETING_VERSION` 4.2.0, `CURRENT_PROJECT_VERSION` 40200), the engine defaults, the desktop renderer, the website, README, wiki, `docs/llms.txt`, `PROJECT_NOTES.md` and the release notes.
 
 ### 4.1.0 — 2026-10-27
 

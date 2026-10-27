@@ -1,6 +1,8 @@
-# instaling-bot mobile plan (4.0)
+# instaling-bot mobile plan (4.0–4.2)
 
-Status: implemented in 4.0.0
+Status: implemented — 4.0.0 shipped the shells, 4.1.0 added settings and statistics, and
+4.2.0 added the full timing controls, repeating native reminders, the userscript reminder
+banner and classic visual parity.
 Last updated: 2026-10-27
 
 ## Goal
@@ -93,7 +95,9 @@ Deliverable: `src/core/` + tests, mobile fixtures, spike script.
 |---|---|---|---|---|
 | PL/EN interface | yes | yes | yes | yes |
 | Humanized typing | yes | yes | yes | yes |
-| Daily reminder | yes | no (browser) | yes | yes |
+| Timing settings (click/type/pause/typo + accuracy) | yes | yes | yes | yes |
+| Daily reminder | yes (repeating) | in-page banner | yes (repeating) | yes (repeating) |
+| Statistics (today/accuracy/streak) | yes | yes | yes | yes |
 | Update check | yes | yes | yes | yes |
 | Saved words | file | GM storage | WebView storage | WKWebView storage |
 | Automation | tray/CLI | `?autostart=1` | deep link | URL scheme/Shortcuts |
@@ -139,3 +143,20 @@ Shipped as one 4.0.0 release instead of a separate 3.4.0 beta:
 - A persisted run older than 15 minutes is ignored, so opening the site later does not silently resume an old session.
 - CI builds the userscript, an Android debug APK and an unsigned iOS app. Release automation attaches `.apk`, `.ipa` and `.user.js` next to the desktop installers.
 - The IPA is built with `CODE_SIGNING_ALLOWED=NO`; users sign it in SideStore/AltStore.
+
+## Implementation notes (4.2.0)
+
+- **Timing settings.** The Android settings dialog, the iOS settings sheet and the userscript
+  panel now surface the same Advanced controls as the desktop: `click_min`, `click_max`,
+  `type_min`, `type_max`, `type_pause_chance`, `typo_chance` and `valid_chance`. The shared
+  engine persists and sanitizes them per shell through `USER_DELAY_KEYS` and `DELAY_BOUNDS`,
+  and restores them on load.
+- **Repeating reminders.** Android and iOS reminders can repeat every N minutes
+  (`reminder.repeat_minutes`) like the desktop and stop once the current day's session is
+  finished (`last_session_date`). Android tracks the date with `dateKey(Calendar)` and gates
+  `ReminderReceiver` on completed sessions/time, deduping once a day; the iOS shell rebuilds a
+  bounded batch of one-shot local notifications because iOS caps pending notifications.
+- **Userscript reminder banner.** Instead of background notifications, the userscript shows an
+  in-page banner when a tab opens after the reminder time and today's session is not done.
+- **Visual parity.** The desktop window, the userscript panel and the website share one classic
+  light-gray, Tahoma/MS Sans Serif, square-bevel, navy-title-bar look.

@@ -2,6 +2,27 @@
 
 All notable changes to this fork are documented here.
 
+## [4.2.0] - 2026-10-27
+
+### Added
+- **All desktop timing controls on mobile and in the userscript.** The Android settings dialog, the iOS settings sheet and the userscript panel now expose `click_min`, `click_max`, `type_min`, `type_max`, `typo_chance` and `type_pause_chance`, matching the desktop Advanced section. The shared engine persists and sanitizes them (`USER_DELAY_KEYS`, `DELAY_BOUNDS`) and restores them per shell.
+- **Native reminder repetition.** Android and iOS reminders can repeat every N minutes like the desktop app; both stop firing once a session is finished for the current day. `ReminderReceiver` and the iOS reminder scheduler gate on `last_session_date`, respect the configured time and dedupe once-a-day notifications.
+- **Userscript reminder banner.** When a tab opens after the reminder time and today's session is not done, the userscript shows a small in-page banner instead of background notifications; real notifications stay with the phone apps and the OS.
+
+### Changed
+- **Classic visual parity.** The website, the desktop window and the userscript panel share one light-gray, Tahoma, square-bevel, navy-title-bar look.
+- **Website cleanup.** The hero has a single primary button ("Pobierz dla &lt;your system&gt;") that starts the recommended download and scrolls to the matching install tutorial, plus a "Pobierz dla innego systemu" button. Download cards show only system/minimum version, architecture and file format (no "Chrome w zestawie" / "Apple Silicon" blurbs). CLI instructions are reduced to `--help` and the repository link. New "O bocie" section covers what it is, how it works and how detectable it is. Badges now reflect the current implementations (Android, iOS, userscript, PL/EN, stats, reminders, settings, device detection). Wording fixes ("stronę instaling.pl", removed the iPad-only recommendation).
+- **Answer limit removed everywhere.** `max_answers` is gone from the desktop GUI, `config/Config.defaults.json`, `src/main.js`, `desktop/main.js`, the shared engine, the mobile shells and the tests; a run simply follows the page until the session ends.
+- Version bumped to `4.2.0` across `package.json`, the iOS project (`MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`, regenerated via xcodegen), the engine default, the desktop renderer title/footer, the website, `docs/llms.txt`, README (PL/EN), wiki, `PROJECT_NOTES.md` and release notes.
+
+### Fixed
+- Resolved CodeQL alert `java/unused-parameter` in the Android shell (`evaluateJavascript` callback no longer captures an unused value).
+- iOS reminder scheduling now rebuilds a bounded batch of one-shot notifications (iOS caps pending local notifications), instead of a single repeating trigger that could not honour "stop once today's session is done".
+
+### Compatibility
+- Desktop/CLI configs, `SavedWords.json`, statistics, reminders and update checks are unchanged. An existing `max_answers` key in `Config.json` is simply ignored.
+- Mobile apps still do not read `Config.json` and still do not store credentials; the persistent WebView session is the only login state.
+
 ## [4.1.0] - 2026-10-27
 
 ### Added

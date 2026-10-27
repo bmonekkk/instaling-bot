@@ -267,7 +267,6 @@ function applySettings(current, payload) {
     next.language = normalizeLanguage(payload?.language ?? current.language ?? 'pl');
 
     next.valid_chance = clampNumber(payload?.valid_chance, current.valid_chance ?? 0.8, 0, 1);
-    next.max_answers = clampNumber(payload?.max_answers, current.max_answers ?? 0, 0, 10000, true);
     next.show_browser = Boolean(payload?.show_browser ?? current.show_browser);
     next.mute_audio = Boolean(payload?.mute_audio ?? current.mute_audio);
     next.debug = Boolean(payload?.debug ?? current.debug);
@@ -365,7 +364,6 @@ function configForRenderer(config) {
             env_password: fromEnv.hasPassword
         },
         valid_chance: config.valid_chance ?? 0.8,
-        max_answers: config.max_answers ?? 0,
         show_browser: config.show_browser !== false,
         mute_audio: config.mute_audio !== false,
         debug: Boolean(config.debug),

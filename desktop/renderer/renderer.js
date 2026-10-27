@@ -11,7 +11,6 @@ const els = {
     envHint: $('env-credentials-hint'),
     validChance: $('valid-chance'),
     validChanceValue: $('valid-chance-value'),
-    maxAnswers: $('max-answers'),
     showBrowser: $('show-browser'),
     muteAudio: $('mute-audio'),
     typeMin: $('type-min'),
@@ -174,7 +173,6 @@ function fillForm(config) {
     els.togglePassword.disabled = envPassword;
     els.envHint.hidden = !(envLogin || envPassword);
     els.validChance.value = String(Math.round((config.valid_chance ?? 0.8) * 100));
-    els.maxAnswers.value = String(config.max_answers ?? 0);
     els.showBrowser.checked = config.show_browser !== false;
     els.muteAudio.checked = config.mute_audio !== false;
     els.typeMin.value = String(config.delays?.type_min ?? 90);
@@ -203,7 +201,6 @@ function collectSettings() {
             password: els.password.value
         },
         valid_chance: toNumber(els.validChance, 80) / 100,
-        max_answers: Math.max(0, Math.round(toNumber(els.maxAnswers, 0))),
         show_browser: els.showBrowser.checked,
         mute_audio: els.muteAudio.checked,
         debug: els.debug.checked,
@@ -378,7 +375,7 @@ async function loadState() {
         applyLanguage(state.config?.language ?? language);
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v4.1.0';
+        const version = state.version ? `v${state.version}` : 'v4.2.0';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;

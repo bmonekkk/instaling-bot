@@ -22,24 +22,27 @@ resumes a session, reads each prompt, answers with a configurable accuracy, reme
 translations and can make believable mistakes (empty field, different translation or a
 typo) for human-like behaviour. Everything runs locally; there is no backend or telemetry.
 
-Version 4.1.0 aligns every platform. The desktop and CLI keep every earlier feature,
+Version 4.2.0 aligns every platform. The desktop and CLI keep every earlier feature,
 and a shared engine powers three mobile variants:
 
 - **Android APK** — native WebView shell with Start/Stop, PL/EN, answer counter,
-  statistics, a ⚙ settings dialog (accuracy, limit, reminder time), a daily reminder at
-  the chosen time, an update button and `instalingbot://start` / `instalingbot://stop`
+  statistics, a ⚙ settings dialog (accuracy, all typing delays, reminder time and its
+  repeat interval), a reminder that repeats every N minutes and stops once a session is
+  finished that day, an update button and `instalingbot://start` / `instalingbot://stop`
   deep links for Tasker/MacroDroid.
 - **iOS IPA** — unsigned build for SideStore/AltStore with the same engine, settings,
-  statistics, configurable reminder and URL scheme for Shortcuts. A free Apple ID needs
-  a refresh every 7 days.
+  statistics, a repeating configurable reminder and a URL scheme for Shortcuts. A free
+  Apple ID needs a refresh every 7 days.
 - **Userscript** — floating panel for Safari on iOS/iPadOS and Firefox on Android, with
-  a persisted settings panel (accuracy, limit, autostart), statistics, `?autostart=1`,
-  `?lang=en`, GM storage and automatic updates through `@updateURL`.
+  a persisted settings panel (accuracy, all typing delays, reminder time and repeat,
+  autostart), statistics, an in-page reminder banner, `?autostart=1`, `?lang=en`, GM
+  storage and automatic updates through `@updateURL`.
 
 The website tags every download with OS/minimum version, architecture and format, and
 detects the visitor's device (Windows, macOS ARM64/Intel, Android, iPhone, iPad, Linux)
-to highlight the recommended build while keeping all alternatives. Every platform uses
-the same icon generated from `build/icon.png`.
+to highlight the recommended build while keeping all alternatives. Its primary button
+downloads the recommended build and scrolls to the matching install tutorial. Every
+platform uses the same icon generated from `build/icon.png`.
 
 Mobile apps do not store passwords; they reuse the normal website session in the WebView.
 A session runs only while the app or browser tab is open. The full desktop retains
@@ -47,10 +50,10 @@ week/month/year statistics, saved-word export, tray mode and hidden background s
 
 ## Install
 
-- Windows: `instaling-bot-4.1.0-setup-win64.exe` from the latest release.
-- macOS: `instaling-bot-4.1.0-macos-arm64.pkg` or `instaling-bot-4.1.0-macos-x64.pkg`.
-- Android: `instaling-bot-4.1.0-android.apk`.
-- iOS: `instaling-bot-4.1.0-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
+- Windows: `instaling-bot-4.2.0-setup-win64.exe` from the latest release.
+- macOS: `instaling-bot-4.2.0-macos-arm64.pkg` or `instaling-bot-4.2.0-macos-x64.pkg`.
+- Android: `instaling-bot-4.2.0-android.apk`.
+- iOS: `instaling-bot-4.2.0-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
 - Linux / terminal: `curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash`
 
 ## Notes

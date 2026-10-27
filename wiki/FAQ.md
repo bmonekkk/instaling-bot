@@ -74,8 +74,10 @@ okna, gdy zauważysz, że sesja stoi.
 ## Gdzie zmienić ustawienia na telefonie?
 
 - **Android / iOS (APK, IPA):** naciśnij **⚙** na górnym pasku. Zmienisz poprawność
-  odpowiedzi, limit odpowiedzi i godzinę przypomnienia; wartości zapisują się od razu.
-- **Userscript:** kliknij logo bota i rozwiń **Ustawienia** — poprawność, limit i autostart.
+  odpowiedzi, czasy pisania, godzinę przypomnienia i jego powtarzanie; wartości zapisują
+  się od razu.
+- **Userscript:** kliknij logo bota i rozwiń **Ustawienia** — poprawność, czasy pisania
+  i autostart.
 
 ## Czy jest wersja na telefon?
 

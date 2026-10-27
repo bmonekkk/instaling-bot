@@ -42,7 +42,6 @@ edytowania. Ustawienia i zapamiętane słówka trzymają w pamięci WebView (And
 |---|---|
 | `credentials.login` / `password` | dane logowania do InstaLing |
 | `valid_chance` | część poprawnych odpowiedzi, np. `0.8` = 80% |
-| `max_answers` | limit odpowiedzi na sesję, `0` = bez limitu |
 | `show_browser` | pokazuje okno Chrome; `false` na serwerze bez GUI |
 | `mute_audio` | wycisza dźwięk przeglądarki |
 | `window_width` / `window_height` | rozmiar okna Chrome |
@@ -63,6 +62,10 @@ edytowania. Ustawienia i zapamiętane słówka trzymają w pamięci WebView (And
 - `delays.typo_chance` — szansa na symulowaną literówkę z backspace.
 - `delays.click_min` / `click_max` — opóźnienie po kliknięciu.
 - `delays.quick_click_min` / `quick_click_max` — krótka pauza po nawigacji.
+
+Te same opóźnienia (`click_min`/`click_max`, `type_min`/`type_max`, `typo_chance`,
+`type_pause_chance`) wraz z `valid_chance` możesz ustawić także na telefonie (APK/IPA)
+i w userscripcie.
 
 Więcej w [README → Konfiguracja](https://github.com/bmonekkk/instaling-bot#%EF%B8%8F-konfiguracja)
 i [README → Humanizacja](https://github.com/bmonekkk/instaling-bot#-humanizacja-pisania).

@@ -25,7 +25,6 @@
         "next_word_max": 4500
     },
     "valid_chance": 0.8,
-    "max_answers": 0,
     "show_browser": true,
     "mute_audio": true,
     "window_width": 1366,
