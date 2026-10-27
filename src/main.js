@@ -14,6 +14,7 @@ if (process.platform === 'win32') {
 
 const puppeteer = require('puppeteer');
 const config = require('./config.js');
+const {DEFAULT_LOGIN_URL} = require('./urls.js');
 const {resetControl, isStopRequested} = require('./control.js');
 const {
     getText,
@@ -54,6 +55,11 @@ const blockedHosts = [
     'facebook.net',
     'facebook.com'
 ];
+
+// config.js validates `sites.login` at startup. Navigation deliberately uses
+// this constant instead of the config value, so a tampered Config.json cannot
+// send the credentials to another page.
+const LOGIN_URL = DEFAULT_LOGIN_URL;
 
 const SELECTORS = {
     loginEmail: ['#log_email', 'input[name="log_email"]'],
@@ -173,7 +179,7 @@ async function login(page) {
     });
 
     blue(`[LOGIN] Logging in as \`${config.login}\`...`);
-    await page.goto(config.loginUrl, {waitUntil: 'domcontentloaded', timeout: 60000});
+    await page.goto(LOGIN_URL, {waitUntil: 'domcontentloaded', timeout: 60000});
 
     // The Google consent dialog covers the whole login form on instaling.pl.
     await dismissConsent(page);
@@ -185,7 +191,7 @@ async function login(page) {
         if (attempt > 1) {
             yellow('[LOGIN] Login was rejected, retrying once...');
             await delay(1200);
-            await page.goto(config.loginUrl, {waitUntil: 'domcontentloaded', timeout: 60000});
+            await page.goto(LOGIN_URL, {waitUntil: 'domcontentloaded', timeout: 60000});
             await dismissConsent(page);
         }
 

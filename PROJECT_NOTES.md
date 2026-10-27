@@ -47,7 +47,7 @@ src/
   main.js       shared engine: launch browser, login, session, answer loop, events, graceful stop
   helpers.js    DOM helpers: selectors, click/type, human typing, delays, cookie consent, diagnostics
   config.js     loads Config.json (INSTALING_CONFIG aware), normalizes credentials
-  urls.js       validates sites.login so credentials only go to instaling.pl
+  urls.js       validates sites.login and resolves it to the canonical login page
   words.js      SavedWords.json lookup/save (INSTALING_ROOT aware, lazy load)
   control.js    stop-request flag shared by the runner and the engine
   mistakes.js   wrong-answer strategies: blank / wrong saved word / misspelling

@@ -9,7 +9,7 @@ All notable changes to this fork are documented here.
 - CI workflow covering syntax checks, unit tests with `node:test`, whitespace, the `install.sh` shell script and CLI smoke tests; CodeQL analysis for JavaScript; Dependabot updates for npm and GitHub Actions.
 - Wiki source under `wiki/` with a `scripts/sync-wiki.sh` helper, plus a welcome discussion in the repository.
 - Repository hardening: protected `master` with a required CI check, private vulnerability reporting, secret scanning push protection, Dependabot alerts and security updates, squash-only merges and automatic branch deletion.
-- Security hardening from CodeQL: `sites.login` is validated against an HTTPS `instaling.pl` allowlist, login typing errors no longer carry credential values into the log, and errors are logged by message only.
+- Security hardening from CodeQL: `sites.login` must be the official HTTPS `instaling.pl` login page and navigation uses a fixed constant, login typing errors no longer carry credential values into the log, and errors are logged by message only.
 
 ### Changed
 - README now has CI, CodeQL, release, license and discussions badges, plus a community and support section.
