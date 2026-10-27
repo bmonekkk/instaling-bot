@@ -18,6 +18,7 @@ All notable changes to this fork are documented here.
 ### Fixed
 - Resolved CodeQL alert `java/unused-parameter` in the Android shell (`evaluateJavascript` callback no longer captures an unused value).
 - iOS reminder scheduling now rebuilds a bounded batch of one-shot notifications (iOS caps pending local notifications), instead of a single repeating trigger that could not honour "stop once today's session is done".
+- **Userscript font and macOS hero button (userscript `4.2.1`).** The userscript panel declares its font on `:host` and forces it onto every shadow descendant, so the font no longer changes after a session starts. On macOS (Safari exposes no Client Hints) the website hero button now downloads the ARM64 `.pkg` and points Intel users to the Intel card instead of only scrolling. The userscript ships as `4.2.1` (app stays `4.2.0`) so managers pull it from `releases/latest` without a new release.
 
 ### Compatibility
 - Desktop/CLI configs, `SavedWords.json`, statistics, reminders and update checks are unchanged. An existing `max_answers` key in `Config.json` is simply ignored.

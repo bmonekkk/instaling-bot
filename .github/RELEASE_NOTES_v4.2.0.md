@@ -11,8 +11,10 @@ Wydanie domykające spójność wszystkich platform: desktop, telefon i userscri
 | macOS 13+ (Intel) | `instaling-bot-4.2.0-macos-x64.pkg` | procesory Intel |
 | Android 7+ (uniwersalny) | `instaling-bot-4.2.0-android.apk` | APK, WebView, powtarzalne przypomnienie |
 | iPhone / iPad (iOS 16+) | `instaling-bot-4.2.0-ios.ipa` | SideStore/AltStore, bez podpisu |
-| Safari iOS/iPadOS / Firefox Android | `instaling-bot.user.js` | userscript, aktualizuje się sam |
+| Safari iOS/iPadOS / Firefox Android | `instaling-bot.user.js` | userscript (4.2.1), aktualizuje się sam |
 | Linux / terminal | — | CLI: `instaling-bot --help` |
+
+> **Aktualizacja userscriptu (4.2.1).** Sam `instaling-bot.user.js` dostał wersję `4.2.1`: czcionka panelu nie zmienia się już po starcie sesji, a główny przycisk wykryty jako macOS pobiera teraz plik `.pkg` (z podpowiedzią dla procesorów Intel). Aplikacja desktopowa, Android i iOS pozostają w wersji `4.2.0`. Userscript aktualizuje się automatycznie — link `releases/latest/download/instaling-bot.user.js` wskazuje na `4.2.1`.
 
 Strona projektu sama wykrywa system (Windows, macOS ARM64/Intel, Android, iPhone, iPad, Linux), podświetla zalecaną wersję i jednym przyciskiem pobiera pasujący plik oraz przewija do instrukcji instalacji. Pozostałe opcje zostają dostępne.
 
