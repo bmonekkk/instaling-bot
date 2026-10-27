@@ -5,13 +5,13 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 **Strona projektu:** https://bmonekkk.github.io/instaling-bot/
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 
-Aktualna wersja (**3.1.2**) łączy trzy rzeczy:
+Aktualna wersja (**3.2.0**) łączy trzy rzeczy:
 
-- aplikację desktopową z GUI, logiem na żywo i wbudowaną przeglądarką Chrome,
-- nadal w pełni działającą wersję CLI (`npm start`) dla Linuksa i terminala,
+- aplikację desktopową z GUI, logiem na żywo, statystykami i wbudowaną przeglądarką Chrome,
+- pełnoprawne CLI dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-W 3.1.2 poprawiono okna pomocy: błąd i brak internetu nie znikają już same po powrocie sieci ani po kliknięciu tła — zamyka je tylko przycisk **Zamknij**. Wcześniej doszły też: natywna ikona w menu bar macOS (monochromatyczna, dopasowana do motywu), ukrywanie aplikacji z Docka w trybie zasobnika, powiadomienie o zakończeniu sesji uruchomionej z ikony, okno pomocy przy błędzie lub braku internetu oraz dużo lżejsza praca w tle (okno jest niszczone po zamknięciu).
+W 3.2.0 doszły **statystyki tygodnia, miesiąca, roku i całego okresu** (sesje, odpowiedzi, skuteczność, nowe słówka, czas), **powtarzane przypomnienia** co wybrany interwał, **nowe CLI** z poleceniami `start`, `stats`, `remind`, `update-check` i `help`, **sprawdzanie aktualizacji przed startem CLI** oraz **automatyczne czyszczenie konsoli** dwie godziny po sesji. Szybki start przeniesiono na górę panelu, a okna błędów linkują już tylko do FAQ w README.
 
 Open source, licencja ISC.
 
@@ -34,9 +34,10 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 | Interfejs | Okno aplikacji, ustawienia, live log | Terminal |
 | Przeglądarka | Chrome for Testing dołączony do instalatora | Pobierany przez Puppeteer |
 | Dane | `%APPDATA%\instaling-bot` lub `~/Library/Application Support/instaling-bot` | `config/` w katalogu projektu |
-| Przypomnienia | powiadomienie systemowe + toast w aplikacji | `npm run remind` w tle |
-| Aktualizacje | sprawdzanie wydań + przycisk **Pobierz** | `npm run update-check` i komunikat przy starcie |
-| Aktualizacja | nowy instalator z GitHuba | `git pull && npm install --omit=dev` |
+| Statystyki | przycisk **Statystyki**: tydzień, miesiąc, rok, całość | `instaling-bot stats` |
+| Przypomnienia | powiadomienie systemowe + toast, opcjonalnie co N minut | `instaling-bot remind`, to samo ustawienie |
+| Aktualizacje | sprawdzanie wydań + przycisk **Pobierz** | `instaling-bot update-check`; start blokuje starą wersję |
+| Aktualizacja | nowy instalator z GitHuba | ponowny `curl` lub `git pull && npm install --omit=dev` |
 
 Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i formatu `SavedWords.json`.
 
@@ -45,9 +46,9 @@ Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i for
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.1.2-setup.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.1.2-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.1.2-x64.pkg`
+- **Windows:** `instaling-bot-3.2.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.2.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.2.0-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -59,11 +60,11 @@ Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie tr
 4. Ustaw poprawność odpowiedzi (`80%` domyślnie) i limit odpowiedzi (`0` = bez limitu).
 5. Naciśnij **Start**.
 
-Bot otworzy osobne okno Chrome, zaloguje się, rozpocznie lub kontynuuje sesję i będzie odpowiadał na słówka. Postęp, licznik odpowiedzi i błędy widać w konsoli aplikacji.
+Bot otworzy osobne okno Chrome, zaloguje się, rozpocznie lub kontynuuje sesję i będzie odpowiadał na słówka. Postęp, licznik odpowiedzi i błędy widać w konsoli aplikacji. Przycisk **Statystyki** pokazuje sesje, odpowiedzi, skuteczność i czas z ostatnich 7 dni, 30 dni, roku lub całego okresu.
 
 ### Przypomnienie o codziennej sesji
 
-W ustawieniach włącz **Przypominaj o codziennej sesji** i wybierz godzinę (domyślnie `17:00`). Gdy aplikacja działa — również ukryta w zasobniku — o wybranej porze pojawi się powiadomienie systemowe i toast w oknie. Przypomnienie jest pomijane, jeśli danego dnia bot zdążył już odpowiedzieć na co najmniej jedno słówko.
+W ustawieniach włącz **Przypominaj o codziennej sesji** i wybierz godzinę (domyślnie `17:00`). Gdy aplikacja działa — również ukryta w zasobniku — o wybranej porze pojawi się powiadomienie systemowe i toast w oknie. Opcja **Powtarzaj przypomnienie** wysyła je ponownie co 15, 30, 60, 120 lub 180 minut, dopóki nie ukończysz sesji. Przypomnienie jest pomijane, jeśli danego dnia bot zdążył już odpowiedzieć na co najmniej jedno słówko.
 
 Opcjonalnie możesz włączyć **Działaj w zasobniku po zamknięciu okna** (okno chowa się zamiast zamykać) oraz **Uruchamiaj przy logowaniu systemu**. Bez tych opcji aplikacja musi być po prostu otwarta.
 
@@ -77,7 +78,7 @@ Oba przełączniki są w **Ustawienia → Przypomnienia i praca w tle**:
 | ✅ | ✅ | Brak okna — tylko ikona w zasobniku (Windows) / menu bar (macOS) |
 | ❌ | ✅ | Normalne okno przy ręcznym starcie; zamknięcie chowa do zasobnika |
 
-- Autostart działa w zainstalowanej aplikacji (nie w trybie CLI) i jest **domyślnie wyłączony**.
+- Autostart jest **domyślnie wyłączony** i dotyczy aplikacji desktopowej; CLI uruchamiasz ręcznie.
 - Aby aplikacja startowała po cichu, włącz **oba** przełączniki. Sam autostart otworzy okno na pulpicie.
 - Na macOS tryb zasobnika chowa ikonę z Docka i przełącza aplikację w tryb akcesoriów — zostaje tylko ikona w menu bar, która dopasowuje się do jasnego/ciemnego motywu.
 - Po zamknięciu okna w trybie zasobnika aplikacja niszczy okno (a nie tylko je ukrywa), żeby w tle zużywać mniej RAM. Interfejs odtworzy się po kliknięciu ikony.
@@ -99,7 +100,7 @@ To normalne dla niepodpisanych buildów. Późniejsze wersje mogą dostać podpi
 
 ### 📡 Offline i błędy
 
-Gdy aplikacja nie widzi internetu, pokazuje okno z wyjaśnieniem i dwoma skrótami: **FAQ na stronie** oraz **README**. To samo okno pojawia się przy błędzie bota (np. zmiana układu strony, odrzucone logowanie) — z linkiem do sekcji pomocy, żeby nie trzeba było szukać jej ręcznie. Okno zamyka się **tylko przyciskiem Zamknij** — nie znika samo po powrocie sieci ani po kliknięciu tła.
+Gdy aplikacja nie widzi internetu, pokazuje okno z wyjaśnieniem i jednym przyciskiem **FAQ w README**, który prowadzi do sekcji [Rozwiązywanie problemów](#-rozwiązywanie-problemów). To samo okno pojawia się przy błędzie bota (np. zmiana układu strony, odrzucone logowanie). Okno zamyka się **tylko przyciskiem Zamknij** — nie znika samo po powrocie sieci ani po kliknięciu tła.
 
 ### Gdzie aplikacja trzyma dane?
 
@@ -113,6 +114,7 @@ W środku znajdują się:
 ```
 config/Config.json        ustawienia i dane logowania
 config/SavedWords.json    zapamiętane tłumaczenia
+stats.json                statystyki sesji (wspólne z CLI)
 pages/                    diagnostyczne zrzuty HTML
 screenshots/              diagnostyczne zrzuty ekranu
 logs/last-run.log         pełny log ostatniego uruchomienia
@@ -125,27 +127,30 @@ Pliki można edytować także ręcznie — aplikacja używa tego samego formatu 
 
 Wersja CLI pozostaje wspierana tak długo, jak istnieje wersja desktopowa. To zalecany wariant dla Linuksa i wszystkich osób, które wolą terminal.
 
-### Instalacja
+### Instalacja jedną komendą
 
-1. Zainstaluj Node.js 22 lub nowszy: https://nodejs.org/
-2. Sklonuj repozytorium:
+Wymagany jest Node.js 22+ ([nodejs.org](https://nodejs.org/)). Cały program instaluje się do `~/.local/share/instaling-bot`, a launcher `instaling-bot` trafia do `~/.local/bin`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash
+```
+
+Skrypt zachowuje istniejące `config/Config.json` i `SavedWords.json` przy ponownej instalacji. Jeśli `~/.local/bin` nie jest w `PATH`, dodaj do `~/.zshrc` lub `~/.bashrc`:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+### Instalacja ze źródeł
 
 ```bash
 git clone https://github.com/bmonekkk/instaling-bot.git
 cd instaling-bot
-```
-
-3. Zainstaluj zależności (wersja CLI nie potrzebuje Electrona):
-
-```bash
 npm install --omit=dev
-```
-
-4. Skopiuj szablon konfiguracji i uzupełnij dane logowania:
-
-```bash
 cp config/Config.defaults.json config/Config.json
 ```
+
+Uzupełnij dane logowania w `config/Config.json`:
 
 ```json
 "credentials": {
@@ -154,31 +159,47 @@ cp config/Config.defaults.json config/Config.json
 }
 ```
 
-5. Uruchom bota:
+Pliki `config/Config.json` i `config/SavedWords.json` są ignorowane przez git, więc dane logowania i słówka nie trafią do repozytorium.
+
+### Polecenia
 
 ```bash
-npm start
+instaling-bot help              # lista poleceń i opcji
+instaling-bot start             # sprawdza aktualizacje, potem uruchamia sesję
+instaling-bot                   # to samo co start
+instaling-bot stats             # tydzień, miesiąc, rok i cały okres
+instaling-bot stats --period month
+instaling-bot stats --json      # wynik dla skryptów
+instaling-bot remind            # przypomnienie o sesji w tle (Ctrl+C kończy)
+instaling-bot update-check      # porównanie z najnowszym wydaniem
+instaling-bot version
 ```
 
-Pliki `config/Config.json` i `config/SavedWords.json` są ignorowane przez git, więc dane logowania i słówka nie trafią do repozytorium.
+Po instalacji ze źródeł odpowiedniki to `npm start`, `npm run stats`, `npm run remind` i `npm run update-check`.
+
+`instaling-bot start` **najpierw sprawdza najnowsze wydanie**. Jeśli dostępna jest nowsza wersja, bot nie wystartuje i pokaże link do pobrania. Świadome pominięcie: `--skip-update-check` lub `INSTALING_SKIP_UPDATE_CHECK=1`. Gdy GitHub jest chwilowo niedostępny, CLI tylko ostrzega i kontynuuje.
+
+### Statystyki w CLI
+
+Każda sesja z co najmniej jedną odpowiedzią trafia do `stats.json` (w katalogu projektu lub w folderze danych desktopu). `instaling-bot stats` pokazuje sesje, odpowiedzi, poprawne, błędne, skuteczność, nowe słówka i czas dla tygodnia, miesiąca, roku oraz całego okresu. `--period week|month|year|all` zawęża wynik, a `--json` zwraca dane do dalszej obróbki.
 
 ### Przypomnienie w CLI
 
-Ta sama sekcja `reminder` w `Config.json` steruje przypomnieniem w CLI. Aby otrzymywać powiadomienie o codziennej sesji, zostaw w tle:
+Ta sama sekcja `reminder` w `Config.json` steruje przypomnieniem w desktopie i CLI. Aby otrzymywać powiadomienie o codziennej sesji, zostaw w tle:
 
 ```bash
-npm run remind
+instaling-bot remind
 ```
 
-Proces sprawdza co minutę, czy minęła wybrana godzina i czy dzisiejsza sesja nie została jeszcze odhaczona. Powiadomienie wysyła się najwyżej raz dziennie; stan trafia do `reminder-state.json` w katalogu projektu i jest wspólny z `npm start`. Zatrzymanie: `Ctrl+C`.
+Proces sprawdza co minutę, czy minęła wybrana godzina i czy dzisiejsza sesja nie została jeszcze odhaczona. Domyślnie powiadomienie wysyła się raz dziennie; ustawienie `reminder.repeat_minutes` (np. `30`) powtarza je co 30 minut, dopóki nie ukończysz sesji. Stan trafia do `reminder-state.json` i jest wspólny z uruchomieniem bota oraz z desktopem. Zatrzymanie: `Ctrl+C`.
 
-### Sprawdzanie aktualizacji w CLI
+### Aktualizacja CLI
 
 ```bash
-npm run update-check   # porównuje lokalną wersję z najnowszym wydaniem na GitHubie
+curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash
 ```
 
-`npm start` dodatkowo wypisuje na starcie krótką informację, gdy dostępna jest nowsza wersja. Aktualizacja to `git pull && npm install --omit=dev`.
+Przy instalacji ze źródeł: `git pull && npm install --omit=dev`.
 
 Jeśli Puppeteer nie pobrał przeglądarki podczas instalacji:
 
@@ -235,6 +256,7 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 - `reminder` — przypomnienie o codziennej sesji (desktop i CLI)
   - `enabled` — `true` / `false`
   - `time` — godzina w formacie `HH:MM`, domyślnie `17:00` (czas lokalny)
+  - `repeat_minutes` — powtarzaj przypomnienie co N minut do wykonania sesji (`0` = raz dziennie, maks. `1440`)
 - `background` — tylko desktop
   - `run_in_tray` — zamknięcie okna chowa aplikację do zasobnika zamiast ją zamykać
   - `start_at_login` — uruchamiaj aplikację przy logowaniu systemu
@@ -244,9 +266,11 @@ Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 
 ## 🆘 Rozwiązywanie problemów
 
+Problemy są podzielone na **aplikację desktopową** i **CLI**. Okno błędu w aplikacji linkuje bezpośrednio do tej sekcji — nie otwiera już osobnego FAQ na stronie.
+
 ### Desktop
 
-- **📡 Brak internetu** — aplikacja pokaże okno z linkiem do FAQ. Sprawdź sieć i naciśnij **Start** ponownie.
+- **📡 Brak internetu** — sprawdź połączenie z internetem i naciśnij **Start** ponownie. Okno pomocy linkuje do FAQ w README i zamyka się tylko przyciskiem **Zamknij**.
 - **Brak przeglądarki Chrome w instalatorze** — zainstaluj aplikację ponownie z oficjalnego wydania.
 - **Bot nie przechodzi logowania** — sprawdź login i hasło w aplikacji. Bot wpisuje dane dokładnie i ponawia próbę raz, jeśli strona chwilowo odrzuci formularz.
 - **Chcę zobaczyć, co robi bot** — włącz **Pokaż okno Chrome** i **Logi debug**, a potem zajrzyj do `pages/` i `screenshots/` w folderze danych.
@@ -255,9 +279,12 @@ Domyślne opóźnienie po kliknięciu to teraz `2000`–`4500` ms.
 
 ### CLI
 
-- **Bot zatrzymuje się na logowaniu** — sprawdź login i hasło. Nakładkę cookies bot zamyka sam; przy problemach uruchom z `"show_browser": true` i sprawdź `screenshots/answer-error.png`.
+- **Bot zatrzymuje się na logowaniu** — sprawdź login i hasło w `config/Config.json`. Nakładkę cookies bot zamyka sam; przy problemach uruchom z `"show_browser": true` i sprawdź `screenshots/answer-error.png`.
 - **`Could not find the "start session" button`** — strona mogła zmienić układ. Włącz `"debug": true` i sprawdź `pages/answer-start-failed.html`.
 - **Brak Chrome** — uruchom `npx puppeteer browsers install chrome`.
+- **`instaling-bot: command not found`** — dodaj `~/.local/bin` do `PATH` albo uruchom `node ~/.local/share/instaling-bot/bin/instaling-bot.js help`.
+- **CLI odmawia startu z powodu aktualizacji** — pobierz nową wersję instalatorem `curl` lub uruchom `instaling-bot start --skip-update-check`, jeśli świadomie zostajesz na starszej wersji.
+- **Brak statystyk** — `stats.json` powstaje po pierwszej sesji z co najmniej jedną odpowiedzią. Sprawdź `instaling-bot stats --json`.
 - Po każdej próbie bot zapisuje zrzuty strony w `pages/` i `screenshots/`.
 
 
@@ -276,38 +303,17 @@ Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm ru
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
 
 
-## 📦 Zmiany w wersji 3.1.2
+## 📦 Zmiany w wersji 3.2.0
 
-- **Okna błędów zostają na ekranie.** Modal braku internetu i błędu bota zamyka się już tylko przyciskiem **Zamknij** — nie znika po powrocie połączenia ani po kliknięciu ciemnego tła.
-- Komunikat o powrocie internetu nadal pojawia się jako toast, ale nie chowa otwartego okna pomocy.
-
-## 📦 Zmiany w wersji 3.1.1
-
-- **Lżejszy tryb zasobnika.** Zamknięcie okna niszczy renderer, a nie tylko go ukrywa — w tle zostaje około **50 MB** przy starcie do zasobnika i poniżej 100 MB po otwarciu i zamknięciu okna. Okno i logi wracają po kliknięciu ikony.
-- **Natywny menu bar macOS.** Monochromatyczna ikona dopasowuje się do motywu; po zamknięciu okna aplikacja znika z Docka i działa tylko z menu bar.
-- **Powiadomienie o końcu sesji** uruchomionej z ikony (na każdym systemie), z liczbą odpowiedzi lub treścią błędu. Kliknięcie otwiera aplikację.
-- **Okno pomocy** przy braku internetu i błędzie bota, z linkami do FAQ i README.
-- **Ko-fi nad formularzem logowania**, żeby wsparcie było widoczne od razu.
-- **Dokumentacja autostartu** w README i w ustawieniach aplikacji — po cichy start wymaga obu przełączników.
-
-## Zmiany w wersji 3.1.0
-
-- Błędne odpowiedzi są losowane równo między trzy typy: puste pole, inne zapisane tłumaczenie i literówka. `valid_chance` nadal decyduje, jak często bot odpowiada źle.
-- Domyślna pauza po kliknięciu skrócona z 3500–6500 ms do **2000–4500 ms**.
-- Przypomnienie o codziennej sesji: godzina konfigurowana w aplikacji (domyślnie 17:00), powiadomienie systemowe + toast, pomijane po wykonanej sesji. W CLI odpowiada za to `npm run remind`.
-- Opcjonalna praca w zasobniku systemowym i uruchamianie przy logowaniu (desktop).
-- Sprawdzanie nowych wydań na GitHubie w aplikacji i w CLI (`npm run update-check`); przycisk **Pobierz** otwiera stronę wydania.
-- W aplikacji dodano informację o wsparciu przez Ko-fi oraz podpis autora (`bmonekkk`).
-- Ujednolicono nazwę autora i adresy projektu w całym repozytorium oraz na stronie projektu.
-
-## Zmiany w wersji 3.0.0
-
-- Dodano aplikację desktopową Electron dla Windows i macOS.
-- Dodano GUI: dane logowania, poprawność odpowiedzi, limit, humanizacja, Start/Stop, live log, liczniki i folder danych.
-- Chrome for Testing jest dołączony do instalatora — desktop nie wymaga Node.js ani przeglądarki w systemie.
-- Dodano instalator Windows `.exe` (NSIS) i macOS `.pkg` (arm64 + x64).
-- Silnik, konfiguracja i `SavedWords.json` są wspólne dla desktopu i CLI.
-- CLI pozostaje w pełni wspierane, ze wszystkimi poprawkami z 2.2.x.
+- **Statystyki sesji.** Nowy przycisk **Statystyki** w konsoli pokazuje tydzień, miesiąc, rok i cały okres: sesje, odpowiedzi, poprawne, błędne, skuteczność, nowe słówka, czas i aktywne dni. Statystyki są wspólne z CLI (`stats.json`).
+- **Powtarzane przypomnienia.** Nowa opcja `reminder.repeat_minutes` (w GUI: **Powtarzaj przypomnienie**) wysyła powiadomienie co 15, 30, 60, 120 lub 180 minut, dopóki nie ukończysz sesji.
+- **Nowe CLI.** Polecenia `start`, `stats`, `remind`, `update-check`, `help` i `version`, plus instalacja przez `curl -fsSL .../install.sh | bash` i launcher `instaling-bot` w `PATH`.
+- **Aktualizacja przed startem.** `instaling-bot start` sprawdza najnowsze wydanie i nie uruchamia nieaktualnej wersji. Wyjątek: `--skip-update-check` lub `INSTALING_SKIP_UPDATE_CHECK=1`.
+- **Szybki start na górze.** Przewodnik przeniesiono bezpośrednio pod informację o Ko-fi, nad formularz logowania.
+- **Jaśniejsze okna pomocy.** Usunięto przycisk „FAQ na stronie”; błąd i brak internetu linkują wyłącznie do FAQ w README.
+- **Automatyczne czyszczenie konsoli.** Dwie godziny po zakończeniu sesji log w aplikacji i plik `logs/last-run.log` są czyszczone, żeby praca w tle nie zostawiała bałaganu.
+- **Nazwy wydań i instalatorów.** Tytuł wydania to sam numer wersji (`3.2.0`), a pliki zawierają platformę: `setup-win64.exe`, `macos-arm64.pkg`, `macos-x64.pkg`.
+- **Dokumentacja.** README pokazuje zmiany tylko dla bieżącej wersji głównej; starsze wpisy zostają w [`CHANGELOG.md`](CHANGELOG.md). FAQ uproszczono, a opis repozytorium i tagi uzupełniono o języki.
 
 Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
 

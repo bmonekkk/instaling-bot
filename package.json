@@ -1,19 +1,21 @@
 {
   "name": "instaling-bot",
-  "version": "3.1.2",
+  "version": "3.2.0",
   "description": "Desktop app and CLI bot for practising vocabulary on instaling.pl (educational automation project)",
   "main": "desktop/main.js",
   "scripts": {
-    "start": "node src/main.js",
+    "start": "node bin/instaling-bot.js start",
     "desktop": "electron .",
     "dev": "electron .",
     "postinstall": "node scripts/ensure-electron.js",
-    "check": "node --check src/main.js && node --check src/helpers.js && node --check src/words.js && node --check src/control.js && node --check src/printer.js && node --check src/config.js && node --check src/mistakes.js && node --check src/reminder.js && node --check src/update.js && node --check desktop/main.js && node --check desktop/preload.js && node --check desktop/runner.js && node --check desktop/renderer/renderer.js && node --check scripts/prepare-browser.js && node --check scripts/ensure-electron.js && node --check scripts/remind.js && node --check scripts/check-updates.js",
+    "check": "node --check src/main.js && node --check src/helpers.js && node --check src/words.js && node --check src/control.js && node --check src/printer.js && node --check src/config.js && node --check src/mistakes.js && node --check src/reminder.js && node --check src/update.js && node --check src/stats.js && node --check bin/instaling-bot.js && node --check desktop/main.js && node --check desktop/preload.js && node --check desktop/runner.js && node --check desktop/renderer/renderer.js && node --check scripts/prepare-browser.js && node --check scripts/ensure-electron.js && node --check scripts/remind.js && node --check scripts/check-updates.js",
     "prepare:browser": "node scripts/prepare-browser.js",
     "remind": "node scripts/remind.js",
     "update-check": "node scripts/check-updates.js",
     "dist:win": "npm run prepare:browser && electron-builder --win nsis",
-    "dist:mac": "npm run prepare:browser && electron-builder --mac pkg"
+    "dist:mac": "npm run prepare:browser && electron-builder --mac pkg",
+    "stats": "node bin/instaling-bot.js stats",
+    "help": "node bin/instaling-bot.js help"
   },
   "keywords": [
     "instaling",
@@ -22,7 +24,14 @@
     "bot",
     "education",
     "electron",
-    "desktop"
+    "desktop",
+    "cli",
+    "statistics",
+    "english",
+    "german",
+    "french",
+    "italian",
+    "spanish"
   ],
   "author": "bmonekkk",
   "contributors": [
@@ -53,5 +62,8 @@
     "electron@45.0.0": true,
     "electron-builder@26.18.0": true,
     "electron-winstaller@5.4.0": true
+  },
+  "bin": {
+    "instaling-bot": "bin/instaling-bot.js"
   }
 }

@@ -1,12 +1,13 @@
-// Lightweight CLI reminder: keeps running in the background and sends one
-// native notification per day when no session has been completed yet.
+// Lightweight CLI reminder: keeps running in the background and sends native
+// notifications when no session has been completed yet.
 //
 // Usage:
 //   npm run remind
 //
 // It honours the same `reminder` section in Config.json as the desktop app and
 // shares its state file, so finishing a CLI run or a desktop session suppresses
-// the reminder for that day.
+// the reminder for that day. With `reminder.repeat_minutes` it repeats every N
+// minutes until a session is done.
 
 const config = require('../src/config.js');
 const {
@@ -16,6 +17,7 @@ const {
     loadState,
     markNotified,
     parseTime,
+    repeatMinutes,
     sendSystemNotification
 } = require('../src/reminder.js');
 
@@ -48,10 +50,14 @@ async function tick() {
     if (!isReminderDue(config, state, now)) {
         const today = dateKey(now);
         const waiting = now.getHours() * 60 + now.getMinutes() < time.hours * 60 + time.minutes;
+        const repeat = repeatMinutes(config.reminder);
         if (waiting) {
             status(`[REMIND] Czekam do ${time.text}...`);
         } else if (state.lastSession === today) {
             status(`[REMIND] Dzisiejsza sesja jest już odhaczona (${today}).`);
+        } else if (repeat > 0 && state.lastNotifiedAt) {
+            const next = new Date(new Date(state.lastNotifiedAt).getTime() + repeat * 60000);
+            status(`[REMIND] Następne przypomnienie po ${next.toLocaleTimeString('pl-PL', {hour: '2-digit', minute: '2-digit'})}.`);
         } else if (state.lastNotified === today) {
             status(`[REMIND] Przypomnienie na dziś zostało już wysłane (${today}).`);
         } else {

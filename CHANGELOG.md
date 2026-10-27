@@ -4,6 +4,32 @@ All notable changes to this fork are documented here.
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-10-27
+
+### Added
+- Session statistics for the desktop app and the CLI, stored in `stats.json`. The app shows week, month, year and all-time summaries (sessions, answers, correct, wrong, accuracy, new words, duration, active days); the CLI exposes `instaling-bot stats [--period week|month|year|all] [--json]`.
+- `reminder.repeat_minutes` repeats the daily reminder every N minutes (0 = once per day) until a session is completed. The GUI offers 15/30/60/120/180-minute options; `reminder-state.json` now also stores `lastNotifiedAt`.
+- `bin/instaling-bot.js` CLI with `start`, `stats`, `remind`, `update-check`, `help` and `version`, plus `npm run stats` and `npm run help`.
+- `install.sh` for one-command CLI installation (`curl -fsSL .../install.sh | bash`), with a launcher in `~/.local/bin`.
+- Automatic console cleanup two hours after a session ends: the in-app buffer, the renderer log and `logs/last-run.log` are cleared.
+
+### Changed
+- `instaling-bot start` checks the latest GitHub release **before** launching and refuses to run an outdated version. Escape hatch: `--skip-update-check` or `INSTALING_SKIP_UPDATE_CHECK=1`. Network failures only warn.
+- The quick-start guide moved to the top of the settings panel, directly below the Ko-fi box.
+- The error and offline modals now link only to the README FAQ section; the site FAQ button was removed.
+- Autostart hint no longer says the feature requires an installed app.
+- Release titles are just the version number (`3.2.0`); installer names include the platform: `setup-win64.exe`, `macos-arm64.pkg`, `macos-x64.pkg`.
+- `npm start` now routes through the CLI entry point; `src/main.js` exports `run()` instead of starting on require.
+
+### Fixed
+- `src/main.js` no longer starts a bot run when required by `help`, `version`, `stats` or other CLI commands.
+- The `all` statistics period no longer reports a seven-day window in its `days` field.
+
+### Compatibility
+- `Config.json`, `SavedWords.json` and `reminder-state.json` remain compatible. Existing configs receive `reminder.repeat_minutes: 0` automatically.
+- Stats begin with the first completed session after upgrading; earlier runs are not backfilled.
+- Updates remain manual (download and run the new installer) because builds are unsigned.
+
 ## [3.1.2] - 2026-10-27
 
 ### Fixed

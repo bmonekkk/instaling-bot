@@ -32,7 +32,8 @@
     "debug": false,
     "reminder": {
         "enabled": true,
-        "time": "17:00"
+        "time": "17:00",
+        "repeat_minutes": 0
     },
     "background": {
         "run_in_tray": false,

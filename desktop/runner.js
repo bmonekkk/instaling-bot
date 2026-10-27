@@ -8,9 +8,9 @@ process.on('message', message => {
     }
 });
 
-// Requiring the CLI entry point starts the bot. It returns a promise that
-// resolves with the process exit code after the browser and words are saved.
-require('../src/main.js')
+// Requiring the CLI entry point does not start the bot; run() resolves with the
+// process exit code after the browser and words are saved.
+require('../src/main.js').run()
     .then(code => process.exit(code))
     .catch(error => {
         console.error(error);

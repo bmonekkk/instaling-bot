@@ -107,6 +107,10 @@ dist
 config/*.json
 !config/*.defaults.json
 
+# Runtime state (CLI)
+reminder-state.json
+stats.json
+
 # Runtime diagnostics
 pages/
 screenshots/

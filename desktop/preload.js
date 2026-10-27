@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld('instaling', {
     openExternal: url => ipcRenderer.invoke('app:open-external', url),
     checkUpdates: () => ipcRenderer.invoke('app:check-updates'),
     updateStatus: () => ipcRenderer.invoke('app:update-status'),
+    getStats: () => ipcRenderer.invoke('app:get-stats'),
     getLogBuffer: () => ipcRenderer.invoke('app:get-log-buffer'),
     clearLogBuffer: () => ipcRenderer.invoke('app:clear-log-buffer'),
     minimizeWindow: () => ipcRenderer.invoke('window:minimize'),

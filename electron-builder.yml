@@ -31,7 +31,7 @@ win:
       arch:
         - x64
   icon: build/icon.png
-  artifactName: ${productName}-${version}-setup.${ext}
+  artifactName: ${productName}-${version}-setup-win64.${ext}
 
 nsis:
   oneClick: false
@@ -54,7 +54,7 @@ mac:
   gatekeeperAssess: false
   target:
     - target: pkg
-  artifactName: ${productName}-${version}-${arch}.${ext}
+  artifactName: ${productName}-${version}-macos-${arch}.${ext}
 
 pkg:
   installLocation: /Applications

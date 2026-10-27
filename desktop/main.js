@@ -11,8 +11,10 @@ const {
     loadState: loadReminderState,
     markNotified,
     markSessionDone,
-    parseTime
+    parseTime,
+    repeatMinutes
 } = require('../src/reminder.js');
+const {loadStats, summarizeAll} = require('../src/stats.js');
 
 const APP_ID = 'com.bmoneczek.instalingbot';
 const IS_DEV = !app.isPackaged;
@@ -39,6 +41,8 @@ let updateInfo = null;
 let logBuffer = [];
 let logSeq = 0;
 let lastNotifiedRun = null;
+let logCleanupTimer = null;
+let runToken = 0;
 
 // The tray renders this pixel glyph as a template image on macOS so the menu bar
 // can recolour it for light/dark mode. Other platforms keep the coloured icon.
@@ -61,6 +65,11 @@ const TRAY_GLYPH = [
     '................'
 ];
 const LOG_BUFFER_LIMIT = 2000;
+// The console is cleared two hours after a session ends so overnight background
+// runs do not leave an unreadable wall of text. The env hook is for tests.
+const LOG_CLEANUP_MS = Number(process.env.INSTALING_LOG_CLEANUP_MS) > 0
+    ? Number(process.env.INSTALING_LOG_CLEANUP_MS)
+    : 2 * 60 * 60 * 1000;
 
 let DATA_DIR = '';
 let CONFIG_DIR = '';
@@ -220,7 +229,14 @@ function applySettings(current, payload) {
             : Boolean(reminder.enabled),
         time: validReminderTime(reminder.time)
             ?? validReminderTime(current.reminder?.time)
-            ?? '17:00'
+            ?? '17:00',
+        repeat_minutes: clampNumber(
+            reminder.repeat_minutes,
+            repeatMinutes(current.reminder),
+            0,
+            1440,
+            true
+        )
     };
 
     const background = payload?.background ?? {};
@@ -302,7 +318,8 @@ function configForRenderer(config) {
         },
         reminder: {
             enabled: config.reminder?.enabled !== false,
-            time: validReminderTime(config.reminder?.time) ?? '17:00'
+            time: validReminderTime(config.reminder?.time) ?? '17:00',
+            repeat_minutes: repeatMinutes(config.reminder)
         },
         background: {
             run_in_tray: Boolean(config.background?.run_in_tray),
@@ -336,6 +353,23 @@ function appendLog(line) {
 function resetLogBuffer() {
     logBuffer = [];
     send('bot:clear-log');
+}
+
+function scheduleLogCleanup(token) {
+    if (logCleanupTimer) clearTimeout(logCleanupTimer);
+    logCleanupTimer = setTimeout(() => {
+        logCleanupTimer = null;
+        if (botProcess || token !== runToken) return;
+        closeLogStream();
+        resetLogBuffer();
+        try {
+            fs.writeFileSync(LOG_PATH, '', 'utf8');
+        } catch (error) {
+            // The log file may be gone; the in-app console still gets cleared.
+        }
+        appendLog('[APP] Konsola wyczyszczona 2 godziny po zakończeniu sesji.');
+    }, LOG_CLEANUP_MS);
+    if (logCleanupTimer.unref) logCleanupTimer.unref();
 }
 
 function closeLogStream() {
@@ -386,6 +420,7 @@ function handleBotMessage(message) {
             break;
         case 'new-word':
             botState.newWords += 1;
+            botState.wrong += 1;
             break;
         case 'phase':
             botState.phase = message.phase ?? botState.phase;
@@ -425,6 +460,12 @@ async function startBot() {
     if (botProcess) {
         return {ok: false, error: 'Bot już działa.'};
     }
+
+    if (logCleanupTimer) {
+        clearTimeout(logCleanupTimer);
+        logCleanupTimer = null;
+    }
+    const token = ++runToken;
 
     const config = await loadConfig();
     if (!config.credentials.login || !config.credentials.password) {
@@ -512,6 +553,7 @@ async function startBot() {
         closeLogStream();
         broadcastState();
         notifySessionFinished();
+        scheduleLogCleanup(token);
     });
 
     return {ok: true};
@@ -838,6 +880,12 @@ function registerIpc() {
     ipcMain.handle('app:update-status', async event => {
         assertSender(event);
         return updateInfo;
+    });
+
+    ipcMain.handle('app:get-stats', async event => {
+        assertSender(event);
+        const stats = await loadStats(DATA_DIR);
+        return summarizeAll(stats);
     });
 
     ipcMain.handle('app:save-settings', async (event, payload) => {

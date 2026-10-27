@@ -4,8 +4,9 @@
 //   - desktop: app.getPath('userData') via the optional root argument
 //   - CLI:     the project directory (INSTALING_ROOT is honoured)
 //
-// A reminder fires at most once per day, only after the configured time, and
-// only when no session has been completed that day.
+// A reminder fires only after the configured time and only when no session has
+// been completed that day. By default it fires once per day; setting
+// `reminder.repeat_minutes` repeats it every N minutes until a session is done.
 
 const fs = require('fs/promises');
 const path = require('path');
@@ -17,6 +18,8 @@ const ROOT = process.env.INSTALING_ROOT
 
 const STATE_FILE = 'reminder-state.json';
 const DEFAULT_TIME = '17:00';
+const DEFAULT_REPEAT_MINUTES = 0;
+const MAX_REPEAT_MINUTES = 24 * 60;
 
 function statePath(root = ROOT) {
     return path.join(root, STATE_FILE);
@@ -35,6 +38,16 @@ function parseTime(value) {
 
 function minutesOfDay(date = new Date()) {
     return date.getHours() * 60 + date.getMinutes();
+}
+
+/**
+ * 0 disables repeats (one notification per day). Positive values repeat every
+ * N minutes until the user completes a session that day.
+ */
+function repeatMinutes(reminder = {}) {
+    const parsed = Number(reminder?.repeat_minutes);
+    if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+    return Math.min(MAX_REPEAT_MINUTES, Math.round(parsed));
 }
 
 async function loadState(root = ROOT) {
@@ -63,6 +76,7 @@ async function markSessionDone(now = new Date(), root = ROOT) {
 async function markNotified(now = new Date(), root = ROOT) {
     const state = await loadState(root);
     state.lastNotified = dateKey(now);
+    state.lastNotifiedAt = now.toISOString();
     return saveState(state, root);
 }
 
@@ -76,7 +90,22 @@ function isReminderDue(config, state, now = new Date()) {
 
     const today = dateKey(now);
     if (state?.lastSession === today) return false;
-    if (state?.lastNotified === today) return false;
+
+    const repeat = repeatMinutes(reminder);
+    const notifiedAt = state?.lastNotifiedAt ? Date.parse(state.lastNotifiedAt) : NaN;
+
+    if (Number.isFinite(notifiedAt)) {
+        if (repeat === 0) {
+            if (state.lastNotified === today) return false;
+        } else {
+            const elapsedMinutes = (now.getTime() - notifiedAt) / 60000;
+            if (elapsedMinutes < repeat) return false;
+        }
+    } else if (state?.lastNotified === today) {
+        // Older state files only stored the date; do not fire twice on that day.
+        return false;
+    }
+
     return true;
 }
 
@@ -140,9 +169,12 @@ module.exports = {
     ROOT,
     STATE_FILE,
     DEFAULT_TIME,
+    DEFAULT_REPEAT_MINUTES,
+    MAX_REPEAT_MINUTES,
     statePath,
     dateKey,
     parseTime,
+    repeatMinutes,
     isReminderDue,
     loadState,
     saveState,

@@ -22,12 +22,12 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.1.2) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.2.0) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-3.1.2-setup.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-3.2.0-setup-win64.exe` (gitignored) |
 
 ## Stack
 
@@ -50,9 +50,13 @@ src/
   words.js      SavedWords.json lookup/save (INSTALING_ROOT aware, lazy load)
   control.js    stop-request flag shared by the runner and the engine
   mistakes.js   wrong-answer strategies: blank / wrong saved word / misspelling
-  reminder.js   daily reminder state, schedule check and native notifications
+  reminder.js   daily reminder state, repeat interval, schedule check and native notifications
+  stats.js      daily session aggregates and week/month/year/all summaries
   update.js     GitHub release check and version comparison
   printer.js    console logging helpers
+bin/
+  instaling-bot.js  CLI entry: start, stats, remind, update-check, help, version
+install.sh      one-command CLI installer (downloads the branch, npm install, launcher)
 desktop/
   main.js       Electron main process: paths, config migration, IPC, child bot process, logs
   preload.js    contextBridge API exposed to the renderer
@@ -346,6 +350,17 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Windows NSIS installer and macOS PKG builds for arm64/x64 via GitHub Actions.
 - Shared engine/config/words with the CLI, including graceful stop and IPC events.
 
+## What changed in 3.2.0
+
+- Statistics: `src/stats.js` stores per-day aggregates in `stats.json`; the engine records every finished run with at least one answer. Desktop exposes an `app:get-stats` IPC handler and a statistics modal with week/month/year/all tabs. CLI: `instaling-bot stats [--period ...] [--json]`.
+- Repeating reminders: `reminder.repeat_minutes` plus `lastNotifiedAt` in `reminder-state.json`. `isReminderDue` allows another notification after the interval, but never after a session was completed that day.
+- New CLI entry `bin/instaling-bot.js`; `src/main.js` now exports `{run}` and only auto-starts with `require.main === module`. `desktop/runner.js` calls `run()`.
+- CLI update gate: `start` checks GitHub first and exits on an outdated version unless `--skip-update-check` / `INSTALING_SKIP_UPDATE_CHECK=1`; network errors warn and continue.
+- `install.sh` + `bin` field + `npm start` routed through the CLI. Help/version/stats work without `Config.json`.
+- Desktop console cleanup: `INSTALING_LOG_CLEANUP_MS` (default 2 h, test hook) clears the log buffer, renderer and log file after the run, guarded by a run token so a new session is not wiped.
+- UI: quick-start moved below Ko-fi; site-FAQ button removed from the error modal; repeat-notification select added; stats button/modal added.
+- Packaging: Windows artifact `instaling-bot-<version>-setup-win64.exe`, macOS `instaling-bot-<version>-macos-<arch>.pkg`; release title is just the version (tag keeps the `v`).
+
 ## What changed in 3.1.0
 
 - Wrong answers are randomized: blank field, another saved translation, or a misspelling (equal chance), still gated by `valid_chance`.
@@ -374,7 +389,6 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Signed installers and real auto-update (`electron-updater`) once a certificate exists.
 - Encrypted credential storage (Windows Credential Manager / macOS Keychain via `keytar`).
 - SQLite for words with import/export and search.
-- Session history and statistics.
 - PL/EN interface.
 - Regression tests using saved HTML fixtures instead of hitting the live site.
 - OS-level scheduled reminder that fires even when the app is closed (Task Scheduler / launchd).
@@ -383,8 +397,8 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 
 Copy this into a new chat:
 
-> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.1.2).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.2.0).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
-> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. Daily reminder and update checking are shared by desktop and CLI (`npm run remind`, `npm run update-check`).
-> Do not regress: cookie handling, `isVisible()` semantics, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state, manual-only updates.
+> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run.
+> Do not regress: cookie handling, `isVisible()` semantics, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, manual-only updates.
 > Test with `"max_answers": 1`, update `CHANGELOG.md`, and prepare a release.

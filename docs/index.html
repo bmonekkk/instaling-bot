@@ -4,14 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>instaling-bot - aplikacja desktopowa i bot do instaling.pl (2026)</title>
-    <meta name="description" content="Działający bot do instaling.pl jako aplikacja desktopowa dla Windows i macOS oraz wersja CLI dla Linuksa. Wersja 3.1.2: instalator .exe i .pkg, wbudowany Chrome, live log, losowe typy błędów, przypomnienia o sesji i sprawdzanie aktualizacji. Open source, licencja ISC.">
-    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, aplikacja desktopowa, electron, windows, macos, linux, cli, puppeteer, nodejs, open source, human like typing, przypomnienia, aktualizacje">
+    <meta name="description" content="Działający bot do instaling.pl jako aplikacja desktopowa dla Windows i macOS oraz wersja CLI dla Linuksa. Wersja 3.2.0: instalator .exe i .pkg, wbudowany Chrome, live log, statystyki, powtarzane przypomnienia, nowe CLI i sprawdzanie aktualizacji. Open source, licencja ISC.">
+    <meta name="keywords" content="instaling bot, instaling.pl bot, automatyczne rozwiązywanie słówek, bot do instaling, instaling 2026, nauka słówek, aplikacja desktopowa, electron, windows, macos, linux, cli, puppeteer, nodejs, open source, human like typing, przypomnienia, statystyki, aktualizacje, angielski, niemiecki, francuski, włoski">
     <meta name="author" content="bmonekkk">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://bmonekkk.github.io/instaling-bot/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="instaling-bot - aplikacja desktopowa i bot do instaling.pl (2026)">
-    <meta property="og:description" content="Aplikacja dla Windows i macOS oraz CLI dla Linuksa. Automatyczne logowanie, rozwiązywanie słówek, live log i wbudowany Chrome. Wersja 3.1.2, open source, ISC.">
+    <meta property="og:description" content="Aplikacja dla Windows i macOS oraz CLI dla Linuksa. Automatyczne logowanie, rozwiązywanie słówek, live log i wbudowany Chrome. Wersja 3.2.0 ze statystykami i nowym CLI, open source, ISC.">
     <meta property="og:url" content="https://bmonekkk.github.io/instaling-bot/">
     <meta property="og:site_name" content="instaling-bot">
     <meta name="twitter:card" content="summary">
@@ -22,7 +22,7 @@
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
         "name": "instaling-bot",
-        "softwareVersion": "3.1.2",
+        "softwareVersion": "3.2.0",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Windows, macOS, Linux",
         "description": "Open source bot do automatycznego rozwiązywania słówek na instaling.pl. Aplikacja desktopowa dla Windows i macOS z wbudowanym Chrome oraz wersja CLI dla Linuksa. Obsługuje logowanie, sesję nauki, zapamiętywanie tłumaczeń, ludzkie pisanie z literówkami, losowe typy błędów, codzienne przypomnienia i sprawdzanie aktualizacji.",
@@ -477,7 +477,7 @@
 <div class="window">
     <div class="titlebar">
         <span class="titlebar-icon">🤖</span>
-        <span class="titlebar-text">instaling-bot.exe — v3.1.2</span>
+        <span class="titlebar-text">instaling-bot.exe — v3.2.0</span>
         <span class="titlebar-buttons" aria-hidden="true"><span>_</span><span>□</span><span>×</span></span>
     </div>
 
@@ -490,7 +490,7 @@
 
     <main class="content">
         <h1>instaling<span>-bot</span></h1>
-        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 3.1.2 to dopracowana <strong>aplikacja desktopowa dla Windows i macOS</strong> — z wbudowanym Chrome, panelem ustawień, live logiem, przypomnieniami, powiadomieniem o końcu sesji i lekką pracą w tle. Dla Linuksa i terminala zostaje w pełni wspierane CLI.</p>
+        <p class="lead">Działający, otwartoźródłowy bot do automatycznego rozwiązywania słówek na <strong>instaling.pl</strong>. Wersja 3.2.0 to <strong>aplikacja desktopowa dla Windows i macOS</strong> oraz pełne CLI — z wbudowanym Chrome, panelem ustawień, live logiem, statystykami tygodnia, miesiąca i roku, konfigurowalnymi przypomnieniami i lekką pracą w tle.</p>
 
         <div class="badges">
             <span class="badge">Windows .exe</span>
@@ -498,13 +498,13 @@
             <span class="badge">Linux CLI</span>
             <span class="badge">Electron</span>
             <span class="badge">Chrome w zestawie</span>
-            <span class="badge">v3.1.2</span>
+            <span class="badge">v3.2.0</span>
             <span class="badge">Licencja ISC</span>
             <span class="badge">Open source</span>
         </div>
 
         <p class="actions">
-            <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.1.2/instaling-bot-3.1.2-setup.exe">Pobierz dla Windows (.exe)</a>
+            <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.2.0/instaling-bot-3.2.0-setup-win64.exe">Pobierz dla Windows (.exe)</a>
             <a class="btn" href="#macos">Pobierz dla macOS (.pkg)</a>
             <a class="btn" href="#cli">Wersja CLI dla Linuksa</a>
             <a class="btn" href="https://github.com/bmonekkk/instaling-bot">Kod na GitHub</a>
@@ -518,17 +518,17 @@
         </section>
 
         <section class="panel highlight">
-            <h2>Nowość w 3.1.2: okna pomocy zostają na ekranie</h2>
+            <h2>Nowość w 3.2.0: statystyki, przypomnienia i wygodniejsze CLI</h2>
             <div class="grid">
                 <ul>
-                    <li>Okno błędu i braku internetu zamyka się <strong>tylko przyciskiem</strong> — nie znika po powrocie sieci ani po kliknięciu tła.</li>
-                    <li>macOS: monochromatyczna ikona w menu bar dopasowuje się do jasnego i ciemnego motywu.</li>
-                    <li>Po zamknięciu okna w trybie zasobnika aplikacja znika z Docka — zostaje tylko menu bar.</li>
+                    <li><strong>Statystyki sesji</strong> w aplikacji: tydzień, miesiąc, rok i cały okres — sesje, odpowiedzi, skuteczność, nowe słówka i czas.</li>
+                    <li><strong>Powtarzane przypomnienia</strong> co 15, 30, 60, 120 lub 180 minut, dopóki nie ukończysz sesji.</li>
+                    <li><strong>Szybki start</strong> przeniesiony na górę panelu, tuż pod informację o Ko-fi.</li>
                 </ul>
                 <ul>
-                    <li>Sesja uruchomiona z ikony kończy się powiadomieniem z liczbą odpowiedzi.</li>
-                    <li>Zamknięcie okna niszczy proces renderowania — w tle zostaje ok. 50 MB przy starcie do zasobnika i poniżej 100 MB po otwarciu i zamknięciu okna.</li>
-                    <li>Ko-fi przeniesione nad formularz logowania, żeby wsparcie było widoczne od razu.</li>
+                    <li><strong>Nowe CLI:</strong> polecenia <code>start</code>, <code>stats</code>, <code>remind</code>, <code>update-check</code>, <code>help</code> i instalacja przez <code>curl</code>.</li>
+                    <li><strong>Aktualizacje przed startem</strong> — CLI blokuje nieaktualną wersję, z wyjątkiem <code>--skip-update-check</code>.</li>
+                    <li><strong>Automatyczne czyszczenie konsoli</strong> dwie godziny po zakończeniu sesji.</li>
                 </ul>
             </div>
         </section>
@@ -538,21 +538,21 @@
             <div class="downloads">
                 <div class="download-card">
                     <span class="platform">Windows 10/11</span>
-                    <span class="filename">instaling-bot-3.1.2-setup.exe</span>
+                    <span class="filename">instaling-bot-3.2.0-setup-win64.exe</span>
                     <p class="meta">x64 · instalator NSIS · Chrome w zestawie</p>
-                    <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.1.2/instaling-bot-3.1.2-setup.exe">Pobierz .exe</a>
+                    <a class="btn primary" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.2.0/instaling-bot-3.2.0-setup-win64.exe">Pobierz .exe</a>
                 </div>
                 <div class="download-card">
                     <span class="platform">macOS Apple Silicon</span>
-                    <span class="filename">instaling-bot-3.1.2-arm64.pkg</span>
+                    <span class="filename">instaling-bot-3.2.0-macos-arm64.pkg</span>
                     <p class="meta">macOS 13+ · Apple Silicon · Chrome w zestawie</p>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.1.2/instaling-bot-3.1.2-arm64.pkg">Pobierz .pkg</a>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.2.0/instaling-bot-3.2.0-macos-arm64.pkg">Pobierz .pkg</a>
                 </div>
                 <div class="download-card">
                     <span class="platform">macOS Intel</span>
-                    <span class="filename">instaling-bot-3.1.2-x64.pkg</span>
+                    <span class="filename">instaling-bot-3.2.0-macos-x64.pkg</span>
                     <p class="meta">macOS 13+ · procesory Intel · Chrome w zestawie</p>
-                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.1.2/instaling-bot-3.1.2-x64.pkg">Pobierz .pkg</a>
+                    <a class="btn" href="https://github.com/bmonekkk/instaling-bot/releases/download/v3.2.0/instaling-bot-3.2.0-macos-x64.pkg">Pobierz .pkg</a>
                 </div>
             </div>
             <p class="note"><strong>Instalatory są niepodpisane.</strong> Windows SmartScreen: <em>More info → Run anyway</em>. macOS: kliknij instalator prawym przyciskiem → <em>Open</em> albo zatwierdź aplikację w <em>System Settings → Privacy &amp; Security</em>. To normalne dla buildów bez certyfikatu code signing. <a href="https://github.com/bmonekkk/instaling-bot/releases">Wszystkie wydania</a>.</p>
@@ -567,8 +567,8 @@
                 <li>Naciśnij <strong>Start</strong>. Bot otworzy osobne okno Chrome, zaloguje się i rozpocznie lub kontynuuje sesję.</li>
                 <li>Postęp, liczniki i błędy śledź w konsoli aplikacji. Przycisk <strong>Folder danych</strong> otwiera pliki konfiguracji i logi.</li>
             </ol>
-            <p>W ustawieniach możesz też włączyć <strong>przypomnienie o codziennej sesji</strong> (domyślnie 17:00), pracę w zasobniku systemowym i uruchamianie przy logowaniu. Przypomnienie nie pojawi się, jeśli danego dnia bot już odpowiedział na słówka. Aplikacja sama sprawdza nowe wydania i pokazuje banner <strong>Pobierz</strong>.</p>
-            <p>Dane aplikacji: <code>%APPDATA%\instaling-bot</code> (Windows) lub <code>~/Library/Application Support/instaling-bot</code> (macOS). W środku są <code>config/Config.json</code>, <code>config/SavedWords.json</code>, <code>reminder-state.json</code>, <code>logs/last-run.log</code>, <code>pages/</code> i <code>screenshots/</code>.</p>
+            <p>W ustawieniach możesz też włączyć <strong>przypomnienie o codziennej sesji</strong> (domyślnie 17:00) i jego <strong>powtarzanie co 15–180 minut</strong>, pracę w zasobniku systemowym i uruchamianie przy logowaniu. Przypomnienie nie pojawi się, jeśli danego dnia bot już odpowiedział na słówka. Przycisk <strong>Statystyki</strong> pokazuje sesje, odpowiedzi, skuteczność i czas z tygodnia, miesiąca, roku lub całego okresu. Aplikacja sama sprawdza nowe wydania i pokazuje banner <strong>Pobierz</strong>.</p>
+            <p>Dane aplikacji: <code>%APPDATA%\instaling-bot</code> (Windows) lub <code>~/Library/Application Support/instaling-bot</code> (macOS). W środku są <code>config/Config.json</code>, <code>config/SavedWords.json</code>, <code>reminder-state.json</code>, <code>stats.json</code>, <code>logs/last-run.log</code>, <code>pages/</code> i <code>screenshots/</code>.</p>
         </section>
 
         <section class="panel">
@@ -580,32 +580,28 @@
                 <li>Zapamiętuje poprawne tłumaczenia w <code>SavedWords.json</code>.</li>
                 <li>Domyślnie odpowiada poprawnie w 80% przypadków (<code>valid_chance: 0.8</code>).</li>
                 <li>Błędne odpowiedzi losuje równo między puste pole, inne zapisane tłumaczenie i literówkę.</li>
-                <li>Obsługuje języki dostępne na instaling.pl (m.in. angielski, hiszpański, niemiecki).</li>
+                <li>Obsługuje języki dostępne na instaling.pl (m.in. angielski, niemiecki, francuski, włoski i hiszpański).</li>
             </ul>
         </section>
 
         <section class="panel" id="cli">
             <h2>CLI: Linux i terminal</h2>
             <p>Wersja CLI jest wspierana tak długo, jak istnieje aplikacja desktopowa. To zalecany wariant dla Linuksa i wszystkich osób, które wolą terminal. Wymaga Node.js 22+.</p>
-            <ol>
-                <li>Zainstaluj Node.js 22 lub nowszy: <a href="https://nodejs.org/">nodejs.org</a>.</li>
-                <li>Sklonuj repozytorium i zainstaluj zależności:</li>
-            </ol>
+            <p>Najszybciej zainstalujesz CLI jedną komendą (wymaga Node.js 22+):</p>
+<pre><code>curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash</code></pre>
+            <p>Instalator zapisze program w <code>~/.local/share/instaling-bot</code> i doda launcher <code>instaling-bot</code> w <code>~/.local/bin</code>. Alternatywnie możesz sklonować repozytorium:</p>
 <pre><code>git clone https://github.com/bmonekkk/instaling-bot.git
 cd instaling-bot
-npm install --omit=dev</code></pre>
-            <p>Skopiuj <code>config/Config.defaults.json</code> do <code>config/Config.json</code> i uzupełnij dane logowania:</p>
-<pre><code>{
-    "credentials": {
-        "login": "twoj-login-lub-email",
-        "password": "twoje-haslo"
-    }
-}</code></pre>
-            <p>Uruchom bota:</p>
-<pre><code>npm start</code></pre>
-            <p>Przypomnienia i aktualizacje w CLI:</p>
-<pre><code>npm run remind         # powiadomienie o sesji o wybranej godzinie, w tle
-npm run update-check   # porównanie z najnowszym wydaniem na GitHubie</code></pre>
+npm install --omit=dev
+cp config/Config.defaults.json config/Config.json</code></pre>
+            <p>Wpisz login i hasło w <code>config/Config.json</code>, a następnie uruchom:</p>
+<pre><code>instaling-bot start
+instaling-bot stats                  # tydzień, miesiąc, rok i całość
+instaling-bot stats --period month
+instaling-bot remind                 # przypomnienie w tle
+instaling-bot update-check
+instaling-bot help</code></pre>
+            <p>Przed startem CLI sprawdza najnowsze wydanie i <strong>nie uruchamia nieaktualnej wersji</strong>. Pomijanie: <code>--skip-update-check</code> lub <code>INSTALING_SKIP_UPDATE_CHECK=1</code>. Aktualizacja: <code>curl</code> ponownie lub <code>git pull &amp;&amp; npm install --omit=dev</code>.</p>
             <p>Jeśli Puppeteer nie pobrał przeglądarki podczas instalacji, uruchom <code>npx puppeteer browsers install chrome</code>.</p>
         </section>
 
@@ -620,6 +616,7 @@ npm run update-check   # porównanie z najnowszym wydaniem na GitHubie</code></p
                 <li><code>delays.type_pause_chance</code> - szansa na dodatkową pauzę w trakcie pisania.</li>
                 <li><code>delays.quick_click_min</code> / <code>quick_click_max</code> - szybkie pauzy po kliknięciach nawigacyjnych.</li>
                 <li><code>reminder.enabled</code> / <code>reminder.time</code> - codzienne przypomnienie o sesji (<code>HH:MM</code>, domyślnie <code>17:00</code>).</li>
+                <li><code>reminder.repeat_minutes</code> - powtarzanie przypomnienia co N minut (<code>0</code> = raz dziennie).</li>
                 <li><code>background.run_in_tray</code> / <code>start_at_login</code> - praca w zasobniku i autostart (desktop).</li>
                 <li><code>show_browser</code> - pokazuje okno Chrome; ustaw <code>false</code> na serwerze bez GUI.</li>
                 <li><code>debug</code> - dodatkowe logi z przeglądarki i zrzuty stron.</li>
@@ -630,7 +627,7 @@ npm run update-check   # porównanie z najnowszym wydaniem na GitHubie</code></p
         <section class="panel" id="faq">
             <h2>Najczęstsze problemy</h2>
             <ul>
-                <li><strong>Brak internetu / offline</strong> - aplikacja pokazuje okno z linkiem do tego FAQ. Sprawdź sieć i spróbuj ponownie. Okno zamyka się tylko przyciskiem <strong>Zamknij</strong>.</li>
+                <li><strong>Brak internetu / offline</strong> - sprawdź połączenie z internetem i spróbuj ponownie. Okno zamyka się tylko przyciskiem <strong>Zamknij</strong>, a pomoc znajdziesz w <a href="https://github.com/bmonekkk/instaling-bot/blob/master/README.md#-rozwiązywanie-problemów">FAQ w README</a>.</li>
                 <li><strong>SmartScreen / Gatekeeper ostrzega</strong> - instalatory są niepodpisane. Windows: <em>More info → Run anyway</em>. macOS: prawy przycisk → <em>Open</em> lub ustawienia prywatności.</li>
                 <li><strong>Bot nie przechodzi logowania</strong> - sprawdź login i hasło. Bot wpisuje je dokładnie i sam ponawia próbę raz, jeśli strona chwilowo odrzuci formularz.</li>
                 <li><strong>Brak Chrome w CLI</strong> - uruchom <code>npx puppeteer browsers install chrome</code>. Desktop ma Chrome w instalatorze.</li>
@@ -654,7 +651,7 @@ npm run update-check   # porównanie z najnowszym wydaniem na GitHubie</code></p
 
     <div class="statusbar">
         <span>Gotowe</span>
-        <span>v3.1.2 · Windows · macOS · Linux</span>
+        <span>v3.2.0 · Windows · macOS · Linux</span>
     </div>
 </div>
 

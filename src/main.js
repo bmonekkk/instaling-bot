@@ -38,8 +38,7 @@ const chalk = require('chalk');
 const {getAllWords, insertWord, getWord, saveWords} = require('./words.js');
 const {chooseErrorMode, pickWrongTranslation} = require('./mistakes.js');
 const {markSessionDone} = require('./reminder.js');
-const {checkLatestRelease} = require('./update.js');
-const {version: APP_VERSION} = require('../package.json');
+const {recordSession} = require('./stats.js');
 
 const blockedHosts = [
     'googletagmanager.com',
@@ -82,6 +81,10 @@ const SELECTORS = {
 };
 
 let i = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let newWordCount = 0;
+let runStartedAt = null;
 const lastTyped = new Map();
 
 function notify(event, payload = {}) {
@@ -339,12 +342,19 @@ async function answerQuestion(page) {
         await insertWord(polish, validEnglish, sentence);
     }
 
+    const correct = Boolean(validEnglish && english === validEnglish);
+    if (correct) {
+        correctCount++;
+    } else {
+        wrongCount++;
+    }
+
     notify('answered', {
         index: i,
         polish,
         typed: english || null,
         valid: validEnglish || null,
-        correct: Boolean(validEnglish && english === validEnglish),
+        correct,
         mistake
     });
 
@@ -354,6 +364,8 @@ async function answerQuestion(page) {
 
 async function newWord(page) {
     // The bot does not know the word yet: pick "don't know" so the correct translation is revealed.
+    newWordCount++;
+    wrongCount++;
     notify('new-word', {index: i});
     await savePage(page, `${i}_new_word_0`);
     await clickWait(page, SELECTORS.dontKnowNew, config.delays?.check_min, config.delays?.check_max);
@@ -394,6 +406,13 @@ async function handleStop(page, code = 0) {
     // session done for today (desktop and CLI share the same state file).
     if (i > 0) {
         await markSessionDone().catch(e => console.error(e));
+        await recordSession({
+            answers: i,
+            correct: correctCount,
+            wrong: wrongCount,
+            newWords: newWordCount,
+            durationMs: runStartedAt ? Date.now() - runStartedAt : 0
+        }).catch(e => console.error(e));
     }
 
     green('Thanks for using InstaLing Bot by bmonekkk');
@@ -405,6 +424,10 @@ async function handleStop(page, code = 0) {
 async function run() {
     resetControl();
     i = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    newWordCount = 0;
+    runStartedAt = Date.now();
     lastTyped.clear();
 
     let page;
@@ -470,19 +493,8 @@ async function run() {
     }
 }
 
-const done = run();
-
 if (require.main === module) {
-    checkLatestRelease(APP_VERSION)
-        .then(result => {
-            if (result.available) {
-                yellow(`[UPDATE] Dostępna nowa wersja ${result.latest} (uruchomiona: ${APP_VERSION}).`);
-                yellow(`[UPDATE] Pobierz: ${result.url}`);
-            }
-        })
-        .catch(() => {});
-
-    done
+    run()
         .then(code => process.exit(code))
         .catch(err => {
             console.error(err);
@@ -490,5 +502,5 @@ if (require.main === module) {
         });
 }
 
-// The Electron runner awaits this promise; the CLI wrapper above exits itself.
-module.exports = done;
+// The Electron runner and the CLI entry point start the bot explicitly.
+module.exports = {run};

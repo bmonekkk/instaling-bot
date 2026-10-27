@@ -115,14 +115,14 @@ jobs:
             if [ -f "$NOTES" ]; then
               gh release create "$TAG" release-assets/* \
                 --target "$GITHUB_SHA" \
-                --title "instaling-bot $TAG" \
+                --title "${TAG#v}" \
                 --notes-file "$NOTES" \
                 --draft \
                 --verify-tag
             else
               gh release create "$TAG" release-assets/* \
                 --target "$GITHUB_SHA" \
-                --title "instaling-bot $TAG" \
+                --title "${TAG#v}" \
                 --generate-notes \
                 --draft \
                 --verify-tag

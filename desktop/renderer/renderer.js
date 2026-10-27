@@ -23,6 +23,7 @@ const els = {
     debug: $('debug'),
     reminderEnabled: $('reminder-enabled'),
     reminderTime: $('reminder-time'),
+    reminderRepeat: $('reminder-repeat'),
     runInTray: $('run-in-tray'),
     startAtLogin: $('start-at-login'),
     start: $('start'),
@@ -42,9 +43,21 @@ const els = {
     errorModal: $('error-modal'),
     errorModalTitle: $('error-modal-title'),
     errorMessage: $('error-modal-message'),
-    errorFaq: $('error-modal-faq'),
     errorReadme: $('error-modal-readme'),
     errorClose: $('error-modal-close'),
+    openStats: $('open-stats'),
+    statsModal: $('stats-modal'),
+    statsClose: $('stats-close'),
+    statsTabs: Array.from(document.querySelectorAll('.stats-tab')),
+    statsNote: $('stats-note'),
+    statsSessions: $('stats-sessions'),
+    statsAnswers: $('stats-answers'),
+    statsCorrect: $('stats-correct'),
+    statsWrong: $('stats-wrong'),
+    statsPercent: $('stats-percent'),
+    statsNew: $('stats-new'),
+    statsTime: $('stats-time'),
+    statsDays: $('stats-days'),
     log: $('log'),
     autoscroll: $('autoscroll'),
     statusBadge: $('status-badge'),
@@ -75,9 +88,10 @@ let lastLogSeq = 0;
 let lastErrorShown = '';
 let replayingLogs = false;
 let pendingLogs = [];
+let statsCache = null;
+let statsPeriod = 'week';
 
-const FAQ_URL = 'https://bmonekkk.github.io/instaling-bot/#faq';
-const README_FAQ_URL = 'https://github.com/bmonekkk/instaling-bot/blob/master/README.md#rozwiązywanie-problemów';
+const README_FAQ_URL = 'https://github.com/bmonekkk/instaling-bot/blob/master/README.md#-rozwiązywanie-problemów';
 
 function toNumber(input, fallback = 0) {
     const value = Number(input.value);
@@ -106,6 +120,10 @@ function fillForm(config) {
     els.debug.checked = Boolean(config.debug);
     els.reminderEnabled.checked = config.reminder?.enabled !== false;
     els.reminderTime.value = config.reminder?.time ?? '17:00';
+    els.reminderRepeat.value = String(config.reminder?.repeat_minutes ?? 0);
+    if (!els.reminderRepeat.value || ![...els.reminderRepeat.options].some(option => option.value === els.reminderRepeat.value)) {
+        els.reminderRepeat.value = '0';
+    }
     els.runInTray.checked = Boolean(config.background?.run_in_tray);
     els.startAtLogin.checked = Boolean(config.background?.start_at_login);
     updateRangeLabels();
@@ -124,7 +142,8 @@ function collectSettings() {
         debug: els.debug.checked,
         reminder: {
             enabled: els.reminderEnabled.checked,
-            time: els.reminderTime.value || '17:00'
+            time: els.reminderTime.value || '17:00',
+            repeat_minutes: Math.max(0, Math.round(toNumber(els.reminderRepeat, 0)))
         },
         background: {
             run_in_tray: els.runInTray.checked,
@@ -255,13 +274,13 @@ function applyBotState(bot) {
         if (offline) {
             showErrorModal(
                 'Brak połączenia z internetem 📡',
-                `Bot nie mógł połączyć się z instaling.pl.\n\nSzczegóły: ${bot.lastError}\n\nSprawdź sieć i spróbuj ponownie. Pomoc znajdziesz w FAQ.`,
+                `Bot nie mógł połączyć się z instaling.pl.\n\nSzczegóły: ${bot.lastError}\n\nSprawdź połączenie z internetem i spróbuj ponownie. Pomoc: FAQ w README.`,
                 'offline'
             );
         } else {
             showErrorModal(
                 'Bot zatrzymał się z błędem ⚠️',
-                `${bot.lastError}\n\nZajrzyj do FAQ lub README — najczęstsze przyczyny to zmiana układu strony, brak Chrome albo odrzucone logowanie.`,
+                `${bot.lastError}\n\nZajrzyj do FAQ w README — najczęstsze przyczyny to zmiana układu strony, brak Chrome albo odrzucone logowanie.`,
                 'error'
             );
         }
@@ -283,7 +302,7 @@ async function loadState() {
         appState = state;
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v3.1.2';
+        const version = state.version ? `v${state.version}` : 'v3.2.0';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;
@@ -306,7 +325,7 @@ async function loadState() {
         if (navigator.onLine === false) {
             showErrorModal(
                 'Brak połączenia z internetem 📡',
-                'Aplikacja nie widzi połączenia z siecią. Bot nie zaloguje się do instaling.pl, dopóki internet nie wróci.',
+                'Aplikacja nie widzi połączenia z siecią. Sprawdź połączenie z internetem — bez niego bot nie zaloguje się do instaling.pl. Pomoc: FAQ w README.',
                 'offline'
             );
         }
@@ -334,6 +353,54 @@ async function checkForUpdates({silent = false} = {}) {
         }
     } catch (error) {
         if (!silent) showToast(error.message || 'Nie udało się sprawdzić aktualizacji.', true);
+    }
+}
+
+function formatMinutes(ms) {
+    const total = Math.max(0, Math.round(Number(ms ?? 0) / 60000));
+    if (total < 60) return `${total} min`;
+    const hours = Math.floor(total / 60);
+    const minutes = total % 60;
+    return minutes > 0 ? `${hours} h ${minutes} min` : `${hours} h`;
+}
+
+function renderStats(period = statsPeriod) {
+    statsPeriod = period;
+    const summary = statsCache?.periods?.[period];
+    for (const tab of els.statsTabs) {
+        const active = tab.dataset.period === period;
+        tab.classList.toggle('active', active);
+        tab.setAttribute('aria-selected', String(active));
+    }
+    if (!summary) {
+        els.statsNote.textContent = 'Nie udało się wczytać statystyk.';
+        return;
+    }
+    els.statsSessions.textContent = String(summary.sessions ?? 0);
+    els.statsAnswers.textContent = String(summary.answers ?? 0);
+    els.statsCorrect.textContent = String(summary.correct ?? 0);
+    els.statsWrong.textContent = String(summary.wrong ?? 0);
+    els.statsPercent.textContent = summary.answers > 0 ? `${summary.percent}%` : '—';
+    els.statsNew.textContent = String(summary.newWords ?? 0);
+    els.statsTime.textContent = formatMinutes(summary.durationMs);
+    els.statsDays.textContent = String(summary.activeDays ?? 0);
+
+    if (summary.sessions === 0) {
+        els.statsNote.textContent = 'Brak sesji w tym okresie. Uruchom bota, aby zobaczyć statystyki.';
+    } else {
+        els.statsNote.textContent = `Od ${summary.from} do ${summary.to} · średnio ${summary.averageAnswers} odpowiedzi i ${summary.averageMinutes} min na sesję.`;
+    }
+}
+
+async function openStats() {
+    if (!api) return;
+    els.statsModal.hidden = false;
+    els.statsNote.textContent = 'Wczytywanie statystyk...';
+    try {
+        statsCache = await api.getStats();
+        renderStats(statsPeriod);
+    } catch (error) {
+        els.statsNote.textContent = error.message || 'Nie udało się wczytać statystyk.';
     }
 }
 
@@ -368,7 +435,7 @@ async function startBot() {
     if (navigator.onLine === false) {
         showErrorModal(
             'Brak połączenia z internetem 📡',
-            'Nie można rozpocząć sesji bez internetu. Sprawdź sieć, a potem naciśnij Start ponownie.',
+            'Nie można rozpocząć sesji bez internetu. Sprawdź połączenie z internetem, a potem naciśnij Start ponownie.',
             'offline'
         );
         return;
@@ -518,6 +585,13 @@ function wireEvents() {
         if (api) api.openExternal('https://github.com/bmonekkk').catch(error => showToast(error.message || String(error), true));
     });
     els.checkUpdates.addEventListener('click', () => checkForUpdates());
+    els.openStats.addEventListener('click', () => openStats());
+    els.statsClose.addEventListener('click', () => {
+        els.statsModal.hidden = true;
+    });
+    for (const tab of els.statsTabs) {
+        tab.addEventListener('click', () => renderStats(tab.dataset.period));
+    }
     els.updateDownload.addEventListener('click', () => {
         const url = els.updateBanner.dataset.url;
         if (api && url) api.openExternal(url).catch(error => showToast(error.message || String(error), true));
@@ -529,12 +603,11 @@ function wireEvents() {
     els.errorClose.addEventListener('click', () => {
         els.errorModal.hidden = true;
     });
-    els.errorFaq.addEventListener('click', () => openHelp(FAQ_URL));
     els.errorReadme.addEventListener('click', () => openHelp(README_FAQ_URL));
     window.addEventListener('offline', () => {
         showErrorModal(
             'Brak połączenia z internetem 📡',
-            'Połączenie z siecią zostało utracone. Bot nie będzie mógł odpowiadać na słówka, dopóki internet nie wróci.',
+            'Połączenie z siecią zostało utracone. Bot nie będzie mógł odpowiadać na słówka, dopóki internet nie wróci. Sprawdź połączenie z internetem. Pomoc: FAQ w README.',
             'offline'
         );
     });
@@ -558,6 +631,10 @@ function wireEvents() {
     });
 
     document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && !els.statsModal.hidden) {
+            els.statsModal.hidden = true;
+            return;
+        }
         if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
             event.preventDefault();
             saveSettings();
