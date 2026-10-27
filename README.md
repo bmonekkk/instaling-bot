@@ -19,13 +19,13 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**3.2.0**) łączy trzy rzeczy:
+Aktualna wersja (**3.3.0**) łączy trzy rzeczy:
 
 - 🖥️ aplikację desktopową z GUI, logiem na żywo, statystykami i wbudowaną przeglądarką Chrome,
 - ⌨️ pełnoprawne CLI dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-W 3.2.0 doszły **statystyki tygodnia, miesiąca, roku i całego okresu** (sesje, odpowiedzi, skuteczność, nowe słówka, czas), **powtarzane przypomnienia** co wybrany interwał, **nowe CLI** z poleceniami `start`, `stats`, `remind`, `update-check` i `help`, **sprawdzanie aktualizacji przed startem CLI** oraz **automatyczne czyszczenie konsoli** dwie godziny po sesji. Szybki start przeniesiono na górę panelu, a okna błędów linkują już tylko do FAQ w README.
+W 3.3.0 doszedł **pełny interfejs PL/EN** (ustawienia, dialogi, statystyki, menu zasobnika i powiadomienia), **przełącznik powiadomienia o zakończeniu sesji** dla okna ukrytego lub zminimalizowanego oraz **pierwszy etap bezpieczeństwa**: uprawnienia `600` dla `Config.json`, maskowanie haseł w logach i zmienne środowiskowe `INSTALING_LOGIN` / `INSTALING_PASSWORD`. Statystyki, powtarzane przypomnienia i CLI z 3.2.x zostają bez zmian. Strona projektu dostała uporządkowane metadane i dane strukturalne `WebSite` / `SoftwareApplication`.
 
 Open source, licencja ISC.
 
@@ -50,6 +50,7 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 | Dane | `%APPDATA%\instaling-bot` lub `~/Library/Application Support/instaling-bot` | `config/` w katalogu projektu |
 | Statystyki | przycisk **Statystyki**: tydzień, miesiąc, rok, całość | `instaling-bot stats` |
 | Przypomnienia | powiadomienie systemowe + toast, opcjonalnie co N minut | `instaling-bot remind`, to samo ustawienie |
+| Koniec sesji | powiadomienie, gdy okno jest ukryte lub zminimalizowane | komunikat w terminalu |
 | Aktualizacje | sprawdzanie wydań + przycisk **Pobierz** | `instaling-bot update-check`; start blokuje starą wersję |
 | Aktualizacja | nowy instalator z GitHuba | ponowny `curl` lub `git pull && npm install --omit=dev` |
 
@@ -57,14 +58,16 @@ Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i for
 
 Interfejs desktopowy działa po polsku i angielsku. Język przełączasz przyciskami **PL/EN** na pasku menu; wybór zapisuje się w `Config.json` (`language`) i obejmuje też menu zasobnika oraz powiadomienia systemowe.
 
+Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tylko wtedy, gdy okno jest ukryte w zasobniku lub zminimalizowane — możesz je wyłączyć przełącznikiem **Powiadamiaj o zakończeniu sesji**. `Config.json` jest zapisywany z uprawnieniami tylko dla właściciela (`600` na macOS/Linux, prywatna lista ACL na Windows), a hasło jest maskowane w logach i powiadomieniach. Zamiast trzymać hasło w pliku możesz użyć zmiennych środowiskowych `INSTALING_LOGIN` i `INSTALING_PASSWORD` — mają pierwszeństwo przed konfiguracją.
+
 
 ## 🖥️ Desktop: Windows i macOS
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.2.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.2.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.2.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-3.3.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.3.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.3.0-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -98,7 +101,7 @@ Oba przełączniki są w **Ustawienia → Przypomnienia i praca w tle**:
 - Aby aplikacja startowała po cichu, włącz **oba** przełączniki. Sam autostart otworzy okno na pulpicie.
 - Na macOS tryb zasobnika chowa ikonę z Docka i przełącza aplikację w tryb akcesoriów — zostaje tylko ikona w menu bar, która dopasowuje się do jasnego/ciemnego motywu.
 - Po zamknięciu okna w trybie zasobnika aplikacja niszczy okno (a nie tylko je ukrywa), żeby w tle zużywać mniej RAM. Interfejs odtworzy się po kliknięciu ikony.
-- Sesję możesz uruchomić z menu ikony (**Start**). Gdy się skończy, dostaniesz powiadomienie systemowe z liczbą odpowiedzi — okno nie musi być otwarte.
+- Sesję możesz uruchomić z menu ikony (**Start**). Gdy się skończy, dostaniesz powiadomienie systemowe z liczbą odpowiedzi — o ile włączysz **Powiadamiaj o zakończeniu sesji** i okno jest ukryte lub zminimalizowane.
 - Ikona w zasobniku daje też **Stop**, **Pokaż okno** i **Zakończ**.
 
 ### 🔄 Aktualizacje
@@ -254,6 +257,8 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 - `sites` — używane strony
   - `login` — strona logowania; musi wskazywać oficjalną stronę logowania `instaling.pl` po HTTPS (bot odmówi startu dla innego adresu)
 - `language` — język interfejsu desktopowego: `pl` (domyślnie) lub `en`; można go też zmienić przyciskami **PL/EN** na pasku menu. Logi silnika bota pozostają po polsku.
+- `notifications.session_finished` — powiadomienie o zakończeniu sesji, gdy okno jest ukryte lub zminimalizowane (`true` domyślnie)
+- `INSTALING_LOGIN` / `INSTALING_PASSWORD` — zmienne środowiskowe z danymi logowania; mają pierwszeństwo przed `credentials` w `Config.json`. Przydatne w CI i na serwerach, gdzie hasło nie powinno trafiać na dysk.
 - `delays` — czasy oczekiwania w milisekundach (1 s = 1000 ms); bot losuje wartość między min i max
   - `click_min` / `click_max` — domyślne opóźnienie po kliknięciu w przycisk
   - `type_min` / `type_max` — opóźnienie na pojedynczą literę
@@ -320,17 +325,14 @@ Przed pakowaniem `npm run dist:win` / `dist:mac` automatycznie uruchamia `npm ru
 Instalator macOS musi być zbudowany na macOS. Repozytorium zawiera workflow GitHub Actions (`.github/workflows/release.yml`), który buduje Windows `.exe` oraz macOS `.pkg` dla Apple Silicon i Intel.
 
 
-## 📦 Zmiany w wersji 3.2.0
+## 📦 Zmiany w wersji 3.3.0
 
-- 📊 **Statystyki sesji.** Nowy przycisk **Statystyki** w konsoli pokazuje tydzień, miesiąc, rok i cały okres: sesje, odpowiedzi, poprawne, błędne, skuteczność, nowe słówka, czas i aktywne dni. Statystyki są wspólne z CLI (`stats.json`).
-- 🔔 **Powtarzane przypomnienia.** Nowa opcja `reminder.repeat_minutes` (w GUI: **Powtarzaj przypomnienie**) wysyła powiadomienie co 15, 30, 60, 120 lub 180 minut, dopóki nie ukończysz sesji.
-- ⌨️ **Nowe CLI.** Polecenia `start`, `stats`, `remind`, `update-check`, `help` i `version`, plus instalacja przez `curl -fsSL .../install.sh | bash` i launcher `instaling-bot` w `PATH`.
-- ⬆️ **Aktualizacja przed startem.** `instaling-bot start` sprawdza najnowsze wydanie i nie uruchamia nieaktualnej wersji. Wyjątek: `--skip-update-check` lub `INSTALING_SKIP_UPDATE_CHECK=1`.
-- 🚀 **Szybki start na górze.** Przewodnik przeniesiono bezpośrednio pod informację o Ko-fi, nad formularz logowania.
-- 💬 **Jaśniejsze okna pomocy.** Usunięto przycisk „FAQ na stronie”; błąd i brak internetu linkują wyłącznie do FAQ w README.
-- 🧹 **Automatyczne czyszczenie konsoli.** Dwie godziny po zakończeniu sesji log w aplikacji i plik `logs/last-run.log` są czyszczone, żeby praca w tle nie zostawiała bałaganu.
-- 📦 **Nazwy wydań i instalatorów.** Tytuł wydania to sam numer wersji (`3.2.0`), a pliki zawierają platformę: `setup-win64.exe`, `macos-arm64.pkg`, `macos-x64.pkg`.
-- 📚 **Dokumentacja.** README pokazuje zmiany tylko dla bieżącej wersji głównej; starsze wpisy zostają w [`CHANGELOG.md`](CHANGELOG.md). FAQ uproszczono, a opis repozytorium i tagi uzupełniono o języki.
+- 🌍 **Pełny interfejs PL/EN.** Przełącznik na pasku menu tłumaczy ustawienia, dialogi błędów, statystyki, menu zasobnika i powiadomienia systemowe. Wybór zapisuje się jako `language` w `Config.json`; logi silnika pozostają po polsku.
+- 🔔 **Powiadomienie o zakończeniu sesji.** Nowe ustawienie `notifications.session_finished` (domyślnie `true`) pokazuje wynik lub błąd, gdy okno jest ukryte w zasobniku albo zminimalizowane. Widoczne okno nie generuje duplikatu powiadomienia.
+- 🔐 **Bezpieczeństwo, etap 1.** `Config.json` otrzymuje uprawnienia `600` na macOS/Linux i prywatną listę ACL na Windows; hasło jest maskowane w logach i powiadomieniach.
+- 🔑 **Dane logowania ze środowiska.** `INSTALING_LOGIN` i `INSTALING_PASSWORD` mają pierwszeństwo przed `Config.json`, a desktop pokazuje, które pola są ustawione przez środowisko.
+- 🔎 **SEO i strona projektu.** Uporządkowany tytuł i metadane, dane strukturalne `WebSite` oraz zaktualizowany `SoftwareApplication`, świeży `lastmod` mapy strony i ponowne zgłoszenie IndexNow.
+- 📚 **Dokumentacja.** README, wiki i strona opisują interfejs PL/EN, powiadomienia, zmienne środowiskowe i nowy etap bezpieczeństwa.
 
 Wcześniejsze zmiany: [CHANGELOG.md](CHANGELOG.md).
 

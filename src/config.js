@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const {DEFAULT_LOGIN_URL, resolveLoginUrl} = require('./urls.js');
+const {resolveCredentials} = require('./credentials.js');
 
 // The desktop app runs the engine against a writable user-data directory, so the
 // config path can be provided explicitly. The CLI keeps using config/Config.json.
@@ -23,10 +24,12 @@ try {
 }
 
 // Backwards compatibility: older configs kept login/password at the top level.
-const credentials = raw.credentials ?? {
+// INSTALING_LOGIN / INSTALING_PASSWORD override the file (useful for CI and
+// headless runs where credentials should not be stored on disk).
+const credentials = resolveCredentials(raw.credentials ?? {
     login: raw.login ?? '',
     password: raw.password ?? ''
-};
+});
 
 // Never navigate to a login page outside instaling.pl: the bot types the
 // credentials there, and file-provided URLs must not be able to redirect them.

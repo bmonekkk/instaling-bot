@@ -6,9 +6,9 @@ Pobierz plik z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/r
 
 | System | Plik |
 |---|---|
-| Windows 10/11 (x64) | `instaling-bot-3.2.0-setup-win64.exe` |
-| macOS 13+ (Apple Silicon) | `instaling-bot-3.2.0-macos-arm64.pkg` |
-| macOS 13+ (Intel) | `instaling-bot-3.2.0-macos-x64.pkg` |
+| Windows 10/11 (x64) | `instaling-bot-3.3.0-setup-win64.exe` |
+| macOS 13+ (Apple Silicon) | `instaling-bot-3.3.0-macos-arm64.pkg` |
+| macOS 13+ (Intel) | `instaling-bot-3.3.0-macos-x64.pkg` |
 
 Instalator zawiera Chrome for Testing — **nie trzeba instalować Node.js ani Chrome**.
 

@@ -11,7 +11,7 @@
 <div class="app" id="app">
     <header class="titlebar" id="titlebar">
         <span class="titlebar-icon" aria-hidden="true">🤖</span>
-        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v3.2.0</span></span>
+        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v3.3.0</span></span>
         <div class="window-controls">
             <button class="window-button" id="win-minimize" type="button" data-i18n-title="window.minimize" data-i18n-aria-label="window.minimize" title="Minimalizuj" aria-label="Minimalizuj">_</button>
             <button class="window-button" id="win-maximize" type="button" data-i18n-title="window.maximize" data-i18n-aria-label="window.maximize" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
@@ -77,6 +77,7 @@
                             </span>
                         </label>
                         <p class="hint" data-i18n="account.hint">Dane są zapisywane lokalnie w folderze aplikacji i nigdy nie opuszczają tego komputera.</p>
+                        <p class="hint" id="env-credentials-hint" data-i18n="account.envHint" hidden>Pola zablokowane poniżej ustawiono zmiennymi środowiskowymi INSTALING_LOGIN / INSTALING_PASSWORD. Mają one pierwszeństwo przed Config.json.</p>
                     </fieldset>
 
                     <fieldset>
@@ -122,6 +123,7 @@
                         <div class="check-stack">
                             <label class="check"><input id="run-in-tray" type="checkbox"> <span data-i18n="reminder.tray">Działaj w zasobniku po zamknięciu okna</span></label>
                             <label class="check"><input id="start-at-login" type="checkbox"> <span data-i18n="reminder.autostart">Uruchamiaj przy logowaniu systemu</span></label>
+                            <label class="check"><input id="notify-session-finished" type="checkbox" checked> <span data-i18n="notifications.sessionFinished">Powiadamiaj o zakończeniu sesji (okno ukryte lub zminimalizowane)</span></label>
                         </div>
                         <p class="hint" data-i18n="reminder.hint">Przypomnienie działa, gdy aplikacja jest uruchomiona — także ukryta w zasobniku. Sesja wykonana tego dnia nie wywołuje przypomnienia. Przy powtarzaniu przypomnienia wracają co wybrany czas, dopóki nie ukończysz sesji.</p>
                         <p class="hint" data-i18n-html="reminder.autostartHint"><strong>Autostart:</strong> włącza uruchamianie aplikacji przy logowaniu systemu. Aby startowała bez okna, włącz także tryb zasobnika — inaczej po logowaniu otworzy się normalne okno. Na macOS tryb zasobnika chowa też ikonę z Docka; wszystko robisz z menu bar.</p>
@@ -231,7 +233,7 @@
         <span class="status-cell" id="footer-status" data-i18n="footer.ready">Gotowy</span>
         <span class="status-cell grow" id="footer-path" data-i18n-title="footer.dataFolder" title="Folder danych">—</span>
         <button class="status-cell link" id="footer-author" type="button" data-i18n-title="footer.author" title="Profil autora na GitHubie">by bmonekkk</button>
-        <span class="status-cell" id="footer-version">v3.2.0</span>
+        <span class="status-cell" id="footer-version">v3.3.0</span>
     </footer>
 </div>
 

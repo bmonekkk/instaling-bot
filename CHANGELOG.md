@@ -2,20 +2,29 @@
 
 All notable changes to this fork are documented here.
 
-## [Unreleased]
+## [3.3.0] - 2026-10-27
 
 ### Added
-- Polish/English desktop interface with a **PL/EN** switch in the menu bar. The choice is stored as `language` in `Config.json` and also translates the tray menu and native notifications. Bot engine console output remains in Polish.
+- Polish/English desktop interface with a **PL/EN** switch in the menu bar. The choice is stored as `language` in `Config.json` and also translates the settings, dialogs, statistics, tray menu and native notifications. Bot engine console output remains in Polish.
+- `notifications.session_finished` (default `true`) and a settings checkbox for the session-finished notification. It fires when the window is hidden in the tray or minimized; a visible window is not duplicated.
+- Security Phase 1: `Config.json` is written with owner-only permissions (`chmod 600` on macOS/Linux, best-effort private ACL via `icacls` on Windows), passwords are redacted from logs and notifications, and `INSTALING_LOGIN` / `INSTALING_PASSWORD` override stored credentials.
+- The desktop app shows when credential fields are supplied by environment variables and disables them to avoid accidental overwrites.
 - Community health files: `SECURITY.md`, `CONTRIBUTING.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md`, issue and pull request templates, and discussion templates for Q&A and Ideas.
 - CI workflow covering syntax checks, unit tests with `node:test`, whitespace, the `install.sh` shell script and CLI smoke tests; CodeQL analysis for JavaScript; Dependabot updates for npm and GitHub Actions.
 - Wiki source under `wiki/` with a `scripts/sync-wiki.sh` helper, plus a welcome discussion in the repository.
 - Repository hardening: protected `master` with a required CI check, private vulnerability reporting, secret scanning push protection, Dependabot alerts and security updates, squash-only merges and automatic branch deletion.
 - Security hardening from CodeQL: `sites.login` must be the official HTTPS `instaling.pl` login page and navigation uses a fixed constant, login typing errors no longer carry credential values into the log, and errors are logged by message only.
+- Search engine and link-preview metadata for the project page: cleaner title and site name, `WebSite` plus updated `SoftwareApplication` structured data, Open Graph and Twitter images, `FAQPage` data, favicon, `llms.txt`, refreshed sitemap, IndexNow submission script and a 1200x630 social preview.
 
 ### Changed
 - README now has CI, CodeQL, release, license and discussions badges, plus a community and support section.
 - Added an English README (`README.en.md`) with a language switcher at the top of both README files.
-- Search engine and link-preview metadata for the project page: Open Graph and Twitter images, `FAQPage` structured data, favicon, `llms.txt`, refreshed sitemap, IndexNow submission script and a 1200x630 social preview.
+- The project roadmap now targets signed builds, encrypted credentials, SQLite, regression fixtures, OS-level reminders and a later userscript/mobile experiment; Linux desktop builds are explicitly out of scope (Linux stays on the CLI).
+
+### Compatibility
+- Existing configs receive `notifications.session_finished: true` automatically through the defaults merge. Stored credentials keep working; environment overrides are optional.
+- `Config.json` permissions are tightened on the next desktop launch/write. Filesystems without POSIX permissions or ACL support are ignored gracefully.
+- Updates remain manual (download and run the new installer) because builds are unsigned.
 
 ## [3.2.0] - 2026-10-27
 

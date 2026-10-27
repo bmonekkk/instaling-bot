@@ -22,12 +22,12 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.2.0) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v3.3.0) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-3.2.0-setup-win64.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-3.3.0-setup-win64.exe` (gitignored) |
 
 ## Stack
 
@@ -406,6 +406,14 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Windows NSIS installer and macOS PKG builds for arm64/x64 via GitHub Actions.
 - Shared engine/config/words with the CLI, including graceful stop and IPC events.
 
+## What changed in 3.3.0
+
+- Full PL/EN desktop interface via `desktop/renderer/i18n.js`, shared by the main process and renderer. `language` is persisted in `Config.json`; engine logs remain Polish.
+- `notifications.session_finished` (default `true`) plus a GUI checkbox. Notifications fire when the window is hidden to the tray, minimized, or absent; visible windows are skipped.
+- Security Phase 1: `secureFile()` tightens `Config.json` to `0600` (POSIX) or a private `icacls` ACL (Windows); `appendLog()`/notifications redact known passwords; `INSTALING_LOGIN` / `INSTALING_PASSWORD` override stored credentials in `src/config.js` and are reflected (with disabled fields) in the GUI.
+- SEO refresh for `docs/`: cleaner title/site name, `WebSite` and updated `SoftwareApplication` JSON-LD, sitemap `lastmod`, IndexNow submission.
+- Repository description/topics, discussion roadmap and these notes now reflect the no-native-mobile decision; a userscript is the planned mobile experiment after 3.3.x.
+
 ## What changed in 3.2.0
 
 - Statistics: `src/stats.js` stores per-day aggregates in `stats.json`; the engine records every finished run with at least one answer. Desktop exposes an `app:get-stats` IPC handler and a statistics modal with week/month/year/all tabs. CLI: `instaling-bot stats [--period ...] [--json]`.
@@ -443,18 +451,18 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 ## Future ideas
 
 - Signed installers and real auto-update (`electron-updater`) once a certificate exists.
-- Encrypted credential storage (Windows Credential Manager / macOS Keychain via `keytar`).
+- Encrypted credential storage (Windows Credential Manager / macOS Keychain via `keytar` or Electron `safeStorage`) — security Phase 2.
 - SQLite for words with import/export and search.
-- PL/EN interface.
 - Regression tests using saved HTML fixtures instead of hitting the live site.
 - OS-level scheduled reminder that fires even when the app is closed (Task Scheduler / launchd).
+- Userscript for mobile browsers as the first mobile experiment (after 3.3.x). No native iOS app; an Android WebView wrapper only if there is real demand. Linux desktop builds stay out of scope — Linux uses the CLI.
 
 ## Starter prompt for a new session
 
 Copy this into a new chat:
 
-> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.2.0).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v3.3.0).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
-> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run.
-> Do not regress: cookie handling, `isVisible()` semantics, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, manual-only updates.
+> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux. Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. The desktop has a full PL/EN interface, configurable session-finished notifications, owner-only config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run.
+> Do not regress: cookie handling, notification visibility semantics (visible window = no duplicate), saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, credential redaction, manual-only updates.
 > Test with `"max_answers": 1`, update `CHANGELOG.md`, and prepare a release.

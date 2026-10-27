@@ -39,5 +39,8 @@
     "background": {
         "run_in_tray": false,
         "start_at_login": false
+    },
+    "notifications": {
+        "session_finished": true
     }
 }

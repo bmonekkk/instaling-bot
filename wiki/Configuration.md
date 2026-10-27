@@ -46,7 +46,9 @@ screenshots/              diagnostyczne zrzuty ekranu
 | `reminder.repeat_minutes` | powtarzanie co N minut, `0` = raz dziennie |
 | `background.run_in_tray` | zamykanie okna chowa aplikację do zasobnika |
 | `background.start_at_login` | uruchamianie przy logowaniu systemu |
+| `notifications.session_finished` | powiadomienie o końcu sesji, gdy okno jest ukryte lub zminimalizowane (`true` domyślnie) |
 | `language` | język interfejsu desktopowego: `pl` lub `en`; przełącznik **PL/EN** jest na pasku menu |
+| `INSTALING_LOGIN` / `INSTALING_PASSWORD` | zmienne środowiskowe z danymi logowania; mają pierwszeństwo przed `Config.json` |
 
 ## Humanizacja pisania
 
@@ -62,8 +64,11 @@ i [README → Humanizacja](https://github.com/bmonekkk/instaling-bot#-humanizacj
 ## Prywatność
 
 Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer. Dane trafiają
-do plików w folderze aplikacji. Nie publikuj `Config.json` ani logów — usuń z nich dane
-osobowe przed wklejeniem do issue.
+do plików w folderze aplikacji. Desktop nadaje `Config.json` uprawnienia tylko dla właściciela
+(`600` na macOS/Linux, prywatna lista ACL na Windows) i maskuje hasła w logach oraz
+powiadomieniach. Zamiast zapisywać hasło w pliku, możesz użyć `INSTALING_LOGIN` i
+`INSTALING_PASSWORD`. Nie publikuj `Config.json` ani logów — usuń z nich dane osobowe przed
+wklejeniem do issue.
 
 Adres `sites.login` jest walidowany: musi wskazywać oficjalną stronę logowania `instaling.pl`
 po HTTPS. Dzięki temu zmodyfikowany `Config.json` nie może przekierować loginu i hasła na obcą

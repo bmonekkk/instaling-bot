@@ -42,6 +42,7 @@
             'password.show': 'Pokaż',
             'password.hide': 'Ukryj',
             'account.hint': 'Dane są zapisywane lokalnie w folderze aplikacji i nigdy nie opuszczają tego komputera.',
+            'account.envHint': 'Pola zablokowane poniżej ustawiono zmiennymi środowiskowymi INSTALING_LOGIN / INSTALING_PASSWORD. Mają one pierwszeństwo przed Config.json.',
 
             'behavior.legend': 'Zachowanie',
             'behavior.validity': 'Poprawność odpowiedzi',
@@ -62,6 +63,7 @@
             'repeat.180': 'Co 3 godziny',
             'reminder.tray': 'Działaj w zasobniku po zamknięciu okna',
             'reminder.autostart': 'Uruchamiaj przy logowaniu systemu',
+            'notifications.sessionFinished': 'Powiadamiaj o zakończeniu sesji (okno ukryte lub zminimalizowane)',
             'reminder.hint': 'Przypomnienie działa, gdy aplikacja jest uruchomiona — także ukryta w zasobniku. Sesja wykonana tego dnia nie wywołuje przypomnienia. Przy powtarzaniu przypomnienia wracają co wybrany czas, dopóki nie ukończysz sesji.',
             'reminder.autostartHint': '<strong>Autostart:</strong> włącza uruchamianie aplikacji przy logowaniu systemu. Aby startowała bez okna, włącz także tryb zasobnika — inaczej po logowaniu otworzy się normalne okno. Na macOS tryb zasobnika chowa też ikonę z Docka; wszystko robisz z menu bar.',
 
@@ -222,6 +224,7 @@
             'password.show': 'Show',
             'password.hide': 'Hide',
             'account.hint': 'Your data is saved locally in the app folder and never leaves this computer.',
+            'account.envHint': 'Fields disabled below are set by the INSTALING_LOGIN / INSTALING_PASSWORD environment variables. They take precedence over Config.json.',
 
             'behavior.legend': 'Behavior',
             'behavior.validity': 'Answer accuracy',
@@ -242,6 +245,7 @@
             'repeat.180': 'Every 3 hours',
             'reminder.tray': 'Keep running in the tray after closing the window',
             'reminder.autostart': 'Start when the system logs in',
+            'notifications.sessionFinished': 'Notify me when a session finishes (window hidden or minimized)',
             'reminder.hint': 'The reminder works while the app is running — including in the tray. A session completed that day does not trigger a reminder. With repeat enabled, reminders return every chosen interval until you finish a session.',
             'reminder.autostartHint': '<strong>Autostart:</strong> starts the app when the system logs in. To start without a window, also enable tray mode — otherwise a normal window opens after login. On macOS tray mode also hides the Dock icon; everything is available from the menu bar.',
 

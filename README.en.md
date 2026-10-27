@@ -19,13 +19,13 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**3.2.0**) combines three things:
+The current version (**3.3.0**) combines three things:
 
 - 🖥️ a desktop app with a GUI, live log, statistics and a bundled Chrome browser,
 - ⌨️ a full CLI for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
 
-Version 3.2.0 adds **week, month, year and all-time statistics** (sessions, answers, accuracy, new words, time), **repeating reminders** at a chosen interval, a **new CLI** with `start`, `stats`, `remind`, `update-check` and `help`, **update checks before the CLI starts**, and **automatic console cleanup** two hours after a session. Quick start moved to the top of the panel, and error dialogs now link only to the README FAQ.
+Version 3.3.0 adds a **full Polish/English interface** (settings, dialogs, statistics, tray menu and notifications), an optional **session-finished notification** for hidden or minimized windows, and **security Phase 1**: owner-only permissions for `Config.json`, password redaction in logs, and `INSTALING_LOGIN` / `INSTALING_PASSWORD` environment overrides. Statistics, repeating reminders and the 3.2.x CLI stay unchanged. The project page also gained cleaner metadata and `WebSite` / `SoftwareApplication` structured data.
 
 Open source, ISC license.
 
@@ -50,6 +50,7 @@ Support is entirely voluntary and not required to use the project. The project i
 | Data | `%APPDATA%\instaling-bot` or `~/Library/Application Support/instaling-bot` | `config/` in the project directory |
 | Statistics | **Statistics** button: week, month, year, all time | `instaling-bot stats` |
 | Reminders | System notification + toast, optionally every N minutes | `instaling-bot remind`, same setting |
+| Session end | Notification when the window is hidden or minimized | Message in the terminal |
 | Updates | Release check + **Download** button | `instaling-bot update-check`; start blocks outdated builds |
 | Updating | New installer from GitHub | Re-run `curl` or `git pull && npm install --omit=dev` |
 
@@ -57,14 +58,16 @@ Both variants use the same engine (`src/`), the same options and the same `Saved
 
 The desktop interface works in Polish and English. Switch languages with the **PL/EN** buttons in the menu bar; the choice is saved in `Config.json` (`language`) and also covers the tray menu and native notifications.
 
+The session-finished notification is on by default and appears only when the window is hidden in the tray or minimized — turn it off with **Notify me when a session finishes**. `Config.json` is written with owner-only permissions (`600` on macOS/Linux, a private ACL on Windows), and passwords are redacted from logs and notifications. Instead of storing a password in the file, you can set `INSTALING_LOGIN` and `INSTALING_PASSWORD` — they take precedence over the config.
+
 
 ## 🖥️ Desktop: Windows and macOS
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-3.2.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-3.2.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-3.2.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-3.3.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-3.3.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-3.3.0-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -98,7 +101,7 @@ Both switches are in **Settings → Reminders and background mode**:
 - To start silently, enable **both** switches. Autostart alone opens a window on the desktop.
 - On macOS, tray mode hides the Dock icon and switches the app to accessory mode — only the menu bar icon remains, adapting to light/dark mode.
 - After closing the window in tray mode, the app destroys the window (rather than just hiding it) to use less RAM in the background. The interface is recreated when you click the icon.
-- You can start a session from the icon menu (**Start**). When it finishes, you get a system notification with the answer count — the window does not have to be open.
+- You can start a session from the icon menu (**Start**). When it finishes, you get a system notification with the answer count — provided **Notify me when a session finishes** is enabled and the window is hidden or minimized.
 - The tray icon also offers **Stop**, **Show window** and **Quit**.
 
 ### 🔄 Updates
@@ -254,6 +257,8 @@ Template for all options: [`config/Config.defaults.json`](config/Config.defaults
 - `sites` — sites used
   - `login` — login page; must be the official HTTPS `instaling.pl` login page (the bot refuses to start with any other address)
 - `language` — desktop interface language: `pl` (default) or `en`; it can also be changed with the **PL/EN** buttons in the menu bar. Bot engine logs remain in Polish.
+- `notifications.session_finished` — session-finished notification when the window is hidden or minimized (`true` by default)
+- `INSTALING_LOGIN` / `INSTALING_PASSWORD` — environment variables with credentials; they take precedence over `credentials` in `Config.json`. Useful in CI and on servers where the password should not be written to disk.
 - `delays` — wait times in milliseconds (1 s = 1000 ms); the bot picks a random value between min and max
   - `click_min` / `click_max` — default delay after clicking a button
   - `type_min` / `type_max` — delay per single letter
@@ -320,17 +325,14 @@ Before packaging, `npm run dist:win` / `dist:mac` automatically runs `npm run pr
 The macOS installer must be built on macOS. The repository includes a GitHub Actions workflow (`.github/workflows/release.yml`) that builds the Windows `.exe` and the macOS `.pkg` for Apple Silicon and Intel.
 
 
-## 📦 Changes in 3.2.0
+## 📦 Changes in 3.3.0
 
-- 📊 **Session statistics.** A new **Statistics** button in the console shows the week, month, year and all time: sessions, answers, correct, wrong, accuracy, new words, time and active days. Statistics are shared with the CLI (`stats.json`).
-- 🔔 **Repeating reminders.** A new `reminder.repeat_minutes` option (in the GUI: **Repeat reminder**) sends a notification every 15, 30, 60, 120 or 180 minutes until you complete a session.
-- ⌨️ **New CLI.** `start`, `stats`, `remind`, `update-check`, `help` and `version`, plus installation via `curl -fsSL .../install.sh | bash` and an `instaling-bot` launcher in `PATH`.
-- ⬆️ **Update before start.** `instaling-bot start` checks the latest release and does not run an outdated version. Exception: `--skip-update-check` or `INSTALING_SKIP_UPDATE_CHECK=1`.
-- 🚀 **Quick start at the top.** The guide moved directly below the Ko-fi note, above the login form.
-- 💬 **Clearer help dialogs.** The "FAQ on the website" button was removed; errors and offline states link only to the README FAQ.
-- 🧹 **Automatic console cleanup.** Two hours after a session ends, the app log and `logs/last-run.log` are cleared so background operation does not leave clutter.
-- 📦 **Release and installer names.** The release title is just the version number (`3.2.0`), and files include the platform: `setup-win64.exe`, `macos-arm64.pkg`, `macos-x64.pkg`.
-- 📚 **Documentation.** The README shows changes only for the current major version; older entries stay in [`CHANGELOG.md`](CHANGELOG.md). The FAQ was simplified, and the repository description and topics were extended with languages.
+- 🌍 **Full PL/EN interface.** The menu-bar switch translates settings, error dialogs, statistics, the tray menu and native notifications. The choice is saved as `language` in `Config.json`; engine logs remain in Polish.
+- 🔔 **Session-finished notification.** A new `notifications.session_finished` option (default `true`) shows the result or error when the window is hidden in the tray or minimized. A visible window does not produce a duplicate.
+- 🔐 **Security Phase 1.** `Config.json` gets `600` permissions on macOS/Linux and a private ACL on Windows; passwords are redacted from logs and notifications.
+- 🔑 **Credentials from the environment.** `INSTALING_LOGIN` and `INSTALING_PASSWORD` take precedence over `Config.json`, and the desktop app shows which fields come from the environment.
+- 🔎 **SEO and project page.** Cleaner title and metadata, `WebSite` structured data, an updated `SoftwareApplication` entry, a fresh sitemap `lastmod` and another IndexNow submission.
+- 📚 **Documentation.** README, wiki and the site describe the PL/EN interface, notifications, environment variables and the new security phase.
 
 Earlier changes: [CHANGELOG.md](CHANGELOG.md).
 

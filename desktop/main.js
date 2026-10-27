@@ -1,10 +1,11 @@
 const {app, BrowserWindow, ipcMain, shell, Menu, Tray, nativeImage, Notification} = require('electron');
-const {fork} = require('child_process');
+const {execFileSync, fork} = require('child_process');
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
 const readline = require('readline');
 const {checkLatestRelease} = require('../src/update.js');
+const {readEnvCredentials, resolveCredentials, redactSecrets} = require('../src/credentials.js');
 const {
     dateKey,
     isReminderDue,
@@ -153,6 +154,33 @@ async function readJson(file) {
 async function writeJson(file, value) {
     await fsp.mkdir(path.dirname(file), {recursive: true});
     await fsp.writeFile(file, JSON.stringify(value, null, 4) + '\n', 'utf8');
+    secureFile(file);
+}
+
+// Best-effort credential-file hardening: chmod 600 on POSIX and a private ACL
+// on Windows. Failures are non-fatal because some filesystems cannot store
+// permissions (FAT/exFAT, network shares, managed Windows profiles).
+function secureFile(file) {
+    try {
+        if (process.platform === 'win32') {
+            const account = process.env.USERNAME
+                ? (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME)
+                : '';
+            if (!account) return;
+            execFileSync('icacls', [file, '/inheritance:r', '/grant:r', `${account}:F`], {
+                stdio: 'ignore',
+                windowsHide: true
+            });
+        } else {
+            fs.chmodSync(file, 0o600);
+        }
+    } catch (error) {
+        // Keep running even when the filesystem does not support permissions.
+    }
+}
+
+function redact(text) {
+    return redactSecrets(text, [process.env.INSTALING_PASSWORD, configCache?.credentials?.password]);
 }
 
 async function ensureDataFiles() {
@@ -165,6 +193,7 @@ async function ensureDataFiles() {
 
     if (!fs.existsSync(CONFIG_PATH)) {
         await fsp.copyFile(DEFAULT_CONFIG_PATH, CONFIG_PATH);
+        secureFile(CONFIG_PATH);
     }
     if (!fs.existsSync(WORDS_PATH)) {
         await fsp.copyFile(DEFAULT_WORDS_PATH, WORDS_PATH);
@@ -178,6 +207,7 @@ async function ensureDataFiles() {
     if (JSON.stringify(merged) !== JSON.stringify(current)) {
         await writeJson(CONFIG_PATH, merged);
     }
+    secureFile(CONFIG_PATH);
     return merged;
 }
 
@@ -216,10 +246,15 @@ function clampNumber(value, fallback, min, max, integer = false) {
 function applySettings(current, payload) {
     const next = clone(current);
     const credentials = payload?.credentials ?? {};
+    const fromEnv = readEnvCredentials();
 
     next.credentials = {
-        login: String(credentials.login ?? '').trim(),
-        password: String(credentials.password ?? '')
+        login: fromEnv.hasLogin
+            ? String(current.credentials?.login ?? '')
+            : String(credentials.login ?? '').trim(),
+        password: fromEnv.hasPassword
+            ? String(current.credentials?.password ?? '')
+            : String(credentials.password ?? '')
     };
     next.language = normalizeLanguage(payload?.language ?? current.language ?? 'pl');
 
@@ -256,6 +291,13 @@ function applySettings(current, payload) {
             : Boolean(background.start_at_login)
     };
 
+    const notifications = payload?.notifications ?? {};
+    next.notifications = {
+        session_finished: notifications.session_finished === undefined
+            ? current.notifications?.session_finished !== false
+            : Boolean(notifications.session_finished)
+    };
+
     const delays = payload?.delays ?? {};
     next.delays = {
         ...(current.delays ?? {}),
@@ -273,7 +315,8 @@ function applySettings(current, payload) {
         next.delays.click_max = next.delays.click_min;
     }
 
-    if (!next.credentials.login || !next.credentials.password) {
+    const effective = resolveCredentials(next.credentials);
+    if (!effective.login || !effective.password) {
         throw new Error(tr('toast.loginRequired'));
     }
 
@@ -305,10 +348,13 @@ function publicState() {
 }
 
 function configForRenderer(config) {
+    const fromEnv = readEnvCredentials();
     return {
         credentials: {
-            login: config.credentials.login ?? '',
-            password: config.credentials.password ?? ''
+            login: fromEnv.hasLogin ? fromEnv.login : config.credentials.login ?? '',
+            password: fromEnv.hasPassword ? '' : config.credentials.password ?? '',
+            env_login: fromEnv.hasLogin,
+            env_password: fromEnv.hasPassword
         },
         valid_chance: config.valid_chance ?? 0.8,
         max_answers: config.max_answers ?? 0,
@@ -332,6 +378,9 @@ function configForRenderer(config) {
             run_in_tray: Boolean(config.background?.run_in_tray),
             start_at_login: Boolean(config.background?.start_at_login)
         },
+        notifications: {
+            session_finished: config.notifications?.session_finished !== false
+        },
         language: normalizeLanguage(config.language)
     };
 }
@@ -347,15 +396,16 @@ function broadcastState() {
 }
 
 function appendLog(line) {
+    const safeLine = redact(line);
     if (logStream) {
-        logStream.write(line + '\n');
+        logStream.write(safeLine + '\n');
     }
     logSeq += 1;
-    logBuffer.push({seq: logSeq, line});
+    logBuffer.push({seq: logSeq, line: safeLine});
     if (logBuffer.length > LOG_BUFFER_LIMIT) {
         logBuffer.splice(0, logBuffer.length - LOG_BUFFER_LIMIT);
     }
-    send('bot:log', {line, seq: logSeq});
+    send('bot:log', {line: safeLine, seq: logSeq});
 }
 
 function resetLogBuffer() {
@@ -434,7 +484,7 @@ function handleBotMessage(message) {
             botState.phase = message.phase ?? botState.phase;
             break;
         case 'error':
-            botState.lastError = message.message ?? tr('error.unknown');
+            botState.lastError = redact(message.message ?? tr('error.unknown'));
             break;
         case 'finished':
             botState.exitCode = message.code ?? null;
@@ -476,7 +526,8 @@ async function startBot() {
     const token = ++runToken;
 
     const config = await loadConfig();
-    if (!config.credentials.login || !config.credentials.password) {
+    const effectiveCredentials = resolveCredentials(config.credentials);
+    if (!effectiveCredentials.login || !effectiveCredentials.password) {
         throw new Error(tr('toast.loginRequired'));
     }
 
@@ -684,7 +735,14 @@ function hideToTray() {
 
 function notifySessionFinished() {
     if (!Notification.isSupported() || lastNotifiedRun === botState.finishedAt) return;
-    if (mainWindow && mainWindow.isVisible()) return;
+    if (configCache?.notifications?.session_finished === false) return;
+    // Notify only when the result is not already on screen: hidden to tray,
+    // minimised, or no window at all. A visible, focused window is enough.
+    const windowOnScreen = mainWindow
+        && !mainWindow.isDestroyed()
+        && mainWindow.isVisible()
+        && !mainWindow.isMinimized();
+    if (windowOnScreen) return;
     lastNotifiedRun = botState.finishedAt;
 
     const failed = botState.status === 'error';
@@ -696,7 +754,7 @@ function notifySessionFinished() {
 
 function notifyTrayMessage(body) {
     if (!Notification.isSupported()) return;
-    const notification = new Notification({title: 'instaling-bot', body});
+    const notification = new Notification({title: 'instaling-bot', body: redact(body)});
     notification.on('click', showWindow);
     notification.show();
 }

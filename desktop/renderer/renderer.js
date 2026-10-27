@@ -8,6 +8,7 @@ const els = {
     login: $('login'),
     password: $('password'),
     togglePassword: $('toggle-password'),
+    envHint: $('env-credentials-hint'),
     validChance: $('valid-chance'),
     validChanceValue: $('valid-chance-value'),
     maxAnswers: $('max-answers'),
@@ -27,6 +28,7 @@ const els = {
     reminderRepeat: $('reminder-repeat'),
     runInTray: $('run-in-tray'),
     startAtLogin: $('start-at-login'),
+    notifySessionFinished: $('notify-session-finished'),
     start: $('start'),
     stop: $('stop'),
     save: $('save'),
@@ -93,6 +95,8 @@ let statsCache = null;
 let statsPeriod = 'week';
 let language = 'pl';
 let maximized = false;
+let envLoginActive = false;
+let envPasswordActive = false;
 
 const README_FAQ_URLS = {
     pl: 'https://github.com/bmonekkk/instaling-bot/blob/master/README.md#-rozwiązywanie-problemów',
@@ -159,8 +163,16 @@ function applyLanguage(value) {
 }
 
 function fillForm(config) {
+    const envLogin = Boolean(config.credentials?.env_login);
+    const envPassword = Boolean(config.credentials?.env_password);
+    envLoginActive = envLogin;
+    envPasswordActive = envPassword;
     els.login.value = config.credentials?.login ?? '';
     els.password.value = config.credentials?.password ?? '';
+    els.login.disabled = envLogin;
+    els.password.disabled = envPassword;
+    els.togglePassword.disabled = envPassword;
+    els.envHint.hidden = !(envLogin || envPassword);
     els.validChance.value = String(Math.round((config.valid_chance ?? 0.8) * 100));
     els.maxAnswers.value = String(config.max_answers ?? 0);
     els.showBrowser.checked = config.show_browser !== false;
@@ -180,6 +192,7 @@ function fillForm(config) {
     }
     els.runInTray.checked = Boolean(config.background?.run_in_tray);
     els.startAtLogin.checked = Boolean(config.background?.start_at_login);
+    els.notifySessionFinished.checked = config.notifications?.session_finished !== false;
     updateRangeLabels();
 }
 
@@ -203,6 +216,9 @@ function collectSettings() {
             run_in_tray: els.runInTray.checked,
             start_at_login: els.startAtLogin.checked
         },
+        notifications: {
+            session_finished: els.notifySessionFinished.checked
+        },
         delays: {
             type_min: Math.max(0, Math.round(toNumber(els.typeMin, 90))),
             type_max: Math.max(0, Math.round(toNumber(els.typeMax, 230))),
@@ -215,9 +231,9 @@ function collectSettings() {
 }
 
 function validateCredentials() {
-    if (!els.login.value.trim() || !els.password.value) {
+    if ((!envLoginActive && !els.login.value.trim()) || (!envPasswordActive && !els.password.value)) {
         toast(tr('toast.loginRequired'), true);
-        els.login.focus();
+        if (!envLoginActive) els.login.focus();
         return false;
     }
     return true;
@@ -359,7 +375,7 @@ async function loadState() {
         applyLanguage(state.config?.language ?? language);
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v3.2.0';
+        const version = state.version ? `v${state.version}` : 'v3.3.0';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;
