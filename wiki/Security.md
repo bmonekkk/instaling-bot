@@ -21,11 +21,15 @@ osobowymi. Zredaguj logi przed wysłaniem.
 
 | Wersja | Wsparcie |
 |---|---|
-| 4.0.x (desktop, CLI, APK, IPA, userscript) | ✅ |
+| 4.1.x (desktop, CLI, APK, IPA, userscript) | ✅ |
+| 4.0.x | ✅ |
 | 3.3.x | ✅ |
 | < 3.3 | ❌ |
 
 Aktualizuj do [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+
+Przegląd zabezpieczeń i znane ograniczenia: [`SECURITY_AUDIT.md`](https://github.com/bmonekkk/instaling-bot/blob/master/SECURITY_AUDIT.md).
+Projekt nie twierdzi, że jest w 100% bezpieczny.
 
 ## Zakres
 
