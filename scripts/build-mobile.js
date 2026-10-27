@@ -12,7 +12,7 @@ const pkg = require(path.join(ROOT, 'package.json'));
 const USERSCRIPT_HEADER = `// ==UserScript==
 // @name         instaling-bot
 // @namespace    https://github.com/bmonekkk/instaling-bot
-// @version      ${pkg.version}
+// @version      ${pkg.userscriptVersion || pkg.version}
 // @description  Human-like bot for instaling.pl (PL/EN). Shared engine with the desktop app.
 // @author       bmonekkk
 // @match        https://instaling.pl/*
@@ -64,7 +64,7 @@ async function main() {
     await build(
         path.join(ROOT, 'mobile/userscript/entry.js'),
         path.join(ROOT, 'dist/instaling-bot.user.js'),
-        {banner: USERSCRIPT_HEADER, defines: {__ICON__: JSON.stringify(await iconDataUri())}}
+        {banner: USERSCRIPT_HEADER, defines: {__ICON__: JSON.stringify(await iconDataUri()), __VERSION__: JSON.stringify(pkg.userscriptVersion || pkg.version)}}
     );
     await build(engineEntry, path.join(ROOT, 'mobile/android/app/src/main/assets/core.js'));
     await build(engineEntry, path.join(ROOT, 'mobile/ios/InstalingBot/Resources/core.js'));

@@ -999,7 +999,7 @@
             win: ['Pobierz dla Windows (.exe)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.0/instaling-bot-4.2.0-setup-win64.exe', '#install-desktop'],
             'mac-arm64': ['Pobierz dla macOS ARM64 (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.0/instaling-bot-4.2.0-macos-arm64.pkg', '#install-desktop'],
             'mac-x64': ['Pobierz dla macOS Intel (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.0/instaling-bot-4.2.0-macos-x64.pkg', '#install-desktop'],
-            mac: ['Pobierz dla macOS (.pkg)', '#downloads', '#install-desktop'],
+            mac: ['Pobierz dla macOS ARM64 (.pkg)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.0/instaling-bot-4.2.0-macos-arm64.pkg', '#downloads'],
             android: ['Pobierz dla Android (.apk)', 'https://github.com/bmonekkk/instaling-bot/releases/download/v4.2.0/instaling-bot-4.2.0-android.apk', '#mobile'],
             iphone: ['Pobierz dla iPhone (userscript)', 'https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js', '#mobile'],
             ipad: ['Pobierz dla iPad (userscript)', 'https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js', '#mobile'],
@@ -1040,7 +1040,7 @@
             if (out.key === 'unknown') {
                 output.textContent = 'Nie rozpoznaliśmy Twojego systemu. Wszystkie opcje są dostępne — wybierz swoją powyżej.';
             } else if (out.key === 'mac') {
-                output.textContent = 'Wykryto: macOS. Nie wiemy, czy masz procesor ARM64 czy Intel — wybierz odpowiednią wersję ręcznie.';
+                output.textContent = 'Wykryto: macOS. Większość nowych Maców to ARM64 (Apple Silicon) — przycisk pobiera wersję ARM64. Jeśli masz procesor Intel, wybierz wersję Intel poniżej.';
             } else {
                 output.textContent = 'Wykryto: ' + out.label + '. Podświetliliśmy zalecaną opcję; pozostałe są nadal dostępne.';
             }

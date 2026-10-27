@@ -50,10 +50,21 @@ let els = {};
 
 function styleText() {
     return `
-        :host { all: initial; }
+        /* The shadow root resets everything with all: initial, so the host
+           element falls back to the browser default font. Declare the UI font
+           explicitly here and force it onto every descendant, so siblings such
+           as .panel/.banner (which do not inherit from .wrap) and text that
+           only appears after a session starts can never switch fonts. */
+        :host {
+            all: initial;
+            font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
+            font-size: 13px; color: #000;
+        }
+        :host, :host *, :host *::before, :host *::after {
+            font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
+        }
         .wrap {
             position: fixed; right: 14px; bottom: 14px; z-index: 2147483647;
-            font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
             font-size: 13px; color: #000;
         }
         .bubble {
@@ -159,7 +170,6 @@ function styleText() {
             z-index: 2147483647; width: min(420px, calc(100vw - 20px));
             display: flex; align-items: center; gap: 8px;
             padding: 8px 10px; color: #000; background: #ffffcc;
-            font-family: Tahoma, "MS Sans Serif", "Segoe UI", sans-serif;
             font-size: 13px; border: 2px solid #000;
             box-shadow: 2px 2px 0 rgba(0,0,0,.4);
         }
