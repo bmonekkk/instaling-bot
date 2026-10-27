@@ -316,9 +316,10 @@ Health files live at the repository root: `SECURITY.md`, `CONTRIBUTING.md`, `SUP
   auto-delete branches, auto-merge and update-branch enabled.
 - Security: Dependabot alerts and security updates, private vulnerability reporting, secret
   scanning + push protection, non-provider patterns and validity checks.
-- Wiki source is versioned in `wiki/`. GitHub has no API for the **first** wiki page: open
-  `https://github.com/bmonekkk/instaling-bot/wiki`, create any first page, then run
-  `scripts/sync-wiki.sh` to push the full wiki.
+- Wiki source is versioned in `wiki/` and published to
+  `https://github.com/bmonekkk/instaling-bot/wiki` with `scripts/sync-wiki.sh`. GitHub has no
+  API for the **first** wiki page; that initial page already exists, so future updates only
+  need the script run after editing `wiki/`.
 
 ## Common tasks
 
