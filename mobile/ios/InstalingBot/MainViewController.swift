@@ -8,15 +8,18 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private static let releasesURL = URL(string: "https://github.com/bmonekkk/instaling-bot/releases/latest")!
     private static let apiURL = URL(string: "https://api.github.com/repos/bmonekkk/instaling-bot/releases/latest")!
     private static let reminderIdentifier = "instalingbot.daily"
-    private static let reminderHour = 17
+    private static let defaultReminderHour = 17
+    private static let defaultReminderMinute = 0
 
     private var webView: WKWebView!
     private var statusLabel: UILabel!
     private var countsLabel: UILabel!
+    private var statsLabel: UILabel!
     private var startButton: UIButton!
     private var stopButton: UIButton!
     private var languageButton: UIButton!
     private var reminderButton: UIButton!
+    private var settingsButton: UIButton!
     private var updateButton: UIButton!
 
     private var language = "pl"
@@ -28,9 +31,13 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
     private let labels: [String: [String]] = [
         "pl": ["Start", "Stop", "Gotowy", "Uruchamianie…", "Pracuję…", "Zatrzymywanie…",
-               "Sesja zakończona", "Błąd", "Zatrzymano", "Aktualizacja"],
+               "Sesja zakończona", "Błąd", "Zatrzymano", "Aktualizacja",
+               "Ustawienia sesji", "Poprawność odpowiedzi (%)", "Limit odpowiedzi (0 = brak limitu)",
+               "Godzina przypomnienia", "Zapisz", "Anuluj", "Zapisano ustawienia"],
         "en": ["Start", "Stop", "Ready", "Starting…", "Working…", "Stopping…",
-               "Session finished", "Error", "Stopped", "Update"]
+               "Session finished", "Error", "Stopped", "Update",
+               "Session settings", "Answer accuracy (%)", "Answer limit (0 = no limit)",
+               "Reminder time", "Save", "Cancel", "Settings saved"]
     ]
 
     private func label(_ index: Int) -> String {
@@ -91,6 +98,11 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         reminderButton.addTarget(self, action: #selector(toggleReminder), for: .touchUpInside)
         toolbar.addArrangedSubview(reminderButton)
 
+        settingsButton = makeButton("⚙", background: UIColor(red: 0.216, green: 0.255, blue: 0.318, alpha: 1))
+        settingsButton.accessibilityLabel = label(10)
+        settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
+        toolbar.addArrangedSubview(settingsButton)
+
         startButton = makeButton(label(0), background: UIColor(red: 0.133, green: 0.773, blue: 0.369, alpha: 1), foreground: .black)
         startButton.addTarget(self, action: #selector(startTapped), for: .touchUpInside)
         toolbar.addArrangedSubview(startButton)
@@ -105,6 +117,9 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         statusBar.spacing = 2
         statusBar.isLayoutMarginsRelativeArrangement = true
         statusBar.layoutMargins = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12)
+        // Opaque status surface: no transparency that could make text unreadable
+        // over the dark navy window during load.
+        statusBar.backgroundColor = view.backgroundColor
 
         statusLabel = UILabel()
         statusLabel.text = statusText("idle")
@@ -123,6 +138,13 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         countsLabel.font = .systemFont(ofSize: 12)
         statusBar.addArrangedSubview(countsLabel)
 
+        statsLabel = UILabel()
+        statsLabel.textColor = UIColor(red: 0.61, green: 0.639, blue: 0.686, alpha: 1)
+        statsLabel.font = .systemFont(ofSize: 11)
+        statsLabel.numberOfLines = 0
+        statsLabel.isHidden = true
+        statusBar.addArrangedSubview(statsLabel)
+
         updateButton = makeButton(label(9), background: UIColor(red: 0.114, green: 0.306, blue: 0.847, alpha: 1))
         updateButton.isHidden = true
         updateButton.addTarget(self, action: #selector(openReleases), for: .touchUpInside)
@@ -130,7 +152,9 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
         webView = WKWebView(frame: .zero, configuration: makeConfiguration())
         webView.navigationDelegate = self
-        webView.isOpaque = false
+        // Opaque, matching background: no transparent flash or dark navy bleed
+        // through the page while it loads.
+        webView.isOpaque = true
         webView.backgroundColor = view.backgroundColor
         webView.scrollView.backgroundColor = view.backgroundColor
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -192,6 +216,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             if (host !== 'instaling.pl' && host.slice(-13) !== '.instaling.pl') { return; }
             window.__instalingBotEngine = window.InstalingBot.create({
                 language: '\(escapedLanguage)',
+                config: { valid_chance: \(validChance), max_answers: \(maxAnswers) },
                 onEvent: function (event) {
                     try {
                         window.webkit.messageHandlers.instalingBot.postMessage({
@@ -277,6 +302,11 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         default:
             break
         }
+
+        let type = event["type"] as? String ?? ""
+        if ["answered", "progress", "saved", "finished"].contains(type) {
+            refreshStats()
+        }
     }
 
     // MARK: - WKNavigationDelegate
@@ -328,6 +358,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             pendingStart = false
             webView.evaluateJavaScript("window.__instalingBotEngine && window.__instalingBotEngine.start()")
         }
+        refreshStats()
     }
 
     // MARK: - Actions
@@ -362,6 +393,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         }
         webView.evaluateJavaScript("window.__instalingBotEngine && window.__instalingBotEngine.setLanguage('\(language)')")
         installEngineScript()
+        refreshStats()
     }
 
     private func refreshLanguage() {
@@ -374,6 +406,170 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
     @objc private func openReleases() {
         UIApplication.shared.open(Self.releasesURL)
+    }
+
+    // MARK: - Settings & statistics
+
+    private var validChance: Double {
+        let stored = UserDefaults.standard.object(forKey: "valid_chance") as? Double
+        return min(1, max(0, stored ?? 0.8))
+    }
+
+    private var maxAnswers: Int {
+        max(0, UserDefaults.standard.integer(forKey: "max_answers"))
+    }
+
+    private var reminderHour: Int {
+        UserDefaults.standard.object(forKey: "reminder_hour") == nil
+            ? Self.defaultReminderHour
+            : UserDefaults.standard.integer(forKey: "reminder_hour")
+    }
+
+    private var reminderMinute: Int {
+        UserDefaults.standard.object(forKey: "reminder_minute") == nil
+            ? Self.defaultReminderMinute
+            : UserDefaults.standard.integer(forKey: "reminder_minute")
+    }
+
+    /// Settings sheet: answer accuracy, answer limit and reminder time, the
+    /// same three options the Android shell and the userscript expose.
+    @objc private func openSettings() {
+        let controller = UIViewController()
+        controller.view.backgroundColor = UIColor(red: 0.067, green: 0.094, blue: 0.153, alpha: 1)
+        controller.title = label(10)
+
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 10
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        controller.view.addSubview(stack)
+
+        let heading = UILabel()
+        heading.text = label(10)
+        heading.textColor = .white
+        heading.font = .boldSystemFont(ofSize: 18)
+        stack.addArrangedSubview(heading)
+
+        let validityField = makeNumberField(String(Int((validChance * 100).rounded())))
+        stack.addArrangedSubview(makeFieldLabel(label(11)))
+        stack.addArrangedSubview(validityField)
+
+        let limitField = makeNumberField(String(maxAnswers))
+        stack.addArrangedSubview(makeFieldLabel(label(12)))
+        stack.addArrangedSubview(limitField)
+
+        let timePicker = UIDatePicker()
+        timePicker.datePickerMode = .time
+        timePicker.preferredDatePickerStyle = .compact
+        var components = DateComponents()
+        components.hour = reminderHour
+        components.minute = reminderMinute
+        if let date = Calendar.current.date(from: components) {
+            timePicker.date = date
+        }
+        stack.addArrangedSubview(makeFieldLabel(label(13)))
+        stack.addArrangedSubview(timePicker)
+
+        let buttons = UIStackView()
+        buttons.axis = .horizontal
+        buttons.spacing = 10
+        buttons.distribution = .fillEqually
+
+        let cancel = UIButton(type: .system)
+        cancel.setTitle(label(15), for: .normal)
+        cancel.setTitleColor(.white, for: .normal)
+        cancel.backgroundColor = UIColor(red: 0.216, green: 0.255, blue: 0.318, alpha: 1)
+        cancel.layer.cornerRadius = 8
+        cancel.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        cancel.addAction(UIAction { _ in controller.dismiss(animated: true) }, for: .touchUpInside)
+
+        let save = UIButton(type: .system)
+        save.setTitle(label(14), for: .normal)
+        save.setTitleColor(.white, for: .normal)
+        save.backgroundColor = UIColor(red: 0.114, green: 0.306, blue: 0.847, alpha: 1)
+        save.layer.cornerRadius = 8
+        save.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        save.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            let percent = min(100, max(0, Int(validityField.text ?? "") ?? 80))
+            let limit = max(0, Int(limitField.text ?? "") ?? 0)
+            let time = Calendar.current.dateComponents([.hour, .minute], from: timePicker.date)
+            UserDefaults.standard.set(Double(percent) / 100, forKey: "valid_chance")
+            UserDefaults.standard.set(limit, forKey: "max_answers")
+            UserDefaults.standard.set(time.hour ?? Self.defaultReminderHour, forKey: "reminder_hour")
+            UserDefaults.standard.set(time.minute ?? Self.defaultReminderMinute, forKey: "reminder_minute")
+            self.applyConfigToEngine()
+            if UserDefaults.standard.bool(forKey: "reminder") {
+                self.scheduleReminder()
+            }
+            controller.dismiss(animated: true)
+            self.refreshStats()
+        }, for: .touchUpInside)
+
+        buttons.addArrangedSubview(cancel)
+        buttons.addArrangedSubview(save)
+        stack.addArrangedSubview(buttons)
+
+        NSLayoutConstraint.activate([
+            stack.topAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            stack.leadingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
+            stack.trailingAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.trailingAnchor, constant: -20)
+        ])
+
+        present(controller, animated: true)
+    }
+
+    private func makeNumberField(_ value: String) -> UITextField {
+        let field = UITextField()
+        field.text = value
+        field.keyboardType = .numberPad
+        field.textColor = .white
+        field.backgroundColor = UIColor(red: 0.122, green: 0.161, blue: 0.216, alpha: 1)
+        field.layer.cornerRadius = 8
+        field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 1))
+        field.leftViewMode = .always
+        field.heightAnchor.constraint(equalToConstant: 44).isActive = true
+        return field
+    }
+
+    private func makeFieldLabel(_ text: String) -> UILabel {
+        let view = UILabel()
+        view.text = text
+        view.textColor = UIColor(red: 0.82, green: 0.835, blue: 0.859, alpha: 1)
+        view.font = .systemFont(ofSize: 13)
+        return view
+    }
+
+    private func applyConfigToEngine() {
+        let script = "window.__instalingBotEngine && window.__instalingBotEngine.setConfig({"
+            + "valid_chance:\(validChance),max_answers:\(maxAnswers)})"
+        webView?.evaluateJavaScript(script)
+    }
+
+    /// Reads the engine statistics so the mobile shells show the same
+    /// today/accuracy/streak summary as the desktop app.
+    private func refreshStats() {
+        webView?.evaluateJavaScript(
+            "(function(){try{return window.__instalingBotEngine?"
+                + "window.__instalingBotEngine.getStats():null;}catch(e){return null;}})()"
+        ) { [weak self] result, _ in
+            guard let self, let stats = result as? [String: Any] else { return }
+            let today = stats["today"] as? [String: Any] ?? [:]
+            let total = stats["total"] as? [String: Any] ?? [:]
+            let answered = today["answers"] as? Int ?? 0
+            let correct = today["correct"] as? Int ?? 0
+            let percent = total["accuracy"] as? Int ?? 0
+            let streak = stats["streak"] as? Int ?? 0
+            let english = self.language == "en"
+            var line = english
+                ? "Today: \(answered) answers, \(correct) correct · Accuracy: \(percent)%"
+                : "Dziś: \(answered) odpowiedzi, \(correct) poprawnych · Skuteczność: \(percent)%"
+            if streak > 1 {
+                line += english ? " · Streak: \(streak) days" : " · Seria: \(streak) dni"
+            }
+            self.statsLabel.text = line
+            self.statsLabel.isHidden = false
+        }
     }
 
     // MARK: - Reminders
@@ -407,8 +603,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         guard UserDefaults.standard.bool(forKey: "reminder") else { return }
 
         var components = DateComponents()
-        components.hour = Self.reminderHour
-        components.minute = 0
+        components.hour = reminderHour
+        components.minute = reminderMinute
 
         let english = language == "en"
         let content = UNMutableNotificationContent()
@@ -451,7 +647,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                   let tag = json["tag_name"] as? String
             else { return }
 
-            let current = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.0.0"
+            let current = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "4.1.0"
             guard Self.isNewer(tag, than: current) else { return }
 
             DispatchQueue.main.async {

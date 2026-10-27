@@ -3,9 +3,11 @@ package com.bmoneczek.instalingbot;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.AlertDialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,15 +18,18 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowInsets;
+import android.webkit.CookieManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebResourceRequest;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,14 +52,18 @@ public class MainActivity extends Activity {
     private static final String RELEASES_URL = "https://github.com/bmonekkk/instaling-bot/releases/latest";
     private static final String API_URL = "https://api.github.com/repos/bmonekkk/instaling-bot/releases/latest";
     private static final int NOTIFICATION_PERMISSION = 41;
+    private static final int DEFAULT_REMINDER_HOUR = 17;
+    private static final int DEFAULT_REMINDER_MINUTE = 0;
 
     private WebView webView;
     private TextView statusView;
     private TextView countsView;
+    private TextView statsView;
     private Button startButton;
     private Button stopButton;
     private Button languageButton;
     private Button reminderButton;
+    private Button settingsButton;
     private Button updateButton;
     private SharedPreferences prefs;
     private boolean pendingStart = false;
@@ -69,11 +78,15 @@ public class MainActivity extends Activity {
             // pl
             {"Start", "Stop", "Gotowy", "Uruchamianie…", "Pracuję…", "Zatrzymywanie…",
                     "Sesja zakończona", "Błąd", "Zatrzymano", "Codzienne przypomnienie",
-                    "Włącz przypomnienie", "Wyłącz przypomnienie", "Aktualizacja"},
+                    "Włącz przypomnienie", "Wyłącz przypomnienie", "Aktualizacja",
+                    "Ustawienia sesji", "Poprawność odpowiedzi (%)", "Limit odpowiedzi (0 = brak limitu)",
+                    "Zapisz", "Anuluj", "Godzina przypomnienia", "Zapisano ustawienia"},
             // en
             {"Start", "Stop", "Ready", "Starting…", "Working…", "Stopping…",
                     "Session finished", "Error", "Stopped", "Daily reminder",
-                    "Enable reminder", "Disable reminder", "Update"}
+                    "Enable reminder", "Disable reminder", "Update",
+                    "Session settings", "Answer accuracy (%)", "Answer limit (0 = no limit)",
+                    "Save", "Cancel", "Reminder time", "Settings saved"}
     };
 
     private String label(int index) {
@@ -130,6 +143,10 @@ public class MainActivity extends Activity {
         reminderButton.setOnClickListener(view -> toggleReminder());
         toolbar.addView(reminderButton);
 
+        settingsButton = smallButton("⚙", Color.parseColor("#374151"), Color.WHITE);
+        settingsButton.setOnClickListener(view -> openSettings());
+        toolbar.addView(settingsButton);
+
         startButton = smallButton(label(0), primary, Color.BLACK);
         startButton.setOnClickListener(view -> requestStart());
         toolbar.addView(startButton);
@@ -139,7 +156,7 @@ public class MainActivity extends Activity {
         stopButton.setOnClickListener(view -> stopBot());
         toolbar.addView(stopButton);
 
-        // The wordmark lives in the status bar, so the four controls can share
+        // The wordmark lives in the status bar, so the five controls can share
         // the full toolbar width evenly on narrow phones.
         for (int index = 0; index < toolbar.getChildCount(); index++) {
             View child = toolbar.getChildAt(index);
@@ -185,6 +202,12 @@ public class MainActivity extends Activity {
         countsView.setTextColor(Color.parseColor("#d1d5db"));
         countsView.setTextSize(12);
         statusBar.addView(countsView);
+
+        statsView = new TextView(this);
+        statsView.setTextColor(Color.parseColor("#9ca3af"));
+        statsView.setTextSize(11);
+        statsView.setVisibility(View.GONE);
+        statusBar.addView(statsView);
 
         updateButton = smallButton(label(12), Color.parseColor("#1d4ed8"), Color.WHITE);
         updateButton.setVisibility(View.GONE);
@@ -249,7 +272,8 @@ public class MainActivity extends Activity {
         settings.setBuiltInZoomControls(true);
         settings.setDisplayZoomControls(false);
         settings.setMediaPlaybackRequiresUserGesture(true);
-        settings.setUserAgentString(settings.getUserAgentString() + " instaling-bot-mobile/4.0");
+        // No custom User-Agent: the shell must look like the stock WebView so
+        // the site sees nothing unusual (best-effort, not a guarantee).
 
         // The shell reads and writes no local files and stores no credentials; only
         // the instaling.pl session in this WebView keeps the user signed in.
@@ -268,6 +292,12 @@ public class MainActivity extends Activity {
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                if (!request.isForMainFrame()) {
+                    // Subframes (ads, embedded widgets) stay inside the WebView,
+                    // so they can never launch external apps; only top-level
+                    // navigation is delegated to the system browser.
+                    return false;
+                }
                 return handleNavigation(request.getUrl());
             }
 
@@ -345,12 +375,14 @@ public class MainActivity extends Activity {
                 + "var token='" + bridgeToken + "';"
                 + "window.__instalingBotEngine=InstalingBot.create({"
                 + "language:'" + ("en".equals(language) ? "en" : "pl") + "',"
+                + "config:{valid_chance:" + prefs.getFloat("valid_chance", 0.8f)
+                + ",max_answers:" + prefs.getInt("max_answers", 0) + "},"
                 + "onEvent:function(e){try{InstalingBotNative.postEvent(token,JSON.stringify(e));}catch(err){}}"
                 + "});"
                 + (pendingStart ? "window.__instalingBotEngine.start();" : "window.__instalingBotEngine.resume();")
                 + "})();";
         pendingStart = false;
-        view.evaluateJavascript(core + "\n" + boot, null);
+        view.evaluateJavascript(core + "\n" + boot, value -> refreshStats());
     }
 
     private String readAsset(String name) {
@@ -394,11 +426,140 @@ public class MainActivity extends Activity {
         if (pageReady) {
             webView.evaluateJavascript(
                     "window.__instalingBotEngine&&window.__instalingBotEngine.setLanguage('" + language + "')", null);
+            refreshStats();
         }
     }
 
     private void showStatus(String status) {
         statusView.setText(status);
+    }
+
+    // --- settings --------------------------------------------------------
+
+    private void openSettings() {
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+
+        final EditText validity = numberField(Math.round(prefs.getFloat("valid_chance", 0.8f) * 100));
+        content.addView(fieldLabel(label(14)));
+        content.addView(validity);
+
+        final EditText limit = numberField(prefs.getInt("max_answers", 0));
+        content.addView(fieldLabel(label(15)));
+        content.addView(limit);
+
+        final int[] time = {reminderHour(), reminderMinute()};
+        final Button timeButton = new Button(this);
+        timeButton.setAllCaps(false);
+        timeButton.setText(label(18) + ": " + formatTime(time[0], time[1]));
+        timeButton.setOnClickListener(view -> new TimePickerDialog(this,
+                (picker, hour, minute) -> {
+                    time[0] = hour;
+                    time[1] = minute;
+                    timeButton.setText(label(18) + ": " + formatTime(hour, minute));
+                }, time[0], time[1], true).show());
+        content.addView(timeButton);
+
+        new AlertDialog.Builder(this)
+                .setTitle(label(13))
+                .setView(content)
+                .setPositiveButton(label(16), (dialog, which) -> saveSettings(validity, limit, time))
+                .setNegativeButton(label(17), null)
+                .show();
+    }
+
+    private EditText numberField(int value) {
+        EditText field = new EditText(this);
+        field.setInputType(InputType.TYPE_CLASS_NUMBER);
+        field.setText(String.valueOf(value));
+        field.setSelectAllOnFocus(true);
+        return field;
+    }
+
+    private TextView fieldLabel(String text) {
+        TextView labelView = new TextView(this);
+        labelView.setText(text);
+        labelView.setTextSize(13);
+        labelView.setPadding(0, dp(8), 0, 0);
+        return labelView;
+    }
+
+    private void saveSettings(EditText validity, EditText limit, int[] time) {
+        int percent = clamp(parseInt(validity.getText().toString(), 80), 0, 100);
+        int maxAnswers = Math.max(0, parseInt(limit.getText().toString(), 0));
+        prefs.edit()
+                .putFloat("valid_chance", percent / 100f)
+                .putInt("max_answers", maxAnswers)
+                .putInt("reminder_hour", time[0])
+                .putInt("reminder_minute", time[1])
+                .apply();
+        applyConfigToEngine();
+        if (prefs.getBoolean("reminder", false)) scheduleReminder();
+        Toast.makeText(this, label(19), Toast.LENGTH_SHORT).show();
+    }
+
+    /** Pushes the saved settings into the live engine without a reload. */
+    private void applyConfigToEngine() {
+        if (webView == null || !pageReady) return;
+        String js = "window.__instalingBotEngine&&window.__instalingBotEngine.setConfig({"
+                + "valid_chance:" + prefs.getFloat("valid_chance", 0.8f) + ","
+                + "max_answers:" + prefs.getInt("max_answers", 0) + "})";
+        webView.evaluateJavascript(js, null);
+    }
+
+    private static int parseInt(String value, int fallback) {
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException error) {
+            return fallback;
+        }
+    }
+
+    private static int clamp(int value, int min, int max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    private static String formatTime(int hour, int minute) {
+        return String.format(java.util.Locale.ROOT, "%02d:%02d", hour, minute);
+    }
+
+    private int reminderHour() {
+        return prefs.getInt("reminder_hour", DEFAULT_REMINDER_HOUR);
+    }
+
+    private int reminderMinute() {
+        return prefs.getInt("reminder_minute", DEFAULT_REMINDER_MINUTE);
+    }
+
+    /** Shows the persisted statistics line under the live counters. */
+    private void refreshStats() {
+        if (webView == null) return;
+        webView.evaluateJavascript(
+                "(function(){try{return window.__instalingBotEngine?"
+                        + "window.__instalingBotEngine.getStats():null;}catch(e){return null;}})()",
+                value -> {
+                    if (value == null || "null".equals(value)) return;
+                    try {
+                        JSONObject stats = new JSONObject(value);
+                        JSONObject today = stats.optJSONObject("today");
+                        JSONObject total = stats.optJSONObject("total");
+                        int answered = today == null ? 0 : today.optInt("answers", 0);
+                        int ok = today == null ? 0 : today.optInt("correct", 0);
+                        int percent = total == null ? 0 : total.optInt("accuracy", 0);
+                        int streak = stats.optInt("streak", 0);
+                        boolean english = "en".equals(language);
+                        StringBuilder line = new StringBuilder(english
+                                ? "Today: " + answered + " answers, " + ok + " correct · Accuracy: " + percent + "%"
+                                : "Dziś: " + answered + " odpowiedzi, " + ok + " poprawnych · Skuteczność: " + percent + "%");
+                        if (streak > 1) {
+                            line.append(english ? " · Streak: " + streak + " days" : " · Seria: " + streak + " dni");
+                        }
+                        statsView.setText(line.toString());
+                        statsView.setVisibility(View.VISIBLE);
+                    } catch (Exception ignored) {
+                        // A malformed result must not break the shell.
+                    }
+                });
     }
 
     private class NativeBridge {
@@ -438,6 +599,10 @@ public class MainActivity extends Activity {
             } else if ("finished".equals(type)) {
                 startButton.setEnabled(true);
                 stopButton.setEnabled(false);
+            }
+            if ("answered".equals(type) || "progress".equals(type)
+                    || "saved".equals(type) || "finished".equals(type)) {
+                refreshStats();
             }
         } catch (Exception ignored) {
             // A malformed event must not break the UI.
@@ -493,8 +658,8 @@ public class MainActivity extends Activity {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Calendar next = Calendar.getInstance();
-        next.set(Calendar.HOUR_OF_DAY, 17);
-        next.set(Calendar.MINUTE, 0);
+        next.set(Calendar.HOUR_OF_DAY, reminderHour());
+        next.set(Calendar.MINUTE, reminderMinute());
         next.set(Calendar.SECOND, 0);
         next.set(Calendar.MILLISECOND, 0);
         if (next.getTimeInMillis() <= System.currentTimeMillis()) {
@@ -592,8 +757,17 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onPause() {
+        // Persist the website session (cookies) so reopening the app keeps the
+        // user signed in. The shell itself never stores the password.
+        if (webView != null) CookieManager.getInstance().flush();
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
         if (webView != null) {
+            CookieManager.getInstance().flush();
             webView.destroy();
             webView = null;
         }

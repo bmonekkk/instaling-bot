@@ -970,6 +970,16 @@ function createWindow(show = true) {
         return {action: 'deny'};
     });
 
+    // The renderer is a local, static document. Deny every web permission and
+    // stop the top-level document from navigating anywhere, so remote content
+    // can never inherit the preload bridge or reach the IPC channel.
+    mainWindow.webContents.session.setPermissionRequestHandler((contents, permission, callback) => {
+        callback(false);
+    });
+    mainWindow.webContents.on('will-navigate', event => {
+        event.preventDefault();
+    });
+
     mainWindow.on('maximize', () => send('window:maximized', true));
     mainWindow.on('unmaximize', () => send('window:maximized', false));
     mainWindow.on('close', event => {

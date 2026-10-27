@@ -28,8 +28,8 @@ public class BootReceiver extends BroadcastReceiver {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
         Calendar next = Calendar.getInstance();
-        next.set(Calendar.HOUR_OF_DAY, 17);
-        next.set(Calendar.MINUTE, 0);
+        next.set(Calendar.HOUR_OF_DAY, prefs.getInt("reminder_hour", 17));
+        next.set(Calendar.MINUTE, prefs.getInt("reminder_minute", 0));
         next.set(Calendar.SECOND, 0);
         next.set(Calendar.MILLISECOND, 0);
         if (next.getTimeInMillis() <= System.currentTimeMillis()) {

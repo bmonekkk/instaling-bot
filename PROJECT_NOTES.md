@@ -22,12 +22,12 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v4.0.0) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v4.1.0) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-4.0.0-setup-win64.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-4.1.0-setup-win64.exe` (gitignored) |
 | Mobile assets | `mobile/android/.../app-release.apk`, `mobile/ios/build/...ipa`, `dist/instaling-bot.user.js` |
 | Mobile plan | `MOBILE_PLAN.md` |
 
@@ -218,18 +218,22 @@ build-mobile.js
   └─ esbuild mobile/engine/browser.js         → ios/InstalingBot/Resources/core.js
 
 Android MainActivity
-  ├─ WebView loads https://instaling.pl/ (cookies persist)
-  ├─ onPageFinished → evaluate core.js → InstalingBot.create() → resume()
+  ├─ WebView loads https://instaling.pl/ (cookies persist; flushed on pause/destroy)
+  ├─ onPageFinished → evaluate core.js → InstalingBot.create({config}) → resume()
   ├─ JS posts events through InstalingBotNative.postEvent(json)
-  ├─ toolbar: PL/EN, reminder, Start, Stop; update check via GitHub API
-  ├─ AlarmManager at 17:00 + ReminderReceiver + BootReceiver
+  ├─ toolbar: PL/EN, reminder, ⚙ settings, Start, Stop; update check via GitHub API
+  ├─ settings dialog: valid_chance, max_answers, reminder hour/minute → prefs + setConfig()
+  ├─ stats line from engine.getStats() (today, accuracy, streak)
+  ├─ AlarmManager at the configured time + ReminderReceiver + BootReceiver
   └─ intents instalingbot://start|stop → start()/stop()
 
 iOS MainViewController
-  ├─ WKUserScript (core.js + boot) at documentEnd, main frame only
+  ├─ WKUserScript (core.js + boot with persisted config) at documentEnd, main frame only
   ├─ engine posts JSON through webkit.messageHandlers.instalingBot
-  ├─ toolbar: PL/EN, reminder, Start, Stop; update check via URLSession
-  ├─ UNCalendarNotificationTrigger at 17:00
+  ├─ toolbar: PL/EN, reminder, ⚙ settings, Start, Stop; update check via URLSession
+  ├─ settings sheet: valid_chance, max_answers, reminder hour/minute → UserDefaults + setConfig()
+  ├─ stats line from engine.getStats()
+  ├─ UNCalendarNotificationTrigger at the configured time
   └─ AppDelegate open URL → requestStart()/requestStop()
 ```
 
@@ -451,7 +455,7 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Installers are unsigned; macOS builds require CI or a Mac. Updates are manual (download + run installer).
 - Credentials are stored in plain text in the local config file (same as the CLI). The UI says so; use full-disk encryption and do not share the data folder.
 - Mobile sessions stop when the WebView is suspended in the background; no background automation in 4.0.
-- Mobile reminders are fixed at 17:00 and do not repeat every N minutes.
+- Mobile reminders have a configurable hour/minute but still do not repeat every N minutes.
 - APK/IPA are unsigned and outside the stores; the IPA needs a 7-day refresh on a free Apple ID.
 - Selector/DOM coverage for mobile is fixture-based (jsdom); real-device validation still needs a logged-in account.
 - Android APK smoke-tested on an API 35 emulator (2026-10-27): launches without a crash, PL/EN switch, Start/Stop, `instalingbot://stop`, 17:00 AlarmManager reminder and the Android 13+ notification prompt all work. The engine/bridge reaches the live site ("Szukam przycisku rozpoczęcia sesji..." on the logged-out home page).
@@ -465,6 +469,18 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Bundled Chrome for Testing and a manifest consumed by the engine.
 - Windows NSIS installer and macOS PKG builds for arm64/x64 via GitHub Actions.
 - Shared engine/config/words with the CLI, including graceful stop and IPC events.
+
+## What changed in 4.1.0
+
+- Mobile settings parity: Android and iOS expose answer accuracy, answer limit and a configurable reminder time; values live in `SharedPreferences`/`UserDefaults`, are passed to `InstalingBot.create({config})` and pushed live with `setConfig()`. `ReminderReceiver`/`BootReceiver` read the stored hour/minute.
+- Engine API: persisted user settings (`config` key, only `valid_chance`/`max_answers`), `getConfig()`, `getStats()` (today/total/session/streak/accuracy) and `max_answers` enforcement in `tick()`.
+- Mobile statistics: shells and the userscript show today's answers, accuracy and streak from `getStats()`.
+- Userscript: persisted settings `<details>` panel and a viewport-centred popup (`min(340px, calc(100vw - 24px))`, clamped height).
+- One icon: `scripts/generate-icons.py` derives Android mipmaps, iOS 1024, website favicons/ICO and `mobile/userscript/icon.png` from `build/icon.png`; `build-mobile.js` inlines the icon into the userscript.
+- Website: `docs/download-detect.js` detects OS/device/arch (Client Hints first, iPadOS `MacIntel`+touch heuristic, fallback to UA/unknown), highlights the recommended card, updates the hero CTA and keeps all alternatives selectable.
+- Android no longer appends a custom User-Agent suffix and flushes cookies on pause/destroy. iOS surfaces are explicitly opaque. `TARGETED_DEVICE_FAMILY` is `"1,2"` (iPhone + iPad).
+- Tests: `test/download-detect.test.js` and additional `test/mobile-engine.test.js` cases for config, stats, streak, PL/EN parity and the answer limit.
+- Security: CLI `Config.json` is permission-hardened on load (mirrors desktop), Android subframe navigations stay in the WebView, and Electron denies web permissions and blocks top-level navigation; renderer CSP tightened. Findings and accepted limitations recorded in `SECURITY_AUDIT.md`.
 
 ## What changed in 4.0.0
 
@@ -544,8 +560,8 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 
 Copy this into a new chat:
 
-> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v4.0.0).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v4.1.0).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
-> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux + three mobile shells sharing `src/core/` and `mobile/engine/` (Android WebView APK, unsigned iOS WKWebView IPA for SideStore/AltStore, and a userscript for Safari iOS / Firefox Android). Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`; the same workflow attaches the APK, IPA and userscript. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. The desktop has a full PL/EN interface, configurable session-finished notifications, owner-only config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides. Update checks run at startup, daily and at session start; the tray icon/menu indicate available updates, and Ko-fi sits under Show window. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run. Mobile shells never read `Config.json` or store the password; they keep words in WebView/GM storage, inject the engine only on `instaling.pl`, and route every other link to the system browser.
-> Do not regress: cookie handling, notification visibility semantics (visible window = no duplicate), update checks not firing on session end, tray icon refresh, offline dialogs without the README FAQ button, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, credential redaction, manual-only updates. Mobile: engine injected only on `instaling.pl` over HTTPS, non-bot links open externally, the JS bridge ignores non-bot frames, no `Config.json` or password on phones, pending answer saved before the reload/check, runs older than 15 minutes are not resumed.
+> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux + three mobile shells sharing `src/core/` and `mobile/engine/` (Android WebView APK, unsigned iOS WKWebView IPA for SideStore/AltStore, and a userscript for Safari iOS / Firefox Android). Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`; the same workflow attaches the APK, IPA and userscript. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. The desktop has a full PL/EN interface, configurable session-finished notifications, owner-only config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides. Update checks run at startup, daily and at session start; the tray icon/menu indicate available updates, and Ko-fi sits under Show window. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run. Mobile shells never read `Config.json` or store the password; they keep words in WebView/GM storage, inject the engine only on `instaling.pl`, and route every other link to the system browser. Since 4.1.0 the shells and userscript also expose accuracy/limit/reminder-time settings and day/accuracy/streak statistics, the website detects the visitor's device and highlights the matching download, and all platforms share one icon generated from `build/icon.png`.
+> Do not regress: cookie handling, notification visibility semantics (visible window = no duplicate), update checks not firing on session end, tray icon refresh, offline dialogs without the README FAQ button, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, credential redaction, manual-only updates. Mobile: engine injected only on `instaling.pl` over HTTPS, non-bot links open externally, the JS bridge ignores non-bot frames, no `Config.json` or password on phones, pending answer saved before the reload/check, runs older than 15 minutes are not resumed, persisted settings stay limited to `valid_chance`/`max_answers`, `max_answers` stops the run cleanly, and the download page keeps every option visible even when detection is inconclusive.
 > Test with `"max_answers": 1`, update `CHANGELOG.md`, and prepare a release.

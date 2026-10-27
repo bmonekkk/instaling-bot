@@ -19,15 +19,15 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**4.0.0**) is the first mobile release:
+The current version (**4.1.0**) is a consistency release — desktop, phone and userscript look and behave the same:
 
 - 🖥️ **desktop** for Windows and macOS: GUI, live log, statistics and a bundled Chrome,
-- 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, reminders and automation shortcuts,
-- 🌐 **userscript** for Safari on iOS/iPadOS and Firefox on Android,
+- 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, session settings, statistics and configurable reminders,
+- 🌐 **userscript** for Safari on iOS/iPadOS and Firefox on Android, with a persistent settings panel,
 - ⌨️ a full **CLI** for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
 
-Version 4.0.0 brings the same engine to phones without the Play Store or App Store. The mobile apps are thin shells: you sign in to `instaling.pl` in their built-in browser, and the bot answers in the open session. The mobile app does not store your password — it stays in the normal website session. The study reminder is native (daily at 17:00), and starting a session can be wired to system shortcuts. Desktop and CLI keep every 3.3.x feature.
+Version 4.1.0 aligns the experience across every platform: identical download tags (system, architecture, format), automatic device detection on the website, one icon everywhere, and the same accuracy/limit/reminder-time settings on phones and in the userscript. The mobile apps still never store your password — they keep the normal, persistent website session. Desktop and CLI keep every earlier feature.
 
 Open source, ISC license.
 
@@ -50,8 +50,8 @@ Support is entirely voluntary and not required to use the project. The project i
 | Interface | App window, settings, live log | Native bar + page in a WebView | Floating panel on the page | Terminal |
 | Login | In the app | Normal website login | Normal website login | In the app |
 | Browser | Chrome for Testing bundled | System WebView | Your browser | Puppeteer |
-| Statistics | week, month, year, all time | current session + daily record | current session | `instaling-bot stats` |
-| Reminders | Native + toast, optionally every N minutes | Daily at 17:00 | — | `instaling-bot remind` |
+| Statistics | week, month, year, all time | day, accuracy and streak | day, accuracy and streak | `instaling-bot stats` |
+| Reminders | Native + toast, optionally every N minutes | Daily at a configurable time | — | `instaling-bot remind` |
 | Automation | Tray, autostart | `instalingbot://start` / `stop` | `?autostart=1` | CLI commands |
 | Updating | New installer | **Update** button | Automatic via `@updateURL` | Re-run `curl` |
 
@@ -66,9 +66,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.0.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.0.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.0.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.1.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.1.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.1.0-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -145,18 +145,20 @@ You can edit the files by hand too — the app uses the same format as the CLI.
 
 ## 📱 Mobile: Android and iOS
 
-Version 4.0.0 brings the bot to phones. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
+Version 4.1.0 brings the phone up to desktop parity. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, answer limit, reminder time) and **statistics** (today's answers, accuracy, streak). The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
 
 ### 🤖 Android: APK (recommended)
 
-1. Download `instaling-bot-4.0.0-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Download `instaling-bot-4.1.0-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Open the file and allow installation from this source when Android asks.
 3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
 4. Open the learning page and press **Start** in the top bar.
 
-The top bar has a **PL/EN** switch, a ⏰ reminder, Start and Stop. Session progress is shown below it. When a newer release exists, the app shows an **Update** button linking to GitHub.
+The top bar has a **PL/EN** switch, a ⏰ reminder, ⚙ settings, Start and Stop. Below it you see the status, the answer counter and today's statistics. When a newer release exists, the app shows an **Update** button linking to GitHub.
 
-**Reminder:** tap ⏰ to enable a daily notification at **17:00**. Android 13+ asks for notification permission. The reminder survives a reboot.
+**Settings:** tap ⚙ to change answer accuracy, the answer limit and the **reminder time**. Values are saved in the app and apply immediately, without a restart.
+
+**Reminder:** tap ⏰ to enable a daily notification at your chosen time (default **17:00**). Android 13+ asks for notification permission. The reminder survives a reboot.
 
 **Automation:** the app handles `instalingbot://start` and `instalingbot://stop` deep links. In Tasker, MacroDroid or a similar tool, add an "Open URL/Intent" action to start a session, for example when you connect to your home Wi-Fi. The bot still needs the app open and the website session signed in.
 
@@ -169,17 +171,17 @@ Chrome on iOS does not support extensions, but Safari does:
 3. Open [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) in Safari and import it into Userscripts.
 4. Visit `instaling.pl`, sign in and tap the floating 🤖 button.
 
-The panel has Start/Stop, PL/EN and an answer counter. Settings and saved words live in the extension storage. The script updates itself through `@updateURL`.
+The panel has Start/Stop, PL/EN, an answer counter and statistics. Expand **Settings** to change answer accuracy, the answer limit and autostart — values persist in the extension storage, and saved words persist between sessions too. The script updates itself through `@updateURL`.
 
 ### 🍏 iOS: IPA for SideStore / AltStore
 
 For people who prefer a separate app:
 
-1. Download `instaling-bot-4.0.0-ios.ipa` from the latest release.
+1. Download `instaling-bot-4.1.0-ios.ipa` from the latest release.
 2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
 3. Sign in to `instaling.pl` in the app and press **Start**.
 
-The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, 17:00 reminder and update button.
+The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, session settings with statistics, a configurable reminder and an update button.
 
 **Shortcuts:** the app accepts `instalingbot://start` and `instalingbot://stop`, so an iOS automation can start a session. The session only runs while the app is in the foreground.
 
@@ -191,11 +193,11 @@ You can also open the page with parameters: `?autostart=1` starts a session afte
 
 ### ⚠️ Mobile limitations
 
-- A session runs only while the **app or tab is open**. The phone may suspend a WebView in the background; there is no hidden background mode.
-- The mobile apps **do not store your password** — you sign in normally on the website, and cookies stay in the WebView.
+- A session runs only while the **app or tab is open**. The phone may suspend a WebView in the background; there is no hidden background mode. Keep the app in the foreground.
+- The mobile apps **do not store your password** — you sign in normally on the website, and cookies stay in the WebView (Android flushes them to the persistent session whenever the app leaves the foreground).
 - The APK and IPA are **not store-signed**. Install them at your own risk; they are not in the Play Store or App Store.
-- The mobile reminder fires at a fixed time, without the desktop's repeat-every-N-minutes option.
-- Full week/month/year statistics and saved-word export remain desktop-only.
+- The mobile reminder has a **configurable time**, but it is still a single daily notification without the desktop's repeat-every-N-minutes option.
+- Full week/month/year statistics and saved-word export remain desktop-only; mobile shows the day, accuracy and streak.
 
 
 ## ⌨️ CLI: Linux and the terminal
@@ -405,6 +407,17 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 
 ## 📦 Recent changes
 
+### 4.1.0 — 2026-10-27
+
+- 🏷️ **Consistent download tags.** Every option on the website lists the OS and minimum version, architecture and package format. The page **detects the visitor's device** (Windows, macOS ARM64/Intel, Android, iPhone, iPad, Linux) and highlights the recommended build; the others stay available and you can switch manually.
+- ⚙️ **Phone settings.** Android and iOS gain a settings panel: answer accuracy, answer limit and a **configurable reminder time**. Values persist and apply immediately.
+- 📊 **Mobile statistics.** The APK, IPA and userscript show today's answers, accuracy and streak — like the desktop.
+- 🌐 **Userscript settings.** A panel with accuracy, limit and autostart, persisted; the popup is centred and never overflows narrow screens.
+- 🎨 **One icon.** Desktop, APK, IPA, userscript and the website share the same mark (generated from `build/icon.png`).
+- 🔐 **Passwordless session.** The mobile apps still never store credentials; Android flushes session cookies so you do not have to sign in again after returning.
+- 🕵️ **Less distinctive shell.** The custom User-Agent fragment was removed from the APK; this is best-effort, not a guarantee of full anonymity.
+- ❓ **FAQ.** Added the desktop Premium-dialog explanation and unified settings terminology.
+
 ### 4.0.0 — 2026-10-27
 
 - 📱 **Android APK.** A native WebView shell with Start/Stop, PL/EN, answer counter, a 17:00 reminder and an update button. Handles `instalingbot://start` and `instalingbot://stop` for Tasker/MacroDroid.
@@ -414,11 +427,6 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 - 🔔 **Native reminders.** A daily 17:00 notification in the APK and IPA, surviving an Android reboot and handling Android 13+ permissions.
 - 🔐 **No passwords on the phone.** The mobile apps reuse the normal website session in the WebView and do not store credentials.
 - 📚 **Documentation.** README (PL/EN), project site, wiki, `PROJECT_NOTES.md`, `CHANGELOG.md` and the mobile plan `MOBILE_PLAN.md`.
-
-### 3.3.2 — 2026-10-27
-
-- 📡 **Clearer no-internet message.** The offline dialog now only asks you to check the connection and no longer points at a FAQ you cannot open without internet. The **README FAQ** button remains for bot errors only.
-- 📚 **Two latest releases in the README.** The changes section now shows the current release plus the previous one; the full history lives in `CHANGELOG.md`.
 
 Full history: [CHANGELOG.md](CHANGELOG.md).
 

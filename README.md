@@ -19,15 +19,15 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**4.0.0**) to pierwsze wydanie mobilne:
+Aktualna wersja (**4.1.0**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
 
 - 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
-- 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, przypomnienia i skróty automatyzacji,
-- 🌐 **userscript** dla Safari na iOS/iPadOS oraz Firefoksa na Androidzie,
+- 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, ustawienia sesji, statystyki i konfigurowalne przypomnienia,
+- 🌐 **userscript** dla Safari na iOS/iPadOS oraz Firefoksa na Androidzie, z trwałym panelem ustawień,
 - ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
 
-Wersja 4.0.0 przenosi ten sam silnik na telefony bez Play Store i App Store. Aplikacje mobilne są cienkimi powłokami: logujesz się na `instaling.pl` w ich wbudowanej przeglądarce, a bot odpowiada w otwartej sesji. Hasła nie są zapisywane przez aplikację mobilną — zostają w normalnej sesji strony. Przypomnienie o nauce działa natywnie (codziennie o 17:00), a uruchamianie można podpiąć pod skróty systemowe. Desktop i CLI zachowują wszystkie funkcje z 3.3.x.
+Wersja 4.1.0 wyrównuje doświadczenie na wszystkich platformach: te same oznaczenia pobierania (system, architektura, format), automatyczne wykrywanie urządzenia na stronie, jedna ikona wszędzie oraz ustawienia poprawności, limitu i godziny przypomnienia również na telefonie i w userscripcie. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
 
 Open source, licencja ISC.
 
@@ -50,8 +50,8 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 | Interfejs | Okno aplikacji, ustawienia, live log | Natywny pasek + strona w WebView | Pływający panel na stronie | Terminal |
 | Logowanie | w aplikacji | normalne logowanie na stronie | normalne logowanie na stronie | w aplikacji |
 | Przeglądarka | Chrome for Testing w instalatorze | WebView systemowy | Twoja przeglądarka | Puppeteer |
-| Statystyki | tydzień, miesiąc, rok, całość | bieżąca sesja i zapis dzienny | bieżąca sesja | `instaling-bot stats` |
-| Przypomnienia | systemowe + toast, co N minut | codziennie o 17:00 | — | `instaling-bot remind` |
+| Statystyki | tydzień, miesiąc, rok, całość | dzień, skuteczność i seria dni | dzień, skuteczność i seria dni | `instaling-bot stats` |
+| Przypomnienia | systemowe + toast, co N minut | codziennie o wybranej godzinie | — | `instaling-bot remind` |
 | Automatyzacja | zasobnik, autostart | `instalingbot://start` / `stop` | `?autostart=1` | polecenia CLI |
 | Aktualizacja | nowy instalator | przycisk **Aktualizacja** | auto przez `@updateURL` | nowy `curl` |
 
@@ -66,9 +66,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.0.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.0.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.0.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.1.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.1.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.1.0-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -145,18 +145,20 @@ Pliki można edytować także ręcznie — aplikacja używa tego samego formatu 
 
 ## 📱 Mobile: Android i iOS
 
-Wersja 4.0.0 przenosi bota na telefon. Aplikacje mobilne nie są okrojoną podróbką desktopu: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
+Wersja 4.1.0 wyrównuje telefon z desktopem. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, limit, godzina przypomnienia) i **statystyki** (dzisiejsze odpowiedzi, skuteczność, seria dni). Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
 
 ### 🤖 Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.0.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Pobierz `instaling-bot-4.1.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
 
-Górny pasek ma przełącznik **PL/EN**, przypomnienie ⏰, Start i Stop. Postęp sesji widać pod paskiem. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
+Górny pasek ma przełącznik **PL/EN**, przypomnienie ⏰, ustawienia ⚙, Start i Stop. Pod paskiem widać status, licznik odpowiedzi oraz dzisiejsze statystyki. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
 
-**Przypomnienie:** dotknij ⏰, aby włączyć codzienne powiadomienie o **17:00**. Android 13+ poprosi o zgodę na powiadomienia. Przypomnienie przetrwa restart telefonu.
+**Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, limit odpowiedzi i **godzinę przypomnienia**. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
+
+**Przypomnienie:** dotknij ⏰, aby włączyć codzienne powiadomienie o wybranej godzinie (domyślnie **17:00**). Android 13+ poprosi o zgodę na powiadomienia. Przypomnienie przetrwa restart telefonu.
 
 **Automatyzacja:** aplikacja obsługuje deep linki `instalingbot://start` i `instalingbot://stop`. W Taskerze, MacroDroidzie lub innym automacie dodaj akcję „Otwórz URL/Intent”, aby uruchomić sesję np. po połączeniu z domowym Wi-Fi. Bot nadal potrzebuje otwartej aplikacji i zalogowanej sesji.
 
@@ -169,17 +171,17 @@ Chrome na iOS nie obsługuje rozszerzeń, ale Safari tak:
 3. Otwórz [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) w Safari i zaimportuj skrypt w Userscripts.
 4. Wejdź na `instaling.pl`, zaloguj się i dotknij pływającego przycisku 🤖.
 
-Panel userscriptu ma Start/Stop, PL/EN i licznik odpowiedzi. Ustawienia i słówka zapisują się w pamięci rozszerzenia. Skrypt aktualizuje się sam przez `@updateURL`.
+Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi i statystyki. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, limit i autostart — wartości zapisują się trwale w pamięci rozszerzenia. Słowa również zapisują się między sesjami. Skrypt aktualizuje się sam przez `@updateURL`.
 
 ### 🍏 iOS: IPA dla SideStore / AltStore
 
 Dla osób, które wolą osobną aplikację:
 
-1. Pobierz `instaling-bot-4.0.0-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.1.0-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
-IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, przypomnienie o 17:00 i przycisk aktualizacji.
+IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, ustawienia sesji ze statystykami, konfigurowalne przypomnienie i przycisk aktualizacji.
 
 **Skróty (Shortcuts):** aplikacja przyjmuje `instalingbot://start` i `instalingbot://stop`, więc możesz uruchomić sesję z automatyzacji iOS. Sesja działa tylko, gdy aplikacja jest na pierwszym planie.
 
@@ -191,11 +193,11 @@ Możesz też otworzyć stronę z parametrami: `?autostart=1` uruchamia sesję po
 
 ### ⚠️ Ograniczenia mobilne
 
-- Sesja działa tylko przy **otwartej aplikacji lub karcie**. Telefon może wstrzymać WebView po przejściu w tło; nie ma ukrytej pracy w tle.
-- Aplikacje mobilne **nie zapisują hasła** — logujesz się normalnie na stronie, a ciasteczka zostają w WebView.
+- Sesja działa tylko przy **otwartej aplikacji lub karcie**. Telefon może wstrzymać WebView po przejściu w tło; nie ma ukrytej pracy w tle. Zostaw aplikację na pierwszym planie.
+- Aplikacje mobilne **nie zapisują hasła** — logujesz się normalnie na stronie, a ciasteczka zostają w WebView (Android dopisuje je do trwałej sesji przy każdym przejściu w tło).
 - APK i IPA są **niepodpisane przez store**. Instalujesz je na własną odpowiedzialność; nie ma ich w Play Store ani App Store.
-- Przypomnienie mobilne to powiadomienie o stałej godzinie, bez powtarzania co N minut jak w desktopie.
-- Pełne statystyki tygodnia/miesiąca/roku i eksport słówek pozostają w wersji desktopowej.
+- Przypomnienie mobilne ma **konfigurowalną godzinę**, ale nadal jest pojedynczym powiadomieniem dziennie, bez powtarzania co N minut jak w desktopie.
+- Pełne statystyki tygodnia/miesiąca/roku i eksport słówek pozostają w wersji desktopowej; mobile pokazują dzień, skuteczność i serię dni.
 
 
 ## ⌨️ CLI: Linux i terminal
@@ -405,6 +407,17 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 ## 📦 Ostatnie zmiany
 
+### 4.1.0 — 2026-10-27
+
+- 🏷️ **Spójne oznaczenia pobierania.** Każda opcja na stronie podaje system i minimalną wersję, architekturę oraz format pliku. Strona **sama wykrywa urządzenie** (Windows, macOS ARM64/Intel, Android, iPhone, iPad, Linux) i podświetla zalecaną wersję; pozostałe zostają dostępne, a wybór można zmienić ręcznie.
+- ⚙️ **Ustawienia na telefonie.** Android i iOS mają panel ustawień: poprawność odpowiedzi, limit odpowiedzi i **konfigurowalna godzina przypomnienia**. Wartości zapisują się i działają od razu.
+- 📊 **Statystyki mobilne.** APK, IPA i userscript pokazują dzisiejsze odpowiedzi, skuteczność i serię dni — jak desktop.
+- 🌐 **Ustawienia userscriptu.** Panel z poprawnością, limitem i autostartem, zapisywany trwale; popup jest wyśrodkowany i nie wychodzi poza wąski ekran.
+- 🎨 **Jedna ikona.** Desktop, APK, IPA, userscript i strona używają tego samego znaku (generowanego z `build/icon.png`).
+- 🔐 **Sesja bez haseł.** Aplikacje mobilne nadal nie zapisują danych logowania; Android utrwala ciasteczka sesji, żeby po powrocie nie trzeba było logować się ponownie.
+- 🕵️ **Mniej rozpoznawalna powłoka.** Usunięto niestandardowy fragment User-Agenta z APK; to best-effort, nie gwarancja pełnej anonimowości.
+- ❓ **FAQ.** Dodano wyjaśnienie okna Premium na desktopie i wspólną terminologię ustawień.
+
 ### 4.0.0 — 2026-10-27
 
 - 📱 **Android APK.** Natywna powłoka WebView z paskiem Start/Stop, przełącznikiem PL/EN, licznikiem odpowiedzi, przypomnieniem o 17:00 i przyciskiem aktualizacji. Obsługuje `instalingbot://start` i `instalingbot://stop` dla Taskera/MacroDroida.
@@ -414,11 +427,6 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 - 🔔 **Natywne przypomnienia.** Codzienne powiadomienie o 17:00 w APK i IPA, z zachowaniem po restarcie Androida i obsługą uprawnień Android 13+.
 - 🔐 **Bez haseł na telefonie.** Aplikacje mobilne korzystają z normalnej sesji strony w WebView; nie zapisują danych logowania.
 - 📚 **Dokumentacja.** README (PL/EN), strona projektu, wiki, `PROJECT_NOTES.md`, `CHANGELOG.md` i plan mobilny `MOBILE_PLAN.md`.
-
-### 3.3.2 — 2026-10-27
-
-- 📡 **Jaśniejszy komunikat o braku internetu.** Okno offline prosi już tylko o sprawdzenie połączenia i nie odsyła do FAQ, którego bez sieci i nie otworzysz. Przycisk **FAQ w README** zostaje wyłącznie przy błędach bota.
-- 📚 **Dwie ostatnie wersje w README.** Sekcja zmian pokazuje teraz bieżące wydanie i poprzednią wersję; pełna historia jest w `CHANGELOG.md`.
 
 Pełna historia: [CHANGELOG.md](CHANGELOG.md).
 

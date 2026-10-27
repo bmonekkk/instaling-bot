@@ -38,6 +38,55 @@ const DEFAULT_CONFIG = {
 
 const FINISHED_PATTERN = /koniec|zakończ|gratulacje|wyniki|podsumowanie|nie ma już|finished|completed|results/i;
 const RUN_KEY = 'run';
+const CONFIG_KEY = 'config';
+// Only user-facing settings are persisted; the timing/delay block stays internal.
+const PERSISTED_CONFIG_KEYS = ['valid_chance', 'max_answers'];
+
+function pickPersistedConfig(value = {}) {
+    const out = {};
+    for (const key of PERSISTED_CONFIG_KEYS) {
+        if (value?.[key] !== undefined) out[key] = value[key];
+    }
+    return out;
+}
+
+function sanitizeConfig(value = {}) {
+    const out = {...value};
+    if (out.valid_chance !== undefined) {
+        const chance = Number(out.valid_chance);
+        out.valid_chance = Number.isFinite(chance)
+            ? Math.min(1, Math.max(0, chance))
+            : DEFAULT_CONFIG.valid_chance;
+    }
+    if (out.max_answers !== undefined) {
+        const limit = Number.parseInt(out.max_answers, 10);
+        out.max_answers = Number.isFinite(limit) && limit > 0 ? limit : 0;
+    }
+    return out;
+}
+
+function accuracy(correct, answers) {
+    return answers > 0 ? Math.round((correct / answers) * 100) : 0;
+}
+
+function hasActivity(day) {
+    return Boolean(day) && ((day.answers ?? 0) > 0 || (day.newWords ?? 0) > 0);
+}
+
+/** Consecutive days (ending today or yesterday) with at least one answer. */
+function computeStreak(stats, now = new Date()) {
+    const cursor = new Date(now.getTime());
+    let streak = 0;
+    // Today may still be empty; the streak is only broken once the day is over.
+    if (!hasActivity(stats[todayKey(cursor)])) {
+        cursor.setDate(cursor.getDate() - 1);
+    }
+    while (streak < 3660 && hasActivity(stats[todayKey(cursor)])) {
+        streak++;
+        cursor.setDate(cursor.getDate() - 1);
+    }
+    return streak;
+}
 
 function createStorageAdapter(storage) {
     return {
@@ -71,7 +120,7 @@ function createEngine({
     onEvent = () => {},
     language = 'pl',
     config: initialConfig = {},
-    version = '4.0.0'
+    version = '4.1.0'
 } = {}) {
     const state = {
         version,
@@ -89,7 +138,8 @@ function createEngine({
 
     let config = {
         ...DEFAULT_CONFIG,
-        ...initialConfig,
+        ...sanitizeConfig(storage.get(CONFIG_KEY, {}) ?? {}),
+        ...sanitizeConfig(initialConfig),
         delays: {...DEFAULT_CONFIG.delays, ...(initialConfig.delays ?? {})}
     };
     let words = storage.get('savedWords', []);
@@ -412,6 +462,12 @@ function createEngine({
                 return;
             }
 
+            if (config.max_answers > 0 && state.answers >= config.max_answers) {
+                log(t('log.limitReached', {limit: config.max_answers}), 'warn');
+                finalize('complete');
+                return;
+            }
+
             const answerForm = await dom.find(SELECTORS.answer, 600, shouldContinue);
             const newWordForm = await dom.find(SELECTORS.newWordForm, 300, shouldContinue);
 
@@ -490,15 +546,45 @@ function createEngine({
     function setConfig(next = {}) {
         config = {
             ...config,
-            ...next,
+            ...sanitizeConfig(next),
             delays: {...config.delays, ...(next.delays ?? {})}
         };
+        storage.set(CONFIG_KEY, pickPersistedConfig(config));
         return {...config};
+    }
+
+    function getConfig() {
+        return {...config};
+    }
+
+    function getStats(now = new Date()) {
+        const stats = storage.get('stats', {}) ?? {};
+        const lastSession = storage.get('lastSession', null);
+        const today = stats[todayKey(now)] ?? {answers: 0, correct: 0, wrong: 0, newWords: 0};
+        const total = {answers: 0, correct: 0, wrong: 0, newWords: 0};
+        for (const day of Object.values(stats)) {
+            if (!day || typeof day !== 'object') continue;
+            total.answers += day.answers ?? 0;
+            total.correct += day.correct ?? 0;
+            total.wrong += day.wrong ?? 0;
+            total.newWords += day.newWords ?? 0;
+        }
+        return {
+            today: {...today, accuracy: accuracy(today.correct, today.answers)},
+            total: {...total, accuracy: accuracy(total.correct, total.answers)},
+            session: lastSession
+                ? {...lastSession, accuracy: accuracy(lastSession.correct, lastSession.answers)}
+                : null,
+            savedWords: words.length,
+            streak: computeStreak(stats, now)
+        };
     }
 
     return {
         getState: () => ({...state, language: lang}),
         getSavedWords: () => words.slice(),
+        getConfig,
+        getStats,
         resume,
         setConfig,
         setLanguage,
@@ -507,4 +593,12 @@ function createEngine({
     };
 }
 
-module.exports = {DEFAULT_CONFIG, createEngine, createStorageAdapter, todayKey};
+module.exports = {
+    DEFAULT_CONFIG,
+    accuracy,
+    computeStreak,
+    createEngine,
+    createStorageAdapter,
+    sanitizeConfig,
+    todayKey
+};

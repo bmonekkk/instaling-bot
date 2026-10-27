@@ -2,7 +2,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {JSDOM} = require('jsdom');
 
-const {createEngine} = require('../mobile/engine/engine.js');
+const {
+    accuracy,
+    computeStreak,
+    createEngine,
+    sanitizeConfig
+} = require('../mobile/engine/engine.js');
+const {STRINGS} = require('../mobile/engine/i18n.js');
 
 function memoryStorage(initial = {}) {
     const data = new Map(Object.entries(initial));
@@ -244,5 +250,149 @@ test('mobile engine finishes a pending answer on the result page after navigatio
     assert.equal(state.correct, 1);
     assert.equal(engine.getSavedWords().length, 1);
     assert.ok(events.some(event => event.type === 'answered' && event.valid === 'house'));
+    dom.window.close();
+});
+
+test('mobile i18n keeps PL and EN in sync', () => {
+    const pl = Object.keys(STRINGS.pl).sort();
+    const en = Object.keys(STRINGS.en).sort();
+    assert.deepEqual(en, pl);
+    const placeholders = text => [...String(text).matchAll(/\{(\w+)\}/g)]
+        .map(match => match[1]).sort();
+    for (const key of pl) {
+        assert.deepEqual(placeholders(STRINGS.en[key]), placeholders(STRINGS.pl[key]), key);
+    }
+});
+
+test('sanitizeConfig clamps accuracy and normalizes the answer limit', () => {
+    assert.deepEqual(sanitizeConfig({valid_chance: 2}), {valid_chance: 1});
+    assert.deepEqual(sanitizeConfig({valid_chance: -1}), {valid_chance: 0});
+    assert.deepEqual(sanitizeConfig({valid_chance: 'x'}), {valid_chance: 0.8});
+    assert.deepEqual(sanitizeConfig({max_answers: '12'}), {max_answers: 12});
+    assert.deepEqual(sanitizeConfig({max_answers: -5}), {max_answers: 0});
+    assert.deepEqual(sanitizeConfig({max_answers: 'x'}), {max_answers: 0});
+});
+
+test('setConfig persists only the user-facing settings', () => {
+    const storage = memoryStorage();
+    const engine = createEngine({storage, language: 'pl', onEvent: () => {}});
+
+    engine.setConfig({valid_chance: 0.5, max_answers: 30, delays: {click_min: 1}});
+
+    assert.deepEqual(storage.get('config', null), {valid_chance: 0.5, max_answers: 30});
+    assert.equal(engine.getConfig().delays.click_min, 1);
+});
+
+test('a new engine restores persisted settings and the shell can override them', () => {
+    const storage = memoryStorage({config: {valid_chance: 0.25, max_answers: 7}});
+    const restored = createEngine({storage, language: 'pl', onEvent: () => {}});
+    assert.equal(restored.getConfig().valid_chance, 0.25);
+    assert.equal(restored.getConfig().max_answers, 7);
+
+    const overridden = createEngine({
+        storage,
+        config: {valid_chance: 0.9, max_answers: 0},
+        language: 'pl',
+        onEvent: () => {}
+    });
+    assert.equal(overridden.getConfig().valid_chance, 0.9);
+    assert.equal(overridden.getConfig().max_answers, 0);
+});
+
+test('accuracy and streak helpers ignore empty days', () => {
+    assert.equal(accuracy(0, 0), 0);
+    assert.equal(accuracy(8, 10), 80);
+    assert.equal(accuracy(2, 3), 67);
+
+    const now = new Date('2026-10-27T12:00:00');
+    const stats = {
+        '2026-10-27': {answers: 2},
+        '2026-10-26': {answers: 1},
+        '2026-10-25': {newWords: 1},
+        '2026-10-23': {answers: 5}
+    };
+    assert.equal(computeStreak(stats, now), 3);
+    // An empty "today" does not break a streak that ended yesterday.
+    assert.equal(computeStreak({'2026-10-26': {answers: 1}}, now), 1);
+    assert.equal(computeStreak({}, now), 0);
+});
+
+test('getStats aggregates days and exposes today, total, session and streak', () => {
+    const now = new Date('2026-10-27T12:00:00');
+    const storage = memoryStorage({
+        savedWords: [{polish: 'dom', english: 'house', sentence: ''}],
+        stats: {
+            '2026-10-27': {answers: 4, correct: 3, wrong: 1, newWords: 0},
+            '2026-10-26': {answers: 6, correct: 6, wrong: 0, newWords: 2}
+        },
+        lastSession: {answers: 4, correct: 3, wrong: 1, newWords: 0}
+    });
+    const engine = createEngine({storage, language: 'pl', onEvent: () => {}});
+    const stats = engine.getStats(now);
+
+    assert.equal(stats.today.answers, 4);
+    assert.equal(stats.today.accuracy, 75);
+    assert.equal(stats.total.answers, 10);
+    assert.equal(stats.total.correct, 9);
+    assert.equal(stats.total.accuracy, 90);
+    assert.equal(stats.total.newWords, 2);
+    assert.equal(stats.session.accuracy, 75);
+    assert.equal(stats.savedWords, 1);
+    assert.equal(stats.streak, 2);
+});
+
+test('max_answers ends the run after the configured number of answers', async () => {
+    // A page that keeps asking new words, so the run can only stop on the limit.
+    const dom = new JSDOM(`<!doctype html><html><body>
+        <div id="question">
+            <div class="usage_example">I have a house.</div>
+            <div class="translations">dom</div>
+        </div>
+        <input id="answer" type="text">
+        <button id="check">Sprawdź</button>
+        <div id="word" hidden></div>
+        <button id="next_word" hidden>Dalej</button>
+    </body></html>`, {url: 'https://instaling.pl/learning'});
+
+    globalThis.window = dom.window;
+    globalThis.document = dom.window.document;
+    globalThis.Event = dom.window.Event;
+    globalThis.KeyboardEvent = dom.window.KeyboardEvent;
+    globalThis.MouseEvent = dom.window.MouseEvent;
+    globalThis.PointerEvent = dom.window.PointerEvent ?? dom.window.MouseEvent;
+    globalThis.HTMLInputElement = dom.window.HTMLInputElement;
+    globalThis.HTMLTextAreaElement = dom.window.HTMLTextAreaElement;
+    globalThis.getComputedStyle = dom.window.getComputedStyle.bind(dom.window);
+    dom.window.Element.prototype.getClientRects = () => [{width: 100, height: 20}];
+    dom.window.HTMLElement.prototype.scrollIntoView = () => {};
+
+    const doc = dom.window.document;
+    doc.querySelector('#check').addEventListener('click', () => {
+        doc.querySelector('#word').textContent = 'house';
+        doc.querySelector('#word').hidden = false;
+        doc.querySelector('#next_word').hidden = false;
+    });
+    doc.querySelector('#next_word').addEventListener('click', () => {
+        doc.querySelector('#answer').value = '';
+        doc.querySelector('#word').hidden = true;
+        doc.querySelector('#next_word').hidden = true;
+    });
+
+    const storage = memoryStorage({
+        savedWords: [{polish: 'dom', english: 'house', sentence: ''}]
+    });
+    const events = [];
+    const engine = createEngine({
+        storage,
+        config: {...fastConfig, idle_resume_ms: 20, max_answers: 1},
+        language: 'pl',
+        onEvent: event => events.push(event)
+    });
+
+    await engine.start();
+    const state = await waitForStatus(engine, 'finished');
+    assert.equal(state.status, 'finished', state.lastError);
+    assert.equal(state.answers, 1);
+    assert.ok(events.some(event => event.type === 'log' && /limit/i.test(event.message)));
     dom.window.close();
 });

@@ -1,7 +1,30 @@
 const fs = require('fs');
 const path = require('path');
+const {execFileSync} = require('child_process');
 const {DEFAULT_LOGIN_URL, resolveLoginUrl} = require('./urls.js');
 const {resolveCredentials} = require('./credentials.js');
+
+// Best-effort credential-file hardening, mirroring the desktop app: chmod 600 on
+// POSIX and a private ACL on Windows. Failures are ignored because some
+// filesystems (FAT/exFAT, network shares) cannot store permissions.
+function secureFile(file) {
+    try {
+        if (process.platform === 'win32') {
+            const account = process.env.USERNAME
+                ? (process.env.USERDOMAIN ? `${process.env.USERDOMAIN}\\${process.env.USERNAME}` : process.env.USERNAME)
+                : '';
+            if (!account) return;
+            execFileSync('icacls', [file, '/inheritance:r', '/grant:r', `${account}:F`], {
+                stdio: 'ignore',
+                windowsHide: true
+            });
+        } else {
+            fs.chmodSync(file, 0o600);
+        }
+    } catch (error) {
+        // Keep running even when the filesystem does not support permissions.
+    }
+}
 
 // The desktop app runs the engine against a writable user-data directory, so the
 // config path can be provided explicitly. The CLI keeps using config/Config.json.
@@ -15,6 +38,10 @@ if (!fs.existsSync(configPath)) {
         'Copy config/Config.defaults.json to config/Config.json and fill in your credentials.'
     );
 }
+
+// The config may hold the InstaLing password, so keep it readable by the owner
+// only (the CLI installer copies it with the ambient umask otherwise).
+secureFile(configPath);
 
 let raw;
 try {

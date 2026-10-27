@@ -1,6 +1,6 @@
 {
   "name": "instaling-bot",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Desktop app, CLI and mobile shells for practising vocabulary on instaling.pl (educational automation project)",
   "main": "desktop/main.js",
   "scripts": {

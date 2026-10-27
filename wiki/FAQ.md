@@ -56,11 +56,26 @@ ostrzec przy pierwszym uruchomieniu. To oczekiwane; kod źródłowy jest publicz
 ## Jakie języki są obsługiwane?
 
 Wszystkie języki dostępne na instaling.pl, m.in. angielski, niemiecki, francuski, włoski
-i hiszpański. Interfejs aplikacji jest po polsku.
+i hiszpański. Interfejs aplikacji jest po polsku i angielsku (PL/EN w desktopie, APK, IPA
+i userscripcie).
 
 ## Czy jest wersja desktopowa na Linuksa?
 
 Nie. Na Linuksie działa CLI. Aplikacja desktopowa jest budowana dla Windows i macOS.
+
+## Desktop: wyskakuje okno o Premium — czy to błąd?
+
+Nie. Na części kont InstaLing w trakcie sesji pojawia się okno zachęcające do Premium lub
+konta nauczyciela. To zachowanie strony, a nie bota. Zamknij je lub pomiń **ręcznie**
+(kliknij w oknie Chrome). Jeśli wiesz, że to okno pojawia się na Twoim koncie, **nie
+ukrywaj okna przeglądarki** w trakcie sesji — możesz użyć trybu zasobnika, ale wróć do
+okna, gdy zauważysz, że sesja stoi.
+
+## Gdzie zmienić ustawienia na telefonie?
+
+- **Android / iOS (APK, IPA):** naciśnij **⚙** na górnym pasku. Zmienisz poprawność
+  odpowiedzi, limit odpowiedzi i godzinę przypomnienia; wartości zapisują się od razu.
+- **Userscript:** kliknij logo bota i rozwiń **Ustawienia** — poprawność, limit i autostart.
 
 ## Czy jest wersja na telefon?
 
@@ -79,8 +94,8 @@ i iOS, `GM_setValue` w userscripcie).
 ## Dlaczego bot mobilny zatrzymuje się w tle?
 
 Telefon może wstrzymać WebView/kartę, gdy aplikacja jest w tle. Sesja działa tylko przy
-otwartej aplikacji lub karcie. Przypomnienie o 17:00 i tak przyjdzie — na Androidzie
-przetrwa też restart telefonu.
+otwartej aplikacji lub karcie. Przypomnienie o wybranej godzinie i tak przyjdzie — na
+Androidzie przetrwa też restart telefonu.
 
 ## Gdzie mobilny bot trzyma dane?
 

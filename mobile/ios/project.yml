@@ -7,8 +7,8 @@ options:
 
 settings:
   base:
-    MARKETING_VERSION: "4.0.0"
-    CURRENT_PROJECT_VERSION: "40000"
+    MARKETING_VERSION: "4.1.0"
+    CURRENT_PROJECT_VERSION: "40100"
     SWIFT_VERSION: "5.0"
     IPHONEOS_DEPLOYMENT_TARGET: "16.0"
 
@@ -24,7 +24,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bmoneczek.instalingbot
         PRODUCT_NAME: InstalingBot
-        TARGETED_DEVICE_FAMILY: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTS_MACCATALYST: NO
         CODE_SIGN_STYLE: Manual
         DEVELOPMENT_TEAM: ""

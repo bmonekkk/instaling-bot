@@ -4,12 +4,17 @@
 
 | Version | Supported |
 |---|---|
-| 4.0.x (desktop, CLI, Android APK, iOS IPA, userscript) | ✅ |
+| 4.1.x (desktop, CLI, Android APK, iOS IPA, userscript) | ✅ |
+| 4.0.x | ✅ |
 | 3.3.x | ✅ |
 | < 3.3 | ❌ |
 
 Only the latest release receives security fixes. If you are on an older build, update first:
 [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+
+A summary of the standing audit and its known limitations lives in
+[`SECURITY_AUDIT.md`](SECURITY_AUDIT.md). It records what is enforced today and what is
+only best-effort — this project does not claim to be "fully secure".
 
 ## Reporting a vulnerability
 
@@ -79,7 +84,7 @@ within your own accounts and data, and does not disrupt the service or other use
 
 Luki bezpieczeństwa zgłaszaj **prywatnie** przez
 [GitHub Security Advisories](https://github.com/bmonekkk/instaling-bot/security/advisories/new),
-a nie w publicznym issue. Obsługiwane są wersje **4.0.x** i **3.3.x** — obejmuje to desktop,
+a nie w publicznym issue. Obsługiwane są wersje **4.1.x**, **4.0.x** i **3.3.x** — obejmuje to desktop,
 CLI, aplikacje mobilne (APK/IPA) i userscript. Nie dołączaj prawdziwych danych logowania, ciasteczek, tokenów
 ani logów z danymi osobowymi. Potwierdzenie zgłoszenia: do 3 dni roboczych. Naprawa
 krytycznych problemów: cel 30 dni. Dziękuję za odpowiedzialne zgłaszanie!

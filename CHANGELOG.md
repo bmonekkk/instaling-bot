@@ -2,6 +2,38 @@
 
 All notable changes to this fork are documented here.
 
+## [4.1.0] - 2026-10-27
+
+### Added
+- **Download tags on the website.** Every option now lists the operating system and minimum version, architecture and package format in the same order. A new `docs/download-detect.js` detects Windows, macOS (ARM64/Intel via User-Agent Client Hints), Android, iPhone, iPad (including iPadOS Safari reporting `MacIntel`), Linux and unknown systems, highlights the recommended card and updates the hero button. The manual **Your device** selector keeps all other options visible.
+- **Mobile settings.** The Android shell gains a ⚙ settings dialog (answer accuracy, answer limit, reminder time via `TimePickerDialog`) and the iOS shell gains a matching settings sheet (`UIDatePicker`). Values are stored in `SharedPreferences`/`UserDefaults`, passed to the engine on load and applied live through `setConfig`.
+- **Mobile statistics.** Android, iOS and the userscript read `engine.getStats()` and show today's answers, accuracy and streak.
+- **Userscript settings panel.** A persisted `<details>` panel for accuracy, limit and autostart; the popup is centred (`left: 50%`, `translateX(-50%)`), uses `min(340px, calc(100vw - 24px))` and scrolls inside a clamped height.
+- **Unified icon.** `scripts/generate-icons.py` now derives Android mipmaps, the iOS 1024 icon, website PNG/ICO favicons and `mobile/userscript/icon.png` from the single source `build/icon.png`. The userscript inlines the icon (`__ICON__`) in its bubble and panel.
+- **Engine config API.** `engine.getConfig()`, `engine.setConfig()` (persists only `valid_chance` and `max_answers` under `config`), `engine.getStats()` and `engine.getStats().streak`; `max_answers` is enforced inside `tick()` and ends the run with `log.limitReached`.
+- **Tests.** `test/download-detect.test.js` plus new cases in `test/mobile-engine.test.js` for config sanitizing/persistence, stats, streaks, PL/EN parity and the answer limit.
+
+### Changed
+- Version bumped to `4.1.0` across `package.json`, the iOS project (`MARKETING_VERSION`, `CURRENT_PROJECT_VERSION`, `TARGETED_DEVICE_FAMILY: "1,2"`), the engine default, the desktop renderer title/footer, the website, README (PL/EN), wiki, `docs/llms.txt`, `PROJECT_NOTES.md` and release notes.
+- The Android shell no longer appends `instaling-bot-mobile/4.0` to the WebView User-Agent. This is a best-effort reduction of a detectable signature, not a guarantee.
+- Android flushes the website cookies (`CookieManager.flush()`) in `onPause`/`onDestroy` so returning to the app keeps the existing session without storing credentials.
+- `ReminderReceiver`/`BootReceiver` read the reminder hour and minute from preferences instead of hardcoding 17:00.
+- iOS surfaces are explicitly opaque (`webView.isOpaque = true`, matching backgrounds, opaque status bar) to remove the transparent, hard-to-read dark-navy bleed.
+- The website FAQ adds a desktop Premium-dialog entry (the page may ask for Premium; dismiss it manually and do not hide the browser window if your account shows it) and documents where the mobile/userscript settings live.
+- `TARGETED_DEVICE_FAMILY` now includes iPad, matching the "iPhone/iPad" download tags.
+
+### Security
+- CLI `config/Config.json` is now permission-hardened on load (`chmod 600` on POSIX, private `icacls` ACL on Windows), matching the desktop app, so the InstaLing password is not readable by other local users.
+- Android no longer delegates non-main-frame navigations to the system browser, so ad iframes cannot trigger external `startActivity` popups.
+- Electron denies every web permission (`setPermissionRequestHandler`) and blocks top-level navigation (`will-navigate`); the renderer CSP gained `object-src`, `base-uri` and `form-action` restrictions.
+- New `SECURITY_AUDIT.md` records the standing audit, the fixes above and the accepted limitations; `SECURITY.md` now lists 4.1.x as supported.
+
+### Compatibility
+- Desktop/CLI configs, `SavedWords.json`, statistics, reminders and update checks are unchanged.
+- Mobile apps still do not read `Config.json` and still do not store credentials. The persistent WebView session is the only login state.
+- The userscript already remembered words between sessions (`savedWords` in GM storage); 4.1.0 verifies this with tests and leaves the behaviour intact.
+- APK/IPA remain outside the Play Store and App Store. Download URLs for 4.1.0 resolve once the `v4.1.0` release assets are published.
+
 ## [4.0.0] - 2026-10-27
 
 ### Added
