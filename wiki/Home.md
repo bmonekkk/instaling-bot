@@ -9,6 +9,7 @@ aplikacja desktopowa dla Windows i macOS oraz CLI dla Linuksa i terminala.
 **Dyskusje:** https://github.com/bmonekkk/instaling-bot/discussions
 
 > This wiki is primarily in Polish, but questions and contributions in English are welcome. 🌍
+> 🇬🇧 English README: [README.en.md](https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md)
 
 ## 🚀 Zacznij tutaj
 
