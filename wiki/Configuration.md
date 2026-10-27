@@ -46,6 +46,7 @@ screenshots/              diagnostyczne zrzuty ekranu
 | `reminder.repeat_minutes` | powtarzanie co N minut, `0` = raz dziennie |
 | `background.run_in_tray` | zamykanie okna chowa aplikację do zasobnika |
 | `background.start_at_login` | uruchamianie przy logowaniu systemu |
+| `language` | język interfejsu desktopowego: `pl` lub `en`; przełącznik **PL/EN** jest na pasku menu |
 
 ## Humanizacja pisania
 

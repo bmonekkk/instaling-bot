@@ -9,6 +9,7 @@ function subscribe(channel, callback) {
 contextBridge.exposeInMainWorld('instaling', {
     getState: () => ipcRenderer.invoke('app:get-state'),
     saveSettings: settings => ipcRenderer.invoke('app:save-settings', settings),
+    setLanguage: language => ipcRenderer.invoke('app:set-language', language),
     startBot: settings => ipcRenderer.invoke('bot:start', settings),
     stopBot: () => ipcRenderer.invoke('bot:stop'),
     openDataFolder: () => ipcRenderer.invoke('app:open-data-folder'),

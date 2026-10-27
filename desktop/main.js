@@ -15,6 +15,7 @@ const {
     repeatMinutes
 } = require('../src/reminder.js');
 const {loadStats, summarizeAll} = require('../src/stats.js');
+const {t, normalizeLanguage} = require('./renderer/i18n.js');
 
 const APP_ID = 'com.bmoneczek.instalingbot';
 const IS_DEV = !app.isPackaged;
@@ -43,6 +44,10 @@ let logSeq = 0;
 let lastNotifiedRun = null;
 let logCleanupTimer = null;
 let runToken = 0;
+
+function tr(key, vars) {
+    return t(configCache?.language ?? 'pl', key, vars);
+}
 
 // The tray renders this pixel glyph as a template image on macOS so the menu bar
 // can recolour it for light/dark mode. Other platforms keep the coloured icon.
@@ -186,7 +191,8 @@ function normalizeConfig(raw) {
         credentials: {
             login: String(credentials.login ?? ''),
             password: String(credentials.password ?? '')
-        }
+        },
+        language: normalizeLanguage(raw.language)
     };
 }
 
@@ -215,6 +221,7 @@ function applySettings(current, payload) {
         login: String(credentials.login ?? '').trim(),
         password: String(credentials.password ?? '')
     };
+    next.language = normalizeLanguage(payload?.language ?? current.language ?? 'pl');
 
     next.valid_chance = clampNumber(payload?.valid_chance, current.valid_chance ?? 0.8, 0, 1);
     next.max_answers = clampNumber(payload?.max_answers, current.max_answers ?? 0, 0, 10000, true);
@@ -267,7 +274,7 @@ function applySettings(current, payload) {
     }
 
     if (!next.credentials.login || !next.credentials.password) {
-        throw new Error('Podaj login i hasło do InstaLing.');
+        throw new Error(tr('toast.loginRequired'));
     }
 
     return next;
@@ -324,7 +331,8 @@ function configForRenderer(config) {
         background: {
             run_in_tray: Boolean(config.background?.run_in_tray),
             start_at_login: Boolean(config.background?.start_at_login)
-        }
+        },
+        language: normalizeLanguage(config.language)
     };
 }
 
@@ -367,7 +375,7 @@ function scheduleLogCleanup(token) {
         } catch (error) {
             // The log file may be gone; the in-app console still gets cleared.
         }
-        appendLog('[APP] Konsola wyczyszczona 2 godziny po zakończeniu sesji.');
+        appendLog(tr('log.clearScheduled'));
     }, LOG_CLEANUP_MS);
     if (logCleanupTimer.unref) logCleanupTimer.unref();
 }
@@ -387,13 +395,13 @@ function resolveBundledBrowser() {
     const browserDir = path.join(process.resourcesPath, 'browser');
     const manifestPath = path.join(browserDir, 'manifest.json');
     if (!fs.existsSync(manifestPath)) {
-        throw new Error('Brak przeglądarki Chrome w instalatorze. Zainstaluj aplikację ponownie.');
+        throw new Error(tr('error.chromeMissing'));
     }
 
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
     const executable = path.resolve(browserDir, manifest.executable);
     if (!fs.existsSync(executable)) {
-        throw new Error(`Nie znaleziono pliku Chrome: ${executable}`);
+        throw new Error(tr('error.chromeNotFound', {path: executable}));
     }
     return {cacheDir: browserDir, executable};
 }
@@ -426,7 +434,7 @@ function handleBotMessage(message) {
             botState.phase = message.phase ?? botState.phase;
             break;
         case 'error':
-            botState.lastError = message.message ?? 'Nieznany błąd';
+            botState.lastError = message.message ?? tr('error.unknown');
             break;
         case 'finished':
             botState.exitCode = message.code ?? null;
@@ -458,7 +466,7 @@ function attachProcessOutput(child) {
 
 async function startBot() {
     if (botProcess) {
-        return {ok: false, error: 'Bot już działa.'};
+        return {ok: false, error: tr('error.botRunning')};
     }
 
     if (logCleanupTimer) {
@@ -469,7 +477,7 @@ async function startBot() {
 
     const config = await loadConfig();
     if (!config.credentials.login || !config.credentials.password) {
-        throw new Error('Podaj login i hasło do InstaLing.');
+        throw new Error(tr('toast.loginRequired'));
     }
 
     const browser = resolveBundledBrowser();
@@ -482,7 +490,7 @@ async function startBot() {
     startLogFile();
     resetLogBuffer();
     broadcastState();
-    appendLog(`[APP] Uruchamianie bota ${app.getVersion()}...`);
+    appendLog(tr('log.startingApp', {version: app.getVersion()}));
     if (browser.executable) {
         appendLog(`[APP] Chrome: ${browser.executable}`);
     }
@@ -517,7 +525,7 @@ async function startBot() {
             botState.status = 'error';
             botState.phase = 'idle';
             botState.lastError = error.message;
-            appendLog(`[APP] Nie udało się uruchomić procesu bota: ${error.message}`);
+            appendLog(tr('log.startProcessFailed', {message: error.message}));
             closeLogStream();
             broadcastState();
             throw error;
@@ -531,7 +539,7 @@ async function startBot() {
     child.on('error', error => {
         botState.lastError = error.message;
         botState.status = 'error';
-        appendLog(`[APP] Błąd procesu: ${error.message}`);
+        appendLog(tr('log.processError', {message: error.message}));
         broadcastState();
     });
 
@@ -547,9 +555,13 @@ async function startBot() {
             markSessionDone(new Date(), DATA_DIR).catch(() => {});
         }
         if (code !== 0 && !stopped) {
-            botState.lastError = `Proces zakończył się kodem ${code}${signal ? ` (${signal})` : ''}.`;
+            botState.lastError = signal
+                ? tr('error.processExitSignal', {code, signal})
+                : tr('error.processExitCode', {code});
         }
-        appendLog(`[APP] Bot zakończył pracę (kod ${code ?? 'brak'}).`);
+        appendLog(code === null || code === undefined
+            ? tr('log.processExitNoCode')
+            : tr('log.processExit', {code}));
         closeLogStream();
         broadcastState();
         notifySessionFinished();
@@ -569,7 +581,7 @@ function cleanUpChild() {
 
 function requestStop() {
     if (!botProcess) {
-        return {ok: false, error: 'Bot nie działa.'};
+        return {ok: false, error: tr('error.botNotRunning')};
     }
     if (botState.stopRequested) {
         return {ok: true};
@@ -578,18 +590,18 @@ function requestStop() {
     botState.stopRequested = true;
     botState.status = 'stopping';
     botState.phase = 'stopping';
-    appendLog('[APP] Zatrzymywanie bota...');
+    appendLog(tr('log.stopping'));
     broadcastState();
 
     try {
         botProcess.send({type: 'stop'});
     } catch (error) {
-        appendLog(`[APP] Nie udało się wysłać sygnału stop: ${error.message}`);
+        appendLog(tr('log.stopSendFailed', {message: error.message}));
     }
 
     stopTimer = setTimeout(() => {
         if (botProcess) {
-            appendLog('[APP] Bot nie odpowiedział, kończę proces awaryjnie.');
+            appendLog(tr('log.stopForce'));
             botProcess.kill();
         }
     }, 15000);
@@ -677,8 +689,8 @@ function notifySessionFinished() {
 
     const failed = botState.status === 'error';
     const body = failed
-        ? `Sesja zakończona błędem: ${botState.lastError ?? 'nieznany błąd'}`
-        : `Sesja zakończona. Odpowiedzi: ${botState.answers}, poprawne: ${botState.correct}.`;
+        ? tr('notify.failed', {message: botState.lastError ?? tr('error.unknown')})
+        : tr('notify.finished', {answers: botState.answers, correct: botState.correct});
     notifyTrayMessage(body);
 }
 
@@ -691,7 +703,7 @@ function notifyTrayMessage(body) {
 
 function notifyTrayError(message) {
     if (mainWindow && mainWindow.isVisible()) return;
-    notifyTrayMessage(`Nie udało się uruchomić sesji: ${message}`);
+    notifyTrayMessage(tr('notify.startFailed', {message}));
 }
 
 function updateTray() {
@@ -708,10 +720,10 @@ function updateTray() {
     tray = new Tray(trayIcon());
     tray.setToolTip('instaling-bot');
     tray.setContextMenu(Menu.buildFromTemplate([
-        {label: 'Pokaż okno', click: showWindow},
+        {label: tr('tray.show'), click: showWindow},
         {type: 'separator'},
         {
-            label: 'Start',
+            label: tr('tray.start'),
             click: () => {
                 startBot().catch(error => {
                     appendLog(`[APP] ${error.message}`);
@@ -719,10 +731,10 @@ function updateTray() {
                 });
             }
         },
-        {label: 'Stop', click: () => requestStop()},
+        {label: tr('tray.stop'), click: () => requestStop()},
         {type: 'separator'},
         {
-            label: 'Zakończ',
+            label: tr('tray.quit'),
             click: () => {
                 isQuitting = true;
                 app.quit();
@@ -764,7 +776,7 @@ async function checkReminder() {
     if (Notification.isSupported()) {
         const notification = new Notification({
             title: 'instaling-bot',
-            body: 'Nie zapomnij o dzisiejszej sesji na InstaLing.',
+            body: tr('notify.reminder'),
             silent: false
         });
         notification.on('click', showWindow);
@@ -773,7 +785,7 @@ async function checkReminder() {
 
     send('app:reminder', {date: dateKey(now)});
     await markNotified(now, DATA_DIR);
-    appendLog('[APP] Wysłano przypomnienie o codziennej sesji.');
+    appendLog(tr('log.reminderSent'));
 }
 
 function startReminderLoop() {
@@ -787,7 +799,7 @@ async function checkUpdates() {
         updateInfo = {...await checkLatestRelease(app.getVersion()), checkedAt: Date.now()};
         if (updateInfo.available) {
             send('app:update-available', updateInfo);
-            appendLog(`[APP] Dostępna nowa wersja ${updateInfo.latest}.`);
+            appendLog(tr('log.updateAvailable', {version: updateInfo.latest}));
         }
     } catch (error) {
         updateInfo = {available: false, error: error.message, checkedAt: Date.now()};
@@ -894,10 +906,27 @@ function registerIpc() {
         return {ok: true, config: configForRenderer(config), state: publicState()};
     });
 
+    ipcMain.handle('app:set-language', async (event, value) => {
+        assertSender(event);
+        const language = normalizeLanguage(value);
+        const current = await loadConfig();
+        if (current.language !== language) {
+            current.language = language;
+            await writeJson(CONFIG_PATH, current);
+            configCache = current;
+            if (tray) {
+                tray.destroy();
+                tray = null;
+            }
+            updateTray();
+        }
+        return {ok: true, language};
+    });
+
     ipcMain.handle('bot:start', async (event, payload) => {
         assertSender(event);
         if (botProcess) {
-            return {ok: false, error: 'Bot już działa.'};
+            return {ok: false, error: tr('error.botRunning')};
         }
         await saveSettings(payload);
         return startBot();
@@ -917,7 +946,7 @@ function registerIpc() {
     ipcMain.handle('app:open-log-file', async event => {
         assertSender(event);
         if (!fs.existsSync(LOG_PATH)) {
-            return 'Log pojawi się po pierwszym uruchomieniu bota.';
+            return tr('log.notCreated');
         }
         return shell.openPath(LOG_PATH);
     });
@@ -925,7 +954,7 @@ function registerIpc() {
     ipcMain.handle('app:open-external', async (event, url) => {
         assertSender(event);
         if (typeof url !== 'string' || !/^https:\/\//i.test(url)) {
-            throw new Error('Niedozwolony adres.');
+            throw new Error(tr('error.invalidUrl'));
         }
         await shell.openExternal(url);
     });

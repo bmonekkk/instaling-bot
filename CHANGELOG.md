@@ -5,6 +5,7 @@ All notable changes to this fork are documented here.
 ## [Unreleased]
 
 ### Added
+- Polish/English desktop interface with a **PL/EN** switch in the menu bar. The choice is stored as `language` in `Config.json` and also translates the tray menu and native notifications. Bot engine console output remains in Polish.
 - Community health files: `SECURITY.md`, `CONTRIBUTING.md`, `SUPPORT.md`, `CODE_OF_CONDUCT.md`, issue and pull request templates, and discussion templates for Q&A and Ideas.
 - CI workflow covering syntax checks, unit tests with `node:test`, whitespace, the `install.sh` shell script and CLI smoke tests; CodeQL analysis for JavaScript; Dependabot updates for npm and GitHub Actions.
 - Wiki source under `wiki/` with a `scripts/sync-wiki.sh` helper, plus a welcome discussion in the repository.

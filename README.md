@@ -55,6 +55,8 @@ Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projek
 
 Oba warianty korzystają z tego samego silnika (`src/`), tych samych opcji i formatu `SavedWords.json`.
 
+Interfejs desktopowy działa po polsku i angielsku. Język przełączasz przyciskami **PL/EN** na pasku menu; wybór zapisuje się w `Config.json` (`language`) i obejmuje też menu zasobnika oraz powiadomienia systemowe.
+
 
 ## 🖥️ Desktop: Windows i macOS
 
@@ -251,6 +253,7 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
   - `password` — hasło
 - `sites` — używane strony
   - `login` — strona logowania; musi wskazywać oficjalną stronę logowania `instaling.pl` po HTTPS (bot odmówi startu dla innego adresu)
+- `language` — język interfejsu desktopowego: `pl` (domyślnie) lub `en`; można go też zmienić przyciskami **PL/EN** na pasku menu. Logi silnika bota pozostają po polsku.
 - `delays` — czasy oczekiwania w milisekundach (1 s = 1000 ms); bot losuje wartość między min i max
   - `click_min` / `click_max` — domyślne opóźnienie po kliknięciu w przycisk
   - `type_min` / `type_max` — opóźnienie na pojedynczą literę

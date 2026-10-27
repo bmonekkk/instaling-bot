@@ -13,150 +13,154 @@
         <span class="titlebar-icon" aria-hidden="true">🤖</span>
         <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v3.2.0</span></span>
         <div class="window-controls">
-            <button class="window-button" id="win-minimize" type="button" title="Minimalizuj" aria-label="Minimalizuj">_</button>
-            <button class="window-button" id="win-maximize" type="button" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
-            <button class="window-button close" id="win-close" type="button" title="Zamknij" aria-label="Zamknij">×</button>
+            <button class="window-button" id="win-minimize" type="button" data-i18n-title="window.minimize" data-i18n-aria-label="window.minimize" title="Minimalizuj" aria-label="Minimalizuj">_</button>
+            <button class="window-button" id="win-maximize" type="button" data-i18n-title="window.maximize" data-i18n-aria-label="window.maximize" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
+            <button class="window-button close" id="win-close" type="button" data-i18n-title="window.close" data-i18n-aria-label="window.close" title="Zamknij" aria-label="Zamknij">×</button>
         </div>
     </header>
 
-    <nav class="menubar" aria-label="Menu aplikacji">
+    <nav class="menubar" data-i18n-aria-label="app.menu" aria-label="Menu aplikacji">
         <span class="menu-brand">BOT</span>
-        <span>Ustawienia</span>
-        <span>Konsola</span>
+        <span data-i18n="menu.settings">Ustawienia</span>
+        <span data-i18n="menu.console">Konsola</span>
         <span class="menu-spacer"></span>
-        <span class="menu-note">DESKTOP EDITION</span>
+        <div class="lang-switch" role="group" data-i18n-aria-label="lang.label" aria-label="Język interfejsu">
+            <button class="lang-button active" type="button" data-lang="pl" data-i18n-title="lang.pl" title="Polski" aria-pressed="true">PL</button>
+            <button class="lang-button" type="button" data-lang="en" data-i18n-title="lang.en" title="English" aria-pressed="false">EN</button>
+        </div>
+        <span class="menu-note" data-i18n="menu.note">DESKTOP EDITION</span>
     </nav>
 
     <div class="update-banner" id="update-banner" hidden>
-        <span class="update-text">Dostępna nowa wersja <strong id="update-version"></strong>.</span>
-        <button class="btn mini primary" id="update-download" type="button">Pobierz</button>
-        <button class="btn mini" id="update-dismiss" type="button">Później</button>
+        <span class="update-text"><span data-i18n="update.available">Dostępna nowa wersja</span> <strong id="update-version"></strong>.</span>
+        <button class="btn mini primary" id="update-download" type="button" data-i18n="update.download">Pobierz</button>
+        <button class="btn mini" id="update-dismiss" type="button" data-i18n="update.later">Później</button>
     </div>
 
     <main class="workspace">
         <section class="panel settings-panel" aria-labelledby="settings-heading">
             <div class="panel-head">
                 <span class="panel-icon" aria-hidden="true">⚙</span>
-                <h1 id="settings-heading">Ustawienia bota</h1>
+                <h1 id="settings-heading" data-i18n="settings.title">Ustawienia bota</h1>
             </div>
 
             <div class="panel-body">
                 <div class="support-box">
-                    <strong>Wesprzyj rozwój projektu 💛</strong>
-                    <p>Instaling Bot rozwijam hobbystycznie. Jeśli projekt jest dla Ciebie przydatny, możesz postawić mi wirtualną kawę — wsparcie jest całkowicie dobrowolne.</p>
-                    <button class="btn mini" id="open-kofi" type="button">☕ Postaw kawę na Ko-fi</button>
-                    <span class="hint inline">Autor: bmonekkk</span>
+                    <strong data-i18n="support.title">Wesprzyj rozwój projektu 💛</strong>
+                    <p data-i18n="support.text">Instaling Bot rozwijam hobbystycznie. Jeśli projekt jest dla Ciebie przydatny, możesz postawić mi wirtualną kawę — wsparcie jest całkowicie dobrowolne.</p>
+                    <button class="btn mini" id="open-kofi" type="button" data-i18n="support.button">☕ Postaw kawę na Ko-fi</button>
+                    <span class="hint inline" data-i18n="support.author">Autor: bmonekkk</span>
                 </div>
 
                 <div class="quick-guide">
-                    <strong>Szybki start</strong>
+                    <strong data-i18n="guide.title">Szybki start</strong>
                     <ol>
-                        <li>Wpisz login i hasło do InstaLing.</li>
-                        <li>Ustaw poprawność odpowiedzi i limit (0 = bez limitu).</li>
-                        <li>Naciśnij <b>Start</b>. Chrome otworzy się osobno, a postęp zobaczysz w konsoli.</li>
+                        <li data-i18n="guide.step1">Wpisz login i hasło do InstaLing.</li>
+                        <li data-i18n="guide.step2">Ustaw poprawność odpowiedzi i limit (0 = bez limitu).</li>
+                        <li data-i18n-html="guide.step3">Naciśnij <b>Start</b>. Chrome otworzy się osobno, a postęp zobaczysz w konsoli.</li>
                     </ol>
-                    <p>Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer. Statystyki sesji znajdziesz przyciskiem <b>Statystyki</b> w konsoli.</p>
+                    <p data-i18n-html="guide.note">Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer. Statystyki sesji znajdziesz przyciskiem <b>Statystyki</b> w konsoli.</p>
                 </div>
 
                 <form id="settings-form" autocomplete="off">
                     <fieldset>
-                        <legend>Konto InstaLing</legend>
+                        <legend data-i18n="account.legend">Konto InstaLing</legend>
                         <label class="field" for="login">
-                            <span>Login lub e-mail</span>
-                            <input id="login" name="login" type="text" spellcheck="false" autocomplete="username" placeholder="twoj-login">
+                            <span data-i18n="login.label">Login lub e-mail</span>
+                            <input id="login" name="login" type="text" spellcheck="false" autocomplete="username" data-i18n-placeholder="login.placeholder" placeholder="twoj-login">
                         </label>
                         <label class="field" for="password">
-                            <span>Hasło</span>
+                            <span data-i18n="password.label">Hasło</span>
                             <span class="password-row">
-                                <input id="password" name="password" type="password" autocomplete="current-password" placeholder="twoje-hasło">
-                                <button class="btn mini" id="toggle-password" type="button">Pokaż</button>
+                                <input id="password" name="password" type="password" autocomplete="current-password" data-i18n-placeholder="password.placeholder" placeholder="twoje-hasło">
+                                <button class="btn mini" id="toggle-password" type="button" data-i18n="password.show">Pokaż</button>
                             </span>
                         </label>
-                        <p class="hint">Dane są zapisywane lokalnie w folderze aplikacji i nigdy nie opuszczają tego komputera.</p>
+                        <p class="hint" data-i18n="account.hint">Dane są zapisywane lokalnie w folderze aplikacji i nigdy nie opuszczają tego komputera.</p>
                     </fieldset>
 
                     <fieldset>
-                        <legend>Zachowanie</legend>
+                        <legend data-i18n="behavior.legend">Zachowanie</legend>
                         <label class="field range-field" for="valid-chance">
-                            <span>Poprawność odpowiedzi <output id="valid-chance-value" for="valid-chance">80%</output></span>
+                            <span><span data-i18n="behavior.validity">Poprawność odpowiedzi</span> <output id="valid-chance-value" for="valid-chance">80%</output></span>
                             <input id="valid-chance" type="range" min="0" max="100" step="1" value="80">
                             <span class="range-scale"><span>0%</span><span>50%</span><span>100%</span></span>
                         </label>
                         <div class="row two">
                             <label class="field" for="max-answers">
-                                <span>Limit odpowiedzi</span>
+                                <span data-i18n="behavior.limit">Limit odpowiedzi</span>
                                 <input id="max-answers" type="number" min="0" max="10000" step="1" value="0">
-                                <span class="hint inline">0 = bez limitu</span>
+                                <span class="hint inline" data-i18n="behavior.limitHint">0 = bez limitu</span>
                             </label>
                             <div class="check-stack">
-                                <label class="check"><input id="show-browser" type="checkbox"> <span>Pokaż okno Chrome</span></label>
-                                <label class="check"><input id="mute-audio" type="checkbox"> <span>Wycisz dźwięk</span></label>
+                                <label class="check"><input id="show-browser" type="checkbox"> <span data-i18n="behavior.showBrowser">Pokaż okno Chrome</span></label>
+                                <label class="check"><input id="mute-audio" type="checkbox"> <span data-i18n="behavior.muteAudio">Wycisz dźwięk</span></label>
                             </div>
                         </div>
                     </fieldset>
 
                     <fieldset>
-                        <legend>Przypomnienia i praca w tle</legend>
+                        <legend data-i18n="reminder.legend">Przypomnienia i praca w tle</legend>
                         <div class="row two">
-                            <label class="check"><input id="reminder-enabled" type="checkbox" checked> <span>Przypominaj o codziennej sesji</span></label>
+                            <label class="check"><input id="reminder-enabled" type="checkbox" checked> <span data-i18n="reminder.enabled">Przypominaj o codziennej sesji</span></label>
                             <label class="field" for="reminder-time">
-                                <span>Godzina przypomnienia</span>
+                                <span data-i18n="reminder.time">Godzina przypomnienia</span>
                                 <input id="reminder-time" type="time" value="17:00">
                             </label>
                         </div>
                         <label class="field" for="reminder-repeat">
-                            <span>Powtarzaj przypomnienie</span>
+                            <span data-i18n="reminder.repeat">Powtarzaj przypomnienie</span>
                             <select id="reminder-repeat">
-                                <option value="0">Raz dziennie</option>
-                                <option value="15">Co 15 minut</option>
-                                <option value="30">Co 30 minut</option>
-                                <option value="60">Co godzinę</option>
-                                <option value="120">Co 2 godziny</option>
-                                <option value="180">Co 3 godziny</option>
+                                <option value="0" data-i18n="repeat.0">Raz dziennie</option>
+                                <option value="15" data-i18n="repeat.15">Co 15 minut</option>
+                                <option value="30" data-i18n="repeat.30">Co 30 minut</option>
+                                <option value="60" data-i18n="repeat.60">Co godzinę</option>
+                                <option value="120" data-i18n="repeat.120">Co 2 godziny</option>
+                                <option value="180" data-i18n="repeat.180">Co 3 godziny</option>
                             </select>
                         </label>
                         <div class="check-stack">
-                            <label class="check"><input id="run-in-tray" type="checkbox"> <span>Działaj w zasobniku po zamknięciu okna</span></label>
-                            <label class="check"><input id="start-at-login" type="checkbox"> <span>Uruchamiaj przy logowaniu systemu</span></label>
+                            <label class="check"><input id="run-in-tray" type="checkbox"> <span data-i18n="reminder.tray">Działaj w zasobniku po zamknięciu okna</span></label>
+                            <label class="check"><input id="start-at-login" type="checkbox"> <span data-i18n="reminder.autostart">Uruchamiaj przy logowaniu systemu</span></label>
                         </div>
-                        <p class="hint">Przypomnienie działa, gdy aplikacja jest uruchomiona — także ukryta w zasobniku. Sesja wykonana tego dnia nie wywołuje przypomnienia. Przy powtarzaniu przypomnienia wracają co wybrany czas, dopóki nie ukończysz sesji.</p>
-                        <p class="hint"><strong>Autostart:</strong> włącza uruchamianie aplikacji przy logowaniu systemu. Aby startowała bez okna, włącz także tryb zasobnika — inaczej po logowaniu otworzy się normalne okno. Na macOS tryb zasobnika chowa też ikonę z Docka; wszystko robisz z menu bar.</p>
+                        <p class="hint" data-i18n="reminder.hint">Przypomnienie działa, gdy aplikacja jest uruchomiona — także ukryta w zasobniku. Sesja wykonana tego dnia nie wywołuje przypomnienia. Przy powtarzaniu przypomnienia wracają co wybrany czas, dopóki nie ukończysz sesji.</p>
+                        <p class="hint" data-i18n-html="reminder.autostartHint"><strong>Autostart:</strong> włącza uruchamianie aplikacji przy logowaniu systemu. Aby startowała bez okna, włącz także tryb zasobnika — inaczej po logowaniu otworzy się normalne okno. Na macOS tryb zasobnika chowa też ikonę z Docka; wszystko robisz z menu bar.</p>
                     </fieldset>
 
                     <details class="advanced">
-                        <summary>Zaawansowane: humanizacja pisania</summary>
+                        <summary data-i18n="advanced.summary">Zaawansowane: humanizacja pisania</summary>
                         <div class="advanced-body">
                             <div class="row two">
                                 <label class="field" for="type-min">
-                                    <span>Opóźnienie liter min (ms)</span>
+                                    <span data-i18n="advanced.typeMin">Opóźnienie liter min (ms)</span>
                                     <input id="type-min" type="number" min="0" max="5000" step="1" value="90">
                                 </label>
                                 <label class="field" for="type-max">
-                                    <span>Opóźnienie liter max (ms)</span>
+                                    <span data-i18n="advanced.typeMax">Opóźnienie liter max (ms)</span>
                                     <input id="type-max" type="number" min="0" max="5000" step="1" value="230">
                                 </label>
                             </div>
                             <div class="row two">
                                 <label class="field range-field" for="typo-chance">
-                                    <span>Szansa na literówkę <output id="typo-chance-value" for="typo-chance">15%</output></span>
+                                    <span><span data-i18n="advanced.typoChance">Szansa na literówkę</span> <output id="typo-chance-value" for="typo-chance">15%</output></span>
                                     <input id="typo-chance" type="range" min="0" max="100" step="1" value="15">
                                 </label>
                                 <label class="field range-field" for="pause-chance">
-                                    <span>Szansa na pauzę <output id="pause-chance-value" for="pause-chance">12%</output></span>
+                                    <span><span data-i18n="advanced.pauseChance">Szansa na pauzę</span> <output id="pause-chance-value" for="pause-chance">12%</output></span>
                                     <input id="pause-chance" type="range" min="0" max="100" step="1" value="12">
                                 </label>
                             </div>
                             <div class="row two">
                                 <label class="field" for="click-min">
-                                    <span>Pauza po kliknięciu min (ms)</span>
+                                    <span data-i18n="advanced.clickMin">Pauza po kliknięciu min (ms)</span>
                                     <input id="click-min" type="number" min="0" max="120000" step="100" value="2000">
                                 </label>
                                 <label class="field" for="click-max">
-                                    <span>Pauza po kliknięciu max (ms)</span>
+                                    <span data-i18n="advanced.clickMax">Pauza po kliknięciu max (ms)</span>
                                     <input id="click-max" type="number" min="0" max="120000" step="100" value="4500">
                                 </label>
                             </div>
-                            <label class="check"><input id="debug" type="checkbox"> <span>Logi debug i zrzuty stron</span></label>
+                            <label class="check"><input id="debug" type="checkbox"> <span data-i18n="advanced.debug">Logi debug i zrzuty stron</span></label>
                         </div>
                     </details>
                 </form>
@@ -164,58 +168,58 @@
             </div>
 
             <div class="panel-actions">
-                <button class="btn primary" id="start" type="button">▶ Start</button>
-                <button class="btn danger" id="stop" type="button" disabled>■ Stop</button>
+                <button class="btn primary" id="start" type="button" data-i18n="actions.start">▶ Start</button>
+                <button class="btn danger" id="stop" type="button" disabled data-i18n="actions.stop">■ Stop</button>
                 <span class="action-spacer"></span>
-                <button class="btn" id="save" type="submit" form="settings-form">Zapisz</button>
-                <button class="btn" id="open-data" type="button">Folder danych</button>
+                <button class="btn" id="save" type="submit" form="settings-form" data-i18n="actions.save">Zapisz</button>
+                <button class="btn" id="open-data" type="button" data-i18n="actions.dataFolder">Folder danych</button>
             </div>
         </section>
 
         <section class="panel console-panel" aria-labelledby="console-heading">
             <div class="panel-head">
                 <span class="panel-icon" aria-hidden="true">▣</span>
-                <h2 id="console-heading">Konsola</h2>
+                <h2 id="console-heading" data-i18n="console.title">Konsola</h2>
                 <span class="head-spacer"></span>
-                <span class="status-badge" id="status-badge">Gotowy</span>
+                <span class="status-badge" id="status-badge" data-i18n="status.ready">Gotowy</span>
             </div>
 
             <div class="console-body">
                 <div class="stats">
                     <div class="stat">
-                        <span class="stat-label">Odpowiedzi</span>
+                        <span class="stat-label" data-i18n="stats.answers">Odpowiedzi</span>
                         <strong id="answer-count">0</strong>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Dobrze</span>
+                        <span class="stat-label" data-i18n="stats.correct">Dobrze</span>
                         <strong class="correct" id="correct-count">0</strong>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Błędnie</span>
+                        <span class="stat-label" data-i18n="stats.wrong">Błędnie</span>
                         <strong class="wrong" id="wrong-count">0</strong>
                     </div>
                     <div class="stat">
-                        <span class="stat-label">Czas</span>
+                        <span class="stat-label" data-i18n="stats.time">Czas</span>
                         <strong id="elapsed">00:00</strong>
                     </div>
                 </div>
 
                 <div class="phase-row">
                     <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-                    <span class="phase-text" id="phase-text">Gotowy do startu</span>
+                    <span class="phase-text" id="phase-text" data-i18n="console.phaseReady">Gotowy do startu</span>
                     <span class="head-spacer"></span>
-                    <label class="check small"><input id="autoscroll" type="checkbox" checked> <span>Auto-scroll</span></label>
+                    <label class="check small"><input id="autoscroll" type="checkbox" checked> <span data-i18n="console.autoscroll">Auto-scroll</span></label>
                 </div>
 
                 <div class="log-wrap">
-                    <div class="log" id="log" role="log" aria-live="polite" aria-label="Log pracy bota"></div>
+                    <div class="log" id="log" role="log" aria-live="polite" data-i18n-aria-label="console.logLabel" aria-label="Log pracy bota"></div>
                 </div>
 
                 <div class="console-actions">
-                    <button class="btn mini" id="clear-log" type="button">Wyczyść</button>
-                    <button class="btn mini" id="open-log" type="button">Otwórz log</button>
-                    <button class="btn mini" id="open-stats" type="button">Statystyki</button>
-                    <button class="btn mini" id="check-updates" type="button">Sprawdź aktualizacje</button>
+                    <button class="btn mini" id="clear-log" type="button" data-i18n="console.clear">Wyczyść</button>
+                    <button class="btn mini" id="open-log" type="button" data-i18n="console.openLog">Otwórz log</button>
+                    <button class="btn mini" id="open-stats" type="button" data-i18n="console.stats">Statystyki</button>
+                    <button class="btn mini" id="check-updates" type="button" data-i18n="console.checkUpdates">Sprawdź aktualizacje</button>
                     <span class="head-spacer"></span>
                     <button class="link-button" id="github-link" type="button">GitHub ↗</button>
                 </div>
@@ -224,9 +228,9 @@
     </main>
 
     <footer class="statusbar">
-        <span class="status-cell" id="footer-status">Gotowy</span>
-        <span class="status-cell grow" id="footer-path" title="Folder danych">—</span>
-        <button class="status-cell link" id="footer-author" type="button" title="Profil autora na GitHubie">by bmonekkk</button>
+        <span class="status-cell" id="footer-status" data-i18n="footer.ready">Gotowy</span>
+        <span class="status-cell grow" id="footer-path" data-i18n-title="footer.dataFolder" title="Folder danych">—</span>
+        <button class="status-cell link" id="footer-author" type="button" data-i18n-title="footer.author" title="Profil autora na GitHubie">by bmonekkk</button>
         <span class="status-cell" id="footer-version">v3.2.0</span>
     </footer>
 </div>
@@ -235,67 +239,68 @@
 
 <div class="modal" id="error-modal" hidden>
     <div class="modal-box" role="alertdialog" aria-modal="true" aria-labelledby="error-modal-title">
-        <div class="modal-title" id="error-modal-title">Wystąpił problem</div>
+        <div class="modal-title" id="error-modal-title" data-i18n="error.title">Wystąpił problem</div>
         <p class="modal-message" id="error-modal-message"></p>
         <div class="modal-actions">
-            <button class="btn mini primary" id="error-modal-readme" type="button">FAQ w README</button>
+            <button class="btn mini primary" id="error-modal-readme" type="button" data-i18n="error.readme">FAQ w README</button>
             <span class="head-spacer"></span>
-            <button class="btn mini" id="error-modal-close" type="button">Zamknij</button>
+            <button class="btn mini" id="error-modal-close" type="button" data-i18n="common.close">Zamknij</button>
         </div>
     </div>
 </div>
 
 <div class="modal" id="stats-modal" hidden>
     <div class="modal-box stats-box" role="dialog" aria-modal="true" aria-labelledby="stats-modal-title">
-        <div class="modal-title" id="stats-modal-title">Statystyki sesji</div>
-        <div class="stats-tabs" role="tablist" aria-label="Okres statystyk">
-            <button class="stats-tab active" type="button" role="tab" data-period="week" aria-selected="true">Tydzień</button>
-            <button class="stats-tab" type="button" role="tab" data-period="month" aria-selected="false">Miesiąc</button>
-            <button class="stats-tab" type="button" role="tab" data-period="year" aria-selected="false">Rok</button>
-            <button class="stats-tab" type="button" role="tab" data-period="all" aria-selected="false">Wszystko</button>
+        <div class="modal-title" id="stats-modal-title" data-i18n="stats.title">Statystyki sesji</div>
+        <div class="stats-tabs" role="tablist" data-i18n-aria-label="stats.periodLabel" aria-label="Okres statystyk">
+            <button class="stats-tab active" type="button" role="tab" data-period="week" aria-selected="true" data-i18n="stats.week">Tydzień</button>
+            <button class="stats-tab" type="button" role="tab" data-period="month" aria-selected="false" data-i18n="stats.month">Miesiąc</button>
+            <button class="stats-tab" type="button" role="tab" data-period="year" aria-selected="false" data-i18n="stats.year">Rok</button>
+            <button class="stats-tab" type="button" role="tab" data-period="all" aria-selected="false" data-i18n="stats.all">Wszystko</button>
         </div>
         <div class="stats" aria-live="polite">
             <div class="stat">
-                <span class="stat-label">Sesje</span>
+                <span class="stat-label" data-i18n="stats.sessions">Sesje</span>
                 <strong id="stats-sessions">0</strong>
             </div>
             <div class="stat">
-                <span class="stat-label">Odpowiedzi</span>
+                <span class="stat-label" data-i18n="stats.answers">Odpowiedzi</span>
                 <strong id="stats-answers">0</strong>
             </div>
             <div class="stat">
-                <span class="stat-label">Dobrze</span>
+                <span class="stat-label" data-i18n="stats.correct">Dobrze</span>
                 <strong class="correct" id="stats-correct">0</strong>
             </div>
             <div class="stat">
-                <span class="stat-label">Błędnie</span>
+                <span class="stat-label" data-i18n="stats.wrong">Błędnie</span>
                 <strong class="wrong" id="stats-wrong">0</strong>
             </div>
             <div class="stat">
-                <span class="stat-label">Skuteczność</span>
+                <span class="stat-label" data-i18n="stats.percent">Skuteczność</span>
                 <strong id="stats-percent">0%</strong>
             </div>
             <div class="stat">
-                <span class="stat-label">Nowe słówka</span>
+                <span class="stat-label" data-i18n="stats.newWords">Nowe słówka</span>
                 <strong id="stats-new">0</strong>
             </div>
             <div class="stat">
-                <span class="stat-label">Czas łącznie</span>
+                <span class="stat-label" data-i18n="stats.totalTime">Czas łącznie</span>
                 <strong id="stats-time">0 min</strong>
             </div>
             <div class="stat">
-                <span class="stat-label">Aktywne dni</span>
+                <span class="stat-label" data-i18n="stats.activeDays">Aktywne dni</span>
                 <strong id="stats-days">0</strong>
             </div>
         </div>
-        <p class="stats-note" id="stats-note">Brak danych.</p>
+        <p class="stats-note" id="stats-note" data-i18n="stats.noData">Brak danych.</p>
         <div class="modal-actions">
             <span class="head-spacer"></span>
-            <button class="btn mini" id="stats-close" type="button">Zamknij</button>
+            <button class="btn mini" id="stats-close" type="button" data-i18n="common.close">Zamknij</button>
         </div>
     </div>
 </div>
 
+<script src="i18n.js"></script>
 <script src="renderer.js"></script>
 </body>
 </html>

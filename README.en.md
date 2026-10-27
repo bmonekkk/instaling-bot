@@ -55,6 +55,8 @@ Support is entirely voluntary and not required to use the project. The project i
 
 Both variants use the same engine (`src/`), the same options and the same `SavedWords.json` format.
 
+The desktop interface works in Polish and English. Switch languages with the **PL/EN** buttons in the menu bar; the choice is saved in `Config.json` (`language`) and also covers the tray menu and native notifications.
+
 
 ## 🖥️ Desktop: Windows and macOS
 
@@ -251,6 +253,7 @@ Template for all options: [`config/Config.defaults.json`](config/Config.defaults
   - `password` — password
 - `sites` — sites used
   - `login` — login page; must be the official HTTPS `instaling.pl` login page (the bot refuses to start with any other address)
+- `language` — desktop interface language: `pl` (default) or `en`; it can also be changed with the **PL/EN** buttons in the menu bar. Bot engine logs remain in Polish.
 - `delays` — wait times in milliseconds (1 s = 1000 ms); the bot picks a random value between min and max
   - `click_min` / `click_max` — default delay after clicking a button
   - `type_min` / `type_max` — delay per single letter

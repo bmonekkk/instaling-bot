@@ -62,7 +62,7 @@ desktop/
   main.js       Electron main process: paths, config migration, IPC, child bot process, logs
   preload.js    contextBridge API exposed to the renderer
   runner.js     child process entry: listens for stop, runs src/main.js
-  renderer/     retro UI (index.html, styles.css, renderer.js)
+  renderer/     retro UI (index.html, styles.css, renderer.js, i18n.js PL/EN dictionary)
 scripts/
   prepare-browser.js   copies Chrome for Testing into resources/browser + manifest.json
   ensure-electron.js   postinstall fallback that downloads the Electron runtime

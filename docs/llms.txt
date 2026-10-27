@@ -23,7 +23,7 @@ typo) for human-like behaviour. Everything runs locally; there is no backend or 
 
 Version 3.2.0 includes week, month, year and all-time statistics, repeating reminders,
 a full CLI (`start`, `stats`, `remind`, `update-check`, `help`, `version`) and update
-checks before the CLI starts.
+checks before the CLI starts. The desktop interface is available in Polish and English.
 
 ## Install
 
@@ -34,6 +34,6 @@ checks before the CLI starts.
 ## Notes
 
 - License: ISC.
-- Language: Polish-first documentation, English README and English support available.
+- Language: Polish-first documentation, English README and support; the desktop UI switches between Polish and English.
 - Installers are unsigned; SmartScreen and Gatekeeper may warn on first launch.
 - The project is educational, is not affiliated with InstaLing and is not intended to cheat.

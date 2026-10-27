@@ -1,4 +1,5 @@
 const api = window.instaling;
+const i18n = window.instalingI18n;
 
 const $ = id => document.getElementById(id);
 
@@ -90,8 +91,21 @@ let replayingLogs = false;
 let pendingLogs = [];
 let statsCache = null;
 let statsPeriod = 'week';
+let language = 'pl';
+let maximized = false;
 
-const README_FAQ_URL = 'https://github.com/bmonekkk/instaling-bot/blob/master/README.md#-rozwiązywanie-problemów';
+const README_FAQ_URLS = {
+    pl: 'https://github.com/bmonekkk/instaling-bot/blob/master/README.md#-rozwiązywanie-problemów',
+    en: 'https://github.com/bmonekkk/instaling-bot/blob/master/README.en.md#-troubleshooting'
+};
+
+function tr(key, vars) {
+    return i18n.t(language, key, vars);
+}
+
+function faqUrl() {
+    return README_FAQ_URLS[language] ?? README_FAQ_URLS.pl;
+}
 
 function toNumber(input, fallback = 0) {
     const value = Number(input.value);
@@ -102,6 +116,46 @@ function updateRangeLabels() {
     els.validChanceValue.textContent = `${els.validChance.value}%`;
     els.typoChanceValue.textContent = `${els.typoChance.value}%`;
     els.pauseChanceValue.textContent = `${els.pauseChance.value}%`;
+}
+
+function applyLanguage(value) {
+    language = i18n.normalizeLanguage(value);
+    document.documentElement.lang = language;
+
+    for (const element of document.querySelectorAll('[data-i18n]')) {
+        element.textContent = tr(element.dataset.i18n);
+    }
+    for (const element of document.querySelectorAll('[data-i18n-html]')) {
+        element.innerHTML = tr(element.dataset.i18nHtml);
+    }
+    for (const element of document.querySelectorAll('[data-i18n-title]')) {
+        element.title = tr(element.dataset.i18nTitle);
+    }
+    for (const element of document.querySelectorAll('[data-i18n-placeholder]')) {
+        element.placeholder = tr(element.dataset.i18nPlaceholder);
+    }
+    for (const element of document.querySelectorAll('[data-i18n-aria-label]')) {
+        element.setAttribute('aria-label', tr(element.dataset.i18nAriaLabel));
+    }
+    for (const button of document.querySelectorAll('[data-lang]')) {
+        const active = button.dataset.lang === language;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+    }
+
+    els.togglePassword.textContent = els.password.type === 'text' ? tr('password.hide') : tr('password.show');
+    els.footerPath.title = tr('footer.dataFolder');
+    updateMaximizeButton(maximized);
+    updateRangeLabels();
+
+    const empty = els.log.querySelector('.log-empty');
+    if (empty) empty.textContent = tr('log.empty');
+
+    if (appState) {
+        lastErrorShown = '';
+        applyBotState(appState.bot);
+    }
+    if (statsCache) renderStats(statsPeriod);
 }
 
 function fillForm(config) {
@@ -162,7 +216,7 @@ function collectSettings() {
 
 function validateCredentials() {
     if (!els.login.value.trim() || !els.password.value) {
-        toast('Podaj login i hasło do InstaLing.', true);
+        toast(tr('toast.loginRequired'), true);
         els.login.focus();
         return false;
     }
@@ -204,23 +258,25 @@ function updateButtons() {
 
 function statusLabel(status) {
     switch (status) {
-        case 'running': return 'Działa';
-        case 'stopping': return 'Stop...';
-        case 'finished': return 'Zakończono';
-        case 'stopped': return 'Zatrzymano';
-        case 'error': return 'Błąd';
-        default: return 'Gotowy';
+        case 'running': return tr('status.running');
+        case 'stopping': return tr('status.stopping');
+        case 'finished': return tr('status.finished');
+        case 'stopped': return tr('status.stopped');
+        case 'error': return tr('status.error');
+        default: return tr('status.ready');
     }
 }
 
 function phaseLabel(bot) {
     if (bot.lastError && !bot.running) return bot.lastError;
     switch (bot.phase) {
-        case 'launching': return 'Uruchamianie Chrome i logowanie...';
-        case 'logged-in': return 'Zalogowano — wybieranie sesji...';
-        case 'running': return `Rozwiązywanie słówek${bot.lastAnswer?.polish ? ` — ${bot.lastAnswer.polish}` : ''}...`;
-        case 'stopping': return 'Zapisywanie słówek i zamykanie Chrome...';
-        default: return bot.status === 'finished' ? 'Sesja zakończona.' : 'Gotowy do startu.';
+        case 'launching': return tr('phase.launching');
+        case 'logged-in': return tr('phase.loggedIn');
+        case 'running': return bot.lastAnswer?.polish
+            ? tr('phase.runningWord', {word: bot.lastAnswer.polish})
+            : tr('phase.running');
+        case 'stopping': return tr('phase.stopping');
+        default: return bot.status === 'finished' ? tr('phase.finished') : tr('phase.ready');
     }
 }
 
@@ -273,14 +329,14 @@ function applyBotState(bot) {
             || /offline|internet|ENOTFOUND|ERR_NAME|ERR_INTERNET|net::/i.test(bot.lastError);
         if (offline) {
             showErrorModal(
-                'Brak połączenia z internetem 📡',
-                `Bot nie mógł połączyć się z instaling.pl.\n\nSzczegóły: ${bot.lastError}\n\nSprawdź połączenie z internetem i spróbuj ponownie. Pomoc: FAQ w README.`,
+                tr('error.offlineTitle'),
+                tr('error.offlineLogin', {detail: bot.lastError}),
                 'offline'
             );
         } else {
             showErrorModal(
-                'Bot zatrzymał się z błędem ⚠️',
-                `${bot.lastError}\n\nZajrzyj do FAQ w README — najczęstsze przyczyny to zmiana układu strony, brak Chrome albo odrzucone logowanie.`,
+                tr('error.botTitle'),
+                tr('error.bot', {detail: bot.lastError}),
                 'error'
             );
         }
@@ -294,12 +350,13 @@ function applyBotState(bot) {
 
 async function loadState() {
     if (!api) {
-        appendLog('[APP] Brak mostu Electron. Otwórz aplikację przez npm run desktop.', 'error');
+        appendLog(tr('log.noBridge'), 'error');
         return;
     }
     try {
         const state = await api.getState();
         appState = state;
+        applyLanguage(state.config?.language ?? language);
         fillForm(state.config ?? {});
         applyBotState(state.bot);
         const version = state.version ? `v${state.version}` : 'v3.2.0';
@@ -324,14 +381,14 @@ async function loadState() {
 
         if (navigator.onLine === false) {
             showErrorModal(
-                'Brak połączenia z internetem 📡',
-                'Aplikacja nie widzi połączenia z siecią. Sprawdź połączenie z internetem — bez niego bot nie zaloguje się do instaling.pl. Pomoc: FAQ w README.',
+                tr('error.offlineTitle'),
+                tr('error.offlineApp'),
                 'offline'
             );
         }
     } catch (error) {
         showToast(error.message || String(error), true);
-        appendLog(`[APP] Nie udało się wczytać ustawień: ${error.message || error}`, 'error');
+        appendLog(tr('log.loadFailed', {message: error.message || error}), 'error');
     }
 }
 
@@ -349,10 +406,10 @@ async function checkForUpdates({silent = false} = {}) {
         if (result?.available) {
             showUpdate(result);
         } else if (!silent) {
-            showToast(result?.error ? 'Nie udało się sprawdzić aktualizacji.' : 'Masz najnowszą wersję.', Boolean(result?.error));
+            showToast(result?.error ? tr('toast.updateCheckFailed') : tr('toast.latest'), Boolean(result?.error));
         }
     } catch (error) {
-        if (!silent) showToast(error.message || 'Nie udało się sprawdzić aktualizacji.', true);
+        if (!silent) showToast(error.message || tr('toast.updateCheckFailed'), true);
     }
 }
 
@@ -373,7 +430,7 @@ function renderStats(period = statsPeriod) {
         tab.setAttribute('aria-selected', String(active));
     }
     if (!summary) {
-        els.statsNote.textContent = 'Nie udało się wczytać statystyk.';
+        els.statsNote.textContent = tr('stats.failed');
         return;
     }
     els.statsSessions.textContent = String(summary.sessions ?? 0);
@@ -386,21 +443,26 @@ function renderStats(period = statsPeriod) {
     els.statsDays.textContent = String(summary.activeDays ?? 0);
 
     if (summary.sessions === 0) {
-        els.statsNote.textContent = 'Brak sesji w tym okresie. Uruchom bota, aby zobaczyć statystyki.';
+        els.statsNote.textContent = tr('stats.noteEmpty');
     } else {
-        els.statsNote.textContent = `Od ${summary.from} do ${summary.to} · średnio ${summary.averageAnswers} odpowiedzi i ${summary.averageMinutes} min na sesję.`;
+        els.statsNote.textContent = tr('stats.noteRange', {
+            from: summary.from,
+            to: summary.to,
+            avgAnswers: summary.averageAnswers,
+            avgMinutes: summary.averageMinutes
+        });
     }
 }
 
 async function openStats() {
     if (!api) return;
     els.statsModal.hidden = false;
-    els.statsNote.textContent = 'Wczytywanie statystyk...';
+    els.statsNote.textContent = tr('stats.loading');
     try {
         statsCache = await api.getStats();
         renderStats(statsPeriod);
     } catch (error) {
-        els.statsNote.textContent = error.message || 'Nie udało się wczytać statystyk.';
+        els.statsNote.textContent = error.message || tr('stats.failed');
     }
 }
 
@@ -418,8 +480,8 @@ async function saveSettings({silent = false} = {}) {
         }
         if (!silent) {
             showToast(appState?.bot?.running
-                ? 'Zapisano. Zmiany zadziałają po następnym uruchomieniu bota.'
-                : 'Ustawienia zapisane.');
+                ? tr('toast.savedRestart')
+                : tr('toast.saved'));
         }
         return true;
     } catch (error) {
@@ -434,8 +496,8 @@ async function startBot() {
     if (!api || busy) return;
     if (navigator.onLine === false) {
         showErrorModal(
-            'Brak połączenia z internetem 📡',
-            'Nie można rozpocząć sesji bez internetu. Sprawdź połączenie z internetem, a potem naciśnij Start ponownie.',
+            tr('error.offlineTitle'),
+            tr('error.offlineStart'),
             'offline'
         );
         return;
@@ -445,16 +507,16 @@ async function startBot() {
     lastErrorShown = '';
     setBusy(true);
     clearLog();
-    appendLog('[APP] Startowanie...', 'dim');
+    appendLog(tr('log.starting'), 'dim');
     try {
         const result = await api.startBot(collectSettings());
         if (result && result.ok === false) {
-            showToast(result.error || 'Nie udało się uruchomić bota.', true);
-            appendLog(`[APP] ${result.error || 'Nie udało się uruchomić bota.'}`, 'error');
+            showToast(result.error || tr('toast.startFailed'), true);
+            appendLog(tr('log.startFailed', {message: result.error || tr('toast.startFailed')}), 'error');
         }
     } catch (error) {
         showToast(error.message || String(error), true);
-        appendLog(`[APP] ${error.message || error}`, 'error');
+        appendLog(tr('log.startFailed', {message: error.message || error}), 'error');
     } finally {
         setBusy(false);
     }
@@ -466,7 +528,7 @@ async function stopBot() {
     try {
         const result = await api.stopBot();
         if (result && result.ok === false) {
-            showToast(result.error || 'Bot nie działa.', true);
+            showToast(result.error || tr('toast.botNotRunning'), true);
         }
     } catch (error) {
         showToast(error.message || String(error), true);
@@ -484,14 +546,14 @@ function clearLog() {
     els.log.textContent = '';
     const empty = document.createElement('div');
     empty.className = 'log-empty';
-    empty.textContent = 'Konsola jest pusta. Naciśnij Start, aby uruchomić bota.';
+    empty.textContent = tr('log.empty');
     els.log.appendChild(empty);
 }
 
 function classifyLogLine(line) {
     const lower = line.toLowerCase();
-    if (/\[app\] bot zakończył pracę \(kod 0\)/.test(lower)) return 'success';
-    if (/error|failed|błąd|nie powiod|fatal|exception|nie znaleziono|brak przeglądarki/.test(lower)) return 'error';
+    if (/\[app\] bot zakończył pracę \(kod 0\)|\[app\] bot finished \(code 0\)/.test(lower)) return 'success';
+    if (/error|failed|could not|błąd|nie powiod|fatal|exception|nie znaleziono|brak przeglądarki/.test(lower)) return 'error';
     if (/\[done\]|\[start\]|logged in|session finished|zakończono|thanks for using/.test(lower)) return 'success';
     if (/\[cookie\]|\[stop\]|deliberate|retrying|ostrzeżenie|warning/.test(lower)) return 'warn';
     if (/\[login\]|\[answer\]|\[app\]/.test(lower)) return 'info';
@@ -535,9 +597,11 @@ function appendLog(line, forcedClass = '', seq = 0) {
     }
 }
 
-function updateMaximizeButton(maximized) {
+function updateMaximizeButton(nextMaximized) {
+    maximized = Boolean(nextMaximized);
     els.winMaximize.textContent = maximized ? '❐' : '□';
-    els.winMaximize.title = maximized ? 'Przywróć' : 'Maksymalizuj';
+    els.winMaximize.title = tr(maximized ? 'window.restore' : 'window.maximize');
+    els.winMaximize.setAttribute('aria-label', tr(maximized ? 'window.restore' : 'window.maximize'));
 }
 
 function wireEvents() {
@@ -553,8 +617,22 @@ function wireEvents() {
     els.togglePassword.addEventListener('click', () => {
         const showing = els.password.type === 'text';
         els.password.type = showing ? 'password' : 'text';
-        els.togglePassword.textContent = showing ? 'Pokaż' : 'Ukryj';
+        els.togglePassword.textContent = tr(showing ? 'password.show' : 'password.hide');
     });
+
+    for (const button of document.querySelectorAll('[data-lang]')) {
+        button.addEventListener('click', async () => {
+            const next = i18n.normalizeLanguage(button.dataset.lang);
+            if (next === language) return;
+            applyLanguage(next);
+            if (!api) return;
+            try {
+                await api.setLanguage(next);
+            } catch (error) {
+                showToast(error.message || String(error), true);
+            }
+        });
+    }
 
     els.start.addEventListener('click', startBot);
     els.stop.addEventListener('click', stopBot);
@@ -603,16 +681,16 @@ function wireEvents() {
     els.errorClose.addEventListener('click', () => {
         els.errorModal.hidden = true;
     });
-    els.errorReadme.addEventListener('click', () => openHelp(README_FAQ_URL));
+    els.errorReadme.addEventListener('click', () => openHelp(faqUrl()));
     window.addEventListener('offline', () => {
         showErrorModal(
-            'Brak połączenia z internetem 📡',
-            'Połączenie z siecią zostało utracone. Bot nie będzie mógł odpowiadać na słówka, dopóki internet nie wróci. Sprawdź połączenie z internetem. Pomoc: FAQ w README.',
+            tr('error.offlineTitle'),
+            tr('error.offlineLost'),
             'offline'
         );
     });
     window.addEventListener('online', () => {
-        showToast('Połączenie z internetem wróciło.');
+        showToast(tr('toast.online'));
     });
 
     els.winMinimize.addEventListener('click', () => api?.minimizeWindow());
@@ -659,7 +737,7 @@ function wireEvents() {
         });
         api.onMaximized(updateMaximizeButton);
         api.onUpdateAvailable(showUpdate);
-        api.onReminder(() => showToast('Nie zapomnij o dzisiejszej sesji na InstaLing.'));
+        api.onReminder(() => showToast(tr('toast.reminder')));
         api.isMaximized().then(updateMaximizeButton).catch(() => {});
     }
 }

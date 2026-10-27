@@ -183,6 +183,36 @@ input[type="time"] {
     letter-spacing: .6px;
 }
 
+.lang-switch {
+    display: flex;
+    gap: 2px;
+}
+
+.lang-button {
+    min-width: 26px;
+    padding: 1px 6px;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .4px;
+    color: var(--muted);
+    background: var(--window-mid);
+    border: 1px solid;
+    border-color: var(--window-light) var(--window-darker) var(--window-darker) var(--window-light);
+    cursor: pointer;
+}
+
+.lang-button.active {
+    color: #fff;
+    background: var(--title-1);
+    border-color: var(--window-darker) var(--window-light) var(--window-light) var(--window-darker);
+}
+
+.lang-button:focus-visible {
+    outline: 1px dotted #000;
+    outline-offset: 1px;
+}
+
 /* ----------------------------------------------------------- update banner */
 
 .update-banner {

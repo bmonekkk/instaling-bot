@@ -6,6 +6,7 @@
     "sites": {
         "login": "https://instaling.pl/teacher.php?page=login"
     },
+    "language": "pl",
     "delays": {
         "click_min": 2000,
         "click_max": 4500,

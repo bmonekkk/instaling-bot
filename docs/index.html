@@ -668,7 +668,7 @@
                 <li>Naciśnij <strong>Start</strong>. Bot otworzy osobne okno Chrome, zaloguje się i rozpocznie lub kontynuuje sesję.</li>
                 <li>Postęp, liczniki i błędy śledź w konsoli aplikacji. Przycisk <strong>Folder danych</strong> otwiera pliki konfiguracji i logi.</li>
             </ol>
-            <p>W ustawieniach możesz też włączyć <strong>przypomnienie o codziennej sesji</strong> (domyślnie 17:00) i jego <strong>powtarzanie co 15–180 minut</strong>, pracę w zasobniku systemowym i uruchamianie przy logowaniu. Przypomnienie nie pojawi się, jeśli danego dnia bot już odpowiedział na słówka. Przycisk <strong>Statystyki</strong> pokazuje sesje, odpowiedzi, skuteczność i czas z tygodnia, miesiąca, roku lub całego okresu. Aplikacja sama sprawdza nowe wydania i pokazuje banner <strong>Pobierz</strong>.</p>
+            <p>W ustawieniach możesz też włączyć <strong>przypomnienie o codziennej sesji</strong> (domyślnie 17:00) i jego <strong>powtarzanie co 15–180 minut</strong>, pracę w zasobniku systemowym i uruchamianie przy logowaniu. Interfejs przełączysz między polskim i angielskim przyciskami <strong>PL/EN</strong> na pasku menu — wybór zapisuje się w konfiguracji i obejmuje też menu zasobnika. Przypomnienie nie pojawi się, jeśli danego dnia bot już odpowiedział na słówka. Przycisk <strong>Statystyki</strong> pokazuje sesje, odpowiedzi, skuteczność i czas z tygodnia, miesiąca, roku lub całego okresu. Aplikacja sama sprawdza nowe wydania i pokazuje banner <strong>Pobierz</strong>.</p>
             <p>Dane aplikacji: <code>%APPDATA%\instaling-bot</code> (Windows) lub <code>~/Library/Application Support/instaling-bot</code> (macOS). W środku są <code>config/Config.json</code>, <code>config/SavedWords.json</code>, <code>reminder-state.json</code>, <code>stats.json</code>, <code>logs/last-run.log</code>, <code>pages/</code> i <code>screenshots/</code>.</p>
         </section>
 
@@ -718,6 +718,7 @@ instaling-bot help</code></pre>
                 <li><code>delays.quick_click_min</code> / <code>quick_click_max</code> - szybkie pauzy po kliknięciach nawigacyjnych.</li>
                 <li><code>reminder.enabled</code> / <code>reminder.time</code> - codzienne przypomnienie o sesji (<code>HH:MM</code>, domyślnie <code>17:00</code>).</li>
                 <li><code>reminder.repeat_minutes</code> - powtarzanie przypomnienia co N minut (<code>0</code> = raz dziennie).</li>
+                <li><code>language</code> - język interfejsu desktopowego (<code>pl</code> / <code>en</code>), przełączany przyciskami PL/EN na pasku menu.</li>
                 <li><code>background.run_in_tray</code> / <code>start_at_login</code> - praca w zasobniku i autostart (desktop).</li>
                 <li><code>show_browser</code> - pokazuje okno Chrome; ustaw <code>false</code> na serwerze bez GUI.</li>
                 <li><code>debug</code> - dodatkowe logi z przeglądarki i zrzuty stron.</li>
