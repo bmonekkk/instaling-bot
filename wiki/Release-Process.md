@@ -56,3 +56,10 @@ własnym Apple ID (SideStore/AltStore). Userscript aktualizuje się przez `@upda
 4. Podziękuj zgłaszającemu, jeśli wyraził zgodę.
 
 Więcej: [Bezpieczeństwo](Security) · [Współtworzenie](Contributing)
+
+## Wiki
+
+Źródłem prawdy dla wiki są pliki `wiki/*.md` w repozytorium. Workflow
+`.github/workflows/wiki.yml` kopiuje je do repozytorium `.wiki.git` po każdym
+pushu, który zmienia `wiki/` — edycję wprowadzasz w repo i nie musisz nic klikać
+w zakładce **Wiki**.
