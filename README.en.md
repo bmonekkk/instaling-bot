@@ -8,7 +8,7 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
   <img src="docs/demo.gif" alt="Cat meme — i'm gonna touch u" width="480">
 </p>
 
-**Project site:** https://bmonekkk.github.io/instaling-bot/
+**Project site:** https://bmonekkk.github.io/instaling-bot/ — no trackers, cookies or analytics scripts
 **Latest release:** https://github.com/bmonekkk/instaling-bot/releases/latest
 **Wiki:** https://github.com/bmonekkk/instaling-bot/wiki
 **Discussions:** https://github.com/bmonekkk/instaling-bot/discussions

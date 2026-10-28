@@ -8,7 +8,7 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
   <img src="docs/demo.gif" alt="Mem z kotem — i'm gonna touch u" width="480">
 </p>
 
-**Strona projektu:** https://bmonekkk.github.io/instaling-bot/
+**Strona projektu:** https://bmonekkk.github.io/instaling-bot/ — bez trackerów, ciasteczek i skryptów analitycznych
 **Najnowsza wersja:** https://github.com/bmonekkk/instaling-bot/releases/latest
 **Wiki:** https://github.com/bmonekkk/instaling-bot/wiki
 **Dyskusje:** https://github.com/bmonekkk/instaling-bot/discussions
