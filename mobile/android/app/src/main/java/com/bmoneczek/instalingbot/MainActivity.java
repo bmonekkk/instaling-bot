@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
@@ -204,8 +205,11 @@ public class MainActivity extends Activity {
         // real content inset by that same 2 px so no child view covers the
         // frame and pokes out to the screen edge.
         FrameLayout shell = new FrameLayout(this);
-        GradientDrawable frame = new GradientDrawable();
-        frame.setColor(C_WINDOW);
+        // The shell paints the navy title-bar gradient so the status-bar strip
+        // above the content continues it, just like the iOS build. The 2 px
+        // outline is drawn on top of the gradient.
+        GradientDrawable frame = new GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT, new int[]{C_TITLE_1, C_TITLE_2});
         frame.setStroke(dp(2), C_INK);
         shell.setBackground(frame);
 
@@ -321,6 +325,7 @@ public class MainActivity extends Activity {
 
         setContentView(shell);
         applySystemBarInsets(shell);
+        applyLightStatusBar();
         refreshReminderButton();
     }
 
@@ -333,11 +338,25 @@ public class MainActivity extends Activity {
         root.setOnApplyWindowInsetsListener((view, windowInsets) -> {
             Insets bars = windowInsets.getInsets(
                     WindowInsets.Type.systemBars() | WindowInsets.Type.displayCutout());
-            // Keep the status bar inset (the title bar stays below it), but let
-            // the WebView run under the transparent navigation bar.
+            // Keep the status bar inset (the title bar stays below it, exposing
+            // the shell gradient behind the clock), but let the WebView run
+            // under the transparent navigation bar.
             view.setPadding(bars.left, bars.top, bars.right, 0);
             return WindowInsets.CONSUMED;
         });
+    }
+
+    /** White status-bar icons, since the strip above the content is navy. */
+    private void applyLightStatusBar() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.setSystemBarsAppearance(
+                        0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+            }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(0);
+        }
     }
 
     private Button classicButton(String text, int fill, int foreground) {

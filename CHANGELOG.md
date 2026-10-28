@@ -9,6 +9,7 @@ All notable changes to this fork are documented here.
 - **iOS "Gotowe"/"Done" is a floating button above the number pad.** Replaced the `UIToolbar` (which iOS 26 renders as an oversized glass capsule) with a transparent accessory view that holds only a 104×36 beveled navy-on-gray "Gotowe" button, aligned 12 pt from the right edge. It still dismisses the keyboard with `UIApplication.sendAction`.
 - **Android controls match the iOS sizes.** The title-bar buttons (EN, ⏰, 📊, ⚙) are now 34×30 dp instead of the platform default 88×48 dp, Start/Stop are 34 dp tall, and "instaling-bot" stays on one line instead of wrapping into four. The title bar is 44 dp tall so the navy → #1084d0 gradient is visible around the buttons, exactly like iOS.
 - **Android window frame.** The content now sits in a `FrameLayout` shell with the 2 px black outline instead of drawing the outline as the root background, so the title bar and WebView stop covering it and nothing pokes out to the screen edge.
+- **Android status bar continues the title gradient.** The shell paints `#000080 → #1084d0` behind the status-bar inset and the icons are forced white, so the strip with the clock/battery matches the iOS look instead of being gray.
 
 ### Changed
 - Version bumped to `4.3.1` (userscript `4.3.1`, iOS `MARKETING_VERSION` 4.3.1 / `CURRENT_PROJECT_VERSION` 40301).

@@ -6,7 +6,7 @@ wynik przed „dalej" — dłużej po błędzie lub nowym słówku (`review_min`
 krótko po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`). Wszystkie
 wartości są losowane z zakresu. Na iOS nad klawiaturą unosi się pojedynczy, klasyczny przycisk **„Gotowe"** (bez szarego
 paska) i niezawodnie chowa klawiaturę. Android używa tych samych, kompaktowych przycisków
-co iOS. Wszystkie warianty mobilne używają tego samego
+co iOS, a pasek stanu z zegarem płynnie przedłuża gradient paska tytułu. Wszystkie warianty mobilne używają tego samego
 silnika co desktop: odpowiedzi, literówki, zapamiętywanie słówek i interfejs PL/EN. Mają
 też te same **ustawienia** (poprawność odpowiedzi, trzy zakresy pauz, czasy pisania,
 literówki, godzina i częstotliwość przypomnienia), przycisk

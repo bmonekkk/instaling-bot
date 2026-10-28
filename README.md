@@ -418,7 +418,7 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 - 🍎 **iOS nie crashuje przy starcie.** Aplikacje budowane z SDK iOS 26 muszą używać cyklu życia `UIScene`; bez niego proces kończył się przed narysowaniem pierwszego ekranu. Dodano `SceneDelegate` i `UIApplicationSceneManifest`, a okno, kontroler i linki `instalingbot://` przeniesiono do sceny.
 - ⌨️ **„Gotowe" jako unoszący się przycisk.** Zamiast `UIToolbar` (na iOS 26 wielka szklana pigułka) nad klawiaturą jest tylko wypukły przycisk wyrównany do prawej — bez szarego paska. Nadal chowa klawiaturę.
-- 📱 **Android jak iOS.** Przyciski w pasku tytułu mają 34×30 dp zamiast 88×48 dp, Start/Stop 34 dp wysokości, pasek ma 44 dp i widoczny gradient jak na iOS, a „instaling-bot" mieści się w jednej linii. Ramka okna jest teraz rysowana przez powłokę, więc nic nie wystaje poza krawędź.
+- 📱 **Android jak iOS.** Przyciski w pasku tytułu mają 34×30 dp zamiast 88×48 dp, Start/Stop 34 dp wysokości, pasek ma 44 dp i widoczny gradient jak na iOS, a „instaling-bot" mieści się w jednej linii. Ramka okna jest teraz rysowana przez powłokę, więc nic nie wystaje poza krawędź, a pasek stanu z zegarem ma ten sam gradient co tytuł, jak na iOS.
 - 🔢 **Wersja `4.3.1`** (userscript `4.3.1`, iOS 4.3.1 / 40301). Wydanie 4.3.0 nie zostało opublikowane.
 
 ### 4.3.0 — 2026-10-28

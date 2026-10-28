@@ -1,4 +1,4 @@
-# Security audit — instaling-bot 4.3.0
+# Security audit — instaling-bot 4.3.1
 
 Scope: desktop (Electron), CLI + shared core, browser userscript, Android WebView APK,
 iOS WKWebView IPA, website, and the CI/release pipeline. This is a **self-assessment**, not
@@ -6,13 +6,16 @@ an external penetration test, and it does **not** claim the project is fully sec
 finding below is either fixed (in 4.1.0, 4.2.0 or 4.2.2), mitigated by design, or listed as an
 accepted limitation.
 
-## 4.3.0 — no security-surface change
+## 4.3.0 / 4.3.1 — no security-surface change
 
 4.3.0 replaces the click/nav timing fields with three pause ranges (`think_*`, `review_*`,
-`review_correct_*`) and themes the iOS keyboard accessory bar. The new values are stored in
-the same `SharedPreferences`/`UserDefaults`/GM storage as the existing delays and are clamped
-by `USER_DELAY_KEYS`/`DELAY_BOUNDS`; no new network calls, trust boundaries or stored data
-were added.
+`review_correct_*`) and touches the iOS keyboard accessory. The new values are stored in the
+same `SharedPreferences`/`UserDefaults`/GM storage as the existing delays and are clamped by
+`USER_DELAY_KEYS`/`DELAY_BOUNDS`; no new network calls, trust boundaries or stored data were
+added. 4.3.1 adopts the `UIScene` lifecycle on iOS (the `instalingbot://start|stop` deep links
+move to `SceneDelegate`, with the same scheme check and the same bridge token), redraws the iOS
+accessory and restyles the Android chrome — UI only, no new permissions, storage keys or
+endpoints.
 
 ## 4.2.1 / 4.2.2 — no security-surface change
 
