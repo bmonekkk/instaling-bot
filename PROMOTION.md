@@ -61,82 +61,132 @@ Te dane są wystarczające do monitorowania SEO, a odwiedzający blokujący trac
 
 ## 4. Gotowe teksty do wklejenia
 
-### 4a. Wykop.pl (PL)
+### 4a. Wykop.pl (PL) — znalezisko, limit ok. 1400 znaków
 
-> **instaling-bot 4.3.1 — bot do instaling.pl na wszystkie systemy (open source)**
+**Tytuł:** instaling-bot 4.3.1 — bot do instaling.pl na desktop, Androida, iOS i w terminalu (open source)
+
+**Opis:**
+
+> Zrobiłem bota do instaling.pl, który działa wszędzie: aplikacja na Windows i macOS, APK na
+> Androida, niepodpisana IPA na iOS (SideStore/AltStore) oraz userscript do Safari/Firefoksa.
+> Jeden wspólny silnik, interfejs PL/EN.
 >
-> Zrobiłem otwartoźródłowego bota do instaling.pl: desktop na Windows i macOS, APK na
-> Androida, niepodpisana IPA na iOS (SideStore/AltStore), userscript do Safari i Firefoksa
-> oraz CLI na Linuksa. Jeden wspólny silnik i interfejs PL/EN.
+> Najnowsze wydanie dodaje dwie prawdziwe pauzy. Bot najpierw chwilę „myśli" o tłumaczeniu,
+> zanim zacznie pisać, a po sprawdzeniu odpowiedzi czyta wynik przed „dalej" — dłużej po
+> literówce, złym słowie, pustym polu lub nowym słówku, krótko po poprawnej odpowiedzi.
+> Wszystkie czasy są losowane z podanego zakresu, do tego literówki z backspace, więc tempo
+> wygląda po ludzku.
 >
-> Najnowsze wydanie dodaje dwie prawdziwe pauzy: bot najpierw „myśli" o tłumaczeniu, zanim
-> zacznie pisać, a po sprawdzeniu odpowiedzi chwilę czyta wynik, zanim kliknie „dalej".
-> Każdy czas jest losowany z podanego zakresu, więc tempo wygląda po ludzku. Do tego
-> literówki z backspace, statystyki tygodnia/miesiąca/roku i przypomnienia na każdej platformie.
+> Poprawiłem też iOS: wcześniejsza wersja crashowała przy starcie na iOS 26 (biały ekran),
+> teraz aplikacja startuje normalnie, a „Gotowe" nad klawiaturą to pojedynczy klasyczny
+> przycisk zamiast paska zasłaniającego pół ekranu. Android dostał ten sam kompaktowy wygląd.
 >
 > Bez backendu i telemetrii, nigdy nie zapisuje hasła — korzysta z normalnej sesji strony.
-> Projekt edukacyjny, niepowiązany z InstaLing. #opensource #programowanie #koa
+> Projekt edukacyjny, niepowiązany z InstaLing; automatyczne korzystanie z serwisu może
+> naruszać jego regulamin.
+>
+> Strona: https://bmonekkk.github.io/instaling-bot/
+> Kod: https://github.com/bmonekkk/instaling-bot
+
+**Tagi:** #opensource #programowanie #instaling (jeśli któryś nie istnieje, użyj #bot i #javascript)
+
+**Wskazówki:** wrzucaj od poniedziałku do czwartku, rano 9–11 CET. Nie dopisuj „proszę o
+wykop" w opisie — Wykop to karze. Odpowiadaj w komentarzach, w tym na pytanie o regulamin.
 
 ### 4b. Reddit (EN)
 
-Subreddity: `r/opensource`, `r/SideProject`, `r/androidapps`, `r/learnpolish` (delikatnie).
+**Tytuł:**
 
-> **I built an open-source vocabulary bot for instaling.pl that runs on Windows, macOS, Android, iOS and the terminal**
+> I built an open-source bot for instaling.pl that runs on Windows, macOS, Android, iOS and the terminal
+
+**Treść (r/opensource, r/SideProject):**
+
+> instaling.pl is a Polish vocabulary site schools use; it hands out a daily session of words.
+> This is a bot that does the session for you without looking robotic.
 >
-> One answer engine powers a desktop app, an Android APK, an unsigned iOS IPA, a
-> Safari/Firefox userscript and a CLI. The latest release adds two human-like pauses: it
-> waits before the first keystroke as if thinking about the translation, then reads the
-> result before hitting "next" — longer after a mistake or a new word, briefly after a
-> correct answer. Every delay is randomised, on top of per-letter timing and corrected typos.
-> Stats and reminders on every platform, and your password is never stored.
+> One shared JS engine (lexer/selector layer, typing layer, answer layer) powers five targets:
+> an Electron desktop app with a bundled Chrome for Testing, an Android WebView shell, an
+> unsigned iOS IPA, a Safari/Firefox userscript, and a Node.js CLI. Same settings, same stats,
+> same classic UI on all of them.
 >
-> Site: https://bmonekkk.github.io/instaling-bot/ · Code: https://github.com/bmonekkk/instaling-bot
+> The part I spent the most time on is timing. There are no fixed sleeps — three randomised
+> ranges instead: a pause before the first keystroke (thinking about the translation), a
+> longer read after a misspelling, wrong word, blank answer or a new word, and a short one
+> after a correct answer. On top of that: per-letter delays, deliberate typos that get
+> backspaced, and wrong answers picked at random between blank / another saved translation /
+> a misspelling.
 >
-> Educational project, not affiliated with InstaLing.
+> Everything is local. No backend, no telemetry, and the mobile shells never store your
+> password — they keep the site's normal session.
+>
+> Repo: https://github.com/bmonekkk/instaling-bot
+> Site: https://bmonekkk.github.io/instaling-bot/
+>
+> It's an educational project, not affiliated with InstaLing, and automating the site may
+> violate its ToS — I say that up front rather than pretend otherwise.
+
+**Wariant r/androidapps (krótko):**
+
+> I made an open-source Android app that automates the daily vocabulary session on instaling.pl
+> (a Polish learning site). It's a plain Java WebView shell over a shared JS engine: native
+> Start/Stop, PL/EN, a ⚙ settings dialog (accuracy, three randomised human-like pauses, typing
+> delays, reminder time and frequency), 📊 week/month/year stats, and a reminder that repeats
+> every N minutes and skips a day once the session is done.
+>
+> It's an APK (not on Play Store), signed with a debug key, Android 7+. There's also a
+> userscript if you prefer Firefox + Tampermonkey.
+>
+> https://github.com/bmonekkk/instaling-bot/releases/latest
+
+**Wskazówki:** sprawdź zasady subredditu przed wklejeniem — część banuje self-promo w tytule.
+Odpowiadaj na komentarze, nie edytuj treści po fakcie.
 
 ### 4c. Show HN (EN)
 
-> **Show HN: instaling-bot – open-source vocab bot for instaling.pl on every platform**
+**Tytuł:** Show HN: instaling-bot – open-source vocabulary bot for instaling.pl on every platform
+
+**Treść (bez marketingu, konkrety):**
+
+> instaling.pl is a Polish vocabulary practice site used in schools: you get a daily session
+> of words. This is a bot that does the session for you in a way that doesn't look robotic.
 >
-> One shared JS engine powers a Windows/macOS desktop app (Electron), an Android WebView
-> shell, an unsigned iOS IPA, a userscript for Safari and Firefox-on-Android, and a Node.js
-> CLI. The engine answers a daily vocabulary session the way a person might: it pauses to
-> "think" before typing, reads the result before continuing (longer after a typo, wrong word
-> or new word), randomises every delay and occasionally mistypes then backspaces. Plus
-> week/month/year stats and reminders. Local-only, no accounts, no password storage.
+> One shared JS engine (selectors, typing, answer logic) powers five targets: an Electron
+> desktop app with a bundled Chrome for Testing, an Android WebView shell, an unsigned iOS
+> IPA, a browser userscript, and a Node.js CLI.
+>
+> The timing model is the interesting part. Instead of fixed sleeps there are three
+> randomised ranges — a pause before the first keystroke (thinking about the translation), a
+> longer read after a misspelling / wrong word / blank / new word, and a short one after a
+> correct answer. Plus erratic per-letter delays, occasional typos that get backspaced, and
+> wrong answers chosen randomly between blank, another saved translation and a misspelling.
+>
+> Everything runs locally: no backend, no telemetry, and the shells never store the password
+> (they reuse the normal site session).
+>
+> It's an educational project, not affiliated with InstaLing, and automating the site may
+> violate its ToS — flagging that rather than burying it.
 >
 > https://bmonekkk.github.io/instaling-bot/
 
+**Wskazówki:** wrzucaj wtorek–czwartek, 8–10 ET (14–16 CET). Link prowadzi do strony, nie do
+repo. Nie proś o głosy. Zostaw pierwszy komentarz z detalami o silniku — ludzie tam pójdą.
+
 ### 4d. Product Hunt (EN)
 
-- **Tagline:** Automate your instaling.pl vocabulary practice on any device.
-- **Description:** Open-source bot for instaling.pl — desktop (Windows/macOS), Android APK,
-  iOS IPA and userscript, plus a CLI. It types like a human: a pause to "think" before
-  answering, a longer read after a mistake, randomised delays and corrected typos. Configurable
-  accuracy, stats and reminders on every platform. No backend, no telemetry, passwords are
-  never stored.
-
-### 4e. GitHub Discussions (announcement)
-
-> **instaling-bot 4.3.1 — działający iOS, unoszące się „Gotowe" i Android jak iOS**
->
-> 4.3.1 to wydanie poprawkowe: aplikacja iOS nie crashuje już przy starcie na iOS 26 (cykl
-> życia `UIScene`), a „Gotowe" nad klawiaturą to teraz pojedynczy, klasyczny przycisk bez
-> szarego paska. Android dostał ten sam kompaktowy wygląd co iOS — mniejszy pasek tytułu,
-> gradient przedłużony w pasek stanu i symetryczną ramkę okna.
->
-> Dwóch ludzkich pauz z 4.3.0 (myślenie przed pisaniem i czytanie wyniku przed „dalej")
-> nie ruszamy. Pełna lista zmian: [CHANGELOG](https://github.com/bmonekkk/instaling-bot/blob/master/CHANGELOG.md).
-> Pobierz: https://github.com/bmonekkk/instaling-bot/releases/latest
-
-### 4f. Krótkie „co nowego w 4.3.1" do wklejenia
-
-- dwie losowe pauzy (myślenie przed pisaniem, czytanie wyniku przed „dalej"),
-- „Gotowe" jako unoszący się przycisk na iOS + brak crasha na iOS 26,
-- Android jak iOS: kompaktowy pasek tytułu, gradient w pasku stanu, symetryczna ramka,
-- jeden silnik na desktop, Androida, iOS, userscript i CLI,
-- statystyki tygodnia/miesiąca/roku i przypomnienia na każdej platformie,
-- bez backendu, bez telemetrii, hasła nigdy nie są zapisywane.
+- **Tagline (≤60):** Automate your instaling.pl vocabulary practice on any device.
+- **Description (≤260):** Open-source bot for instaling.pl on Windows, macOS, Android, iOS and
+  the terminal. It types like a person: pauses to think before answering, reads the result
+  after a mistake, randomises every delay and fixes its own typos. Stats and reminders on
+  every platform.
+- **Pierwszy komentarz (maker):** I built this because the daily session is repetitive but the
+  site is easy to spot as a robot if the timing is constant. So the engine randomises three
+  pauses, mistypes and backspaces occasionally, and mixes up wrong-answer types. It runs on
+  five targets from one codebase, stores no passwords and has no backend. Happy to answer
+  anything about the engine or the packaging.
+- **Grafiki:** logo 240×240 (jest `build/icon.png`), galeria 1270×760 — użyj zrzutów desktopu,
+  Androida i iOS (`docs/demo.gif` to mem, nie zostawiaj go jako jedynego „demka").
+- **Wskazówki:** premiera startuje 00:01 PT (09:01 CET). Odpowiadaj na komentarze przez cały
+  dzień — PH punktuje zaangażowanie, nie sam wpis.
 
 ## 5. Rytm publikacji
 
