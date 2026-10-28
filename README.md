@@ -19,7 +19,7 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**4.3.0**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
+Aktualna wersja (**4.3.1**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
 
 - 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
 - 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, ustawienia sesji, statystyki i konfigurowalne przypomnienia,
@@ -27,7 +27,7 @@ Aktualna wersja (**4.3.0**) to wydanie spójności — desktop, telefon i usersc
 - ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów, a do tego **pauzę na pomyślenie** przed wpisaniem tłumaczenia i **pauzę na przeczytanie wyniku** przed „dalej".
 
-Wersja 4.3.0 porządkuje tempo pracy tak, jak robiłby to człowiek. Najpierw bot czeka chwilę po pojawieniu się słówka, zanim zacznie pisać (`think_min` / `think_max`, domyślnie 1500–4000 ms) — w tym czasie „myśli" o tłumaczeniu. Po sprawdzeniu odpowiedzi czyta wynik przed kliknięciem „dalej": dłużej, gdy była literówka, złe słowo, puste pole albo nowe słówko (`review_min` / `review_max`, 2500–5500 ms), i krótko po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`, 500–1200 ms). Wszystkie wartości są losowane z podanego zakresu i działają na desktopie, Androidzie, iOS oraz w userscripcie. Stare `click_min` / `click_max` i `nav_min` / `nav_max` zniknęły z paneli ustawień, ale nadal działają jako ciche fallbacki dla starszych konfiguracji. Na iOS pasek **„Gotowe"** nad klawiaturą ma teraz jasny, klasyczny wygląd i niezawodnie chowa klawiaturę. Wydanie 4.2.2 naprawiło przechodzenie między słówkami po przeładowaniu strony, a 4.2.1 wyrównało statystyki, reset ustawień i przypomnienia na wszystkich platformach. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
+Wersja 4.3.1 porządkuje tempo pracy tak, jak robiłby to człowiek. Najpierw bot czeka chwilę po pojawieniu się słówka, zanim zacznie pisać (`think_min` / `think_max`, domyślnie 1500–4000 ms) — w tym czasie „myśli" o tłumaczeniu. Po sprawdzeniu odpowiedzi czyta wynik przed kliknięciem „dalej": dłużej, gdy była literówka, złe słowo, puste pole albo nowe słówko (`review_min` / `review_max`, 2500–5500 ms), i krótko po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`, 500–1200 ms). Wszystkie wartości są losowane z podanego zakresu i działają na desktopie, Androidzie, iOS oraz w userscripcie. Stare `click_min` / `click_max` i `nav_min` / `nav_max` zniknęły z paneli ustawień, ale nadal działają jako ciche fallbacki dla starszych konfiguracji. Na iOS pasek **„Gotowe"** nad klawiaturą ma teraz jasny, klasyczny wygląd i niezawodnie chowa klawiaturę. Wydanie 4.2.2 naprawiło przechodzenie między słówkami po przeładowaniu strony, a 4.2.1 wyrównało statystyki, reset ustawień i przypomnienia na wszystkich platformach. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
 
 Open source, licencja ISC.
 
@@ -66,9 +66,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.3.0-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.3.0-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.3.0-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.3.1-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.3.1-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.3.1-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -145,11 +145,11 @@ Pliki można edytować także ręcznie — aplikacja używa tego samego formatu 
 
 ## 📱 Mobile: Android i iOS
 
-Wersja 4.3.0 porządkuje też tempo pracy na telefonie: bot myśli przed pisaniem, a po sprawdzeniu odpowiedzi czyta wynik przed „dalej" — dłużej po błędzie lub nowym słówku, krótko po poprawnej odpowiedzi. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, trzy zakresy pauz, opóźnienia pisania, szanse na pauzę i literówkę, godzina i częstotliwość przypomnienia) oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok / wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni). W każdym panelu ustawień jest **Przywróć domyślne**. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
+Wersja 4.3.1 porządkuje też tempo pracy na telefonie: bot myśli przed pisaniem, a po sprawdzeniu odpowiedzi czyta wynik przed „dalej" — dłużej po błędzie lub nowym słówku, krótko po poprawnej odpowiedzi. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, trzy zakresy pauz, opóźnienia pisania, szanse na pauzę i literówkę, godzina i częstotliwość przypomnienia) oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok / wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni). W każdym panelu ustawień jest **Przywróć domyślne**. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
 
 ### 🤖 Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.3.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Pobierz `instaling-bot-4.3.1-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
@@ -179,7 +179,7 @@ Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **pane
 
 Dla osób, które wolą osobną aplikację:
 
-1. Pobierz `instaling-bot-4.3.0-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.3.1-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
@@ -413,6 +413,12 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 
 ## 📦 Ostatnie zmiany
+
+### 4.3.1 — 2026-10-28
+
+- 🍎 **iOS nie crashuje przy starcie.** Aplikacje budowane z SDK iOS 26 muszą używać cyklu życia `UIScene`; bez niego proces kończył się przed narysowaniem pierwszego ekranu. Dodano `SceneDelegate` i `UIApplicationSceneManifest`, a okno, kontroler i linki `instalingbot://` przeniesiono do sceny.
+- ⌨️ **Pasek „Gotowe" jak reszta aplikacji.** Zamiast `UIToolbar` (na iOS 26 wielka szklana pigułka) jest klasyczny pasek: jasnoszare tło, ciemna linia i wypukły przycisk. Nadal chowa klawiaturę.
+- 🔢 **Wersja `4.3.1`** (userscript `4.3.1`, iOS 4.3.1 / 40301). Wydanie 4.3.0 nie zostało opublikowane.
 
 ### 4.3.0 — 2026-10-28
 

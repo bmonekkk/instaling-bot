@@ -1,6 +1,6 @@
 # 📱 Mobile: Android i iOS
 
-Wersja 4.3.0 porządkuje tempo pracy na telefonie: bot czeka chwilę po pojawieniu się
+Wersja 4.3.1 porządkuje tempo pracy na telefonie: bot czeka chwilę po pojawieniu się
 słówka, zanim zacznie pisać (`think_min` / `think_max`), a po sprawdzeniu odpowiedzi czyta
 wynik przed „dalej" — dłużej po błędzie lub nowym słówku (`review_min` / `review_max`),
 krótko po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`). Wszystkie
@@ -18,7 +18,7 @@ otwartej aplikacji lub karcie — telefon może wstrzymać WebView w tle.
 
 ## Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.3.0-android.apk` z
+1. Pobierz `instaling-bot-4.3.1-android.apk` z
    [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik i zezwól na instalację z tego źródła.
 3. Zaloguj się na `instaling.pl` w aplikacji.
@@ -68,7 +68,7 @@ jeszcze ukończona.
 
 ## iOS: IPA dla SideStore / AltStore
 
-1. Pobierz `instaling-bot-4.3.0-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.3.1-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj IPA.
 3. Zaloguj się na `instaling.pl` i naciśnij **Start**.
 

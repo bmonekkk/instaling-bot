@@ -183,9 +183,15 @@ Shipped as one 4.0.0 release instead of a separate 3.4.0 beta:
   `review_correct_*` after a correct answer. `completePending()` returns the correctness so
   both the in-page and reloaded paths pick the right pause; the old keys stay as fallbacks.
   Every shell shows the six new fields instead of click/nav.
-- **iOS keyboard accessory (4.3.0).** `makeNumberField` sets `.light` keyboard appearance,
-  themes the toolbar with `ClassicPalette`, and the Done item calls
+- **iOS keyboard accessory (4.3.0, rebuilt in 4.3.1).** `makeNumberField` sets `.light`
+  keyboard appearance and the Done button calls
   `UIApplication.sendAction(#selector(UIResponder.resignFirstResponder))` so the number pad
-  always closes.
+  always closes. Since iOS 26 renders a `UIToolbar`'s `.done` item as a glass capsule over
+  the field, 4.3.1 builds the bar by hand: a `UIView` with the `windowLight` background, a
+  2 px `windowDark` divider and a beveled `ClassicButton`.
+- **UIScene adoption (4.3.1).** Apps built with the iOS 26 SDK must use the scene lifecycle;
+  without it UIKit traps at launch. `SceneDelegate` now creates the window and the
+  `MainViewController`, and `UIApplicationSceneManifest` is declared in `project.yml`.
+  `AppDelegate` only owns notifications and resolves the `instalingbot://start|stop` links.
 - **Oversized userscript panel (fixed in 4.2.1).** The panel uses
   `max-height: calc(100dvh - 96px)` with a `100vh` fallback and `overscroll-behavior: contain`.

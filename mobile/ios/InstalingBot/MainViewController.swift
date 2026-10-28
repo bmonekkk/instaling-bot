@@ -732,29 +732,36 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 1))
         field.leftViewMode = .always
         field.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        // The number pad has no return key, so add a themed Done bar above it.
-        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
-        toolbar.barStyle = .default
-        toolbar.isTranslucent = false
-        toolbar.barTintColor = ClassicPalette.windowLight
-        toolbar.tintColor = ClassicPalette.title1
-        toolbar.overrideUserInterfaceStyle = .light
-        let done = UIBarButtonItem(
+        // The number pad has no return key, so add a classic themed Done bar
+        // above it. A plain UIToolbar gets the system glass capsule treatment
+        // on iOS 26, which clashes with the classic UI, so build the bar by
+        // hand instead.
+        let bar = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 46))
+        bar.backgroundColor = ClassicPalette.windowLight
+        bar.autoresizingMask = [.flexibleWidth]
+        bar.overrideUserInterfaceStyle = .light
+
+        let divider = UIView(frame: CGRect(x: 0, y: 0, width: bar.bounds.width, height: 2))
+        divider.backgroundColor = ClassicPalette.windowDark
+        divider.autoresizingMask = [.flexibleWidth]
+        bar.addSubview(divider)
+
+        let done = ClassicButton(
             title: language == "en" ? "Done" : "Gotowe",
-            style: .done,
-            target: self,
-            action: #selector(hideKeyboard)
+            fill: ClassicPalette.window,
+            foreground: ClassicPalette.title1
         )
-        done.setTitleTextAttributes([
-            .font: UIFont.boldSystemFont(ofSize: 17),
-            .foregroundColor: ClassicPalette.title1
-        ], for: .normal)
-        toolbar.items = [
-            UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-            done
-        ]
-        toolbar.sizeToFit()
-        field.inputAccessoryView = toolbar
+        done.addTarget(self, action: #selector(hideKeyboard), for: .touchUpInside)
+        done.translatesAutoresizingMaskIntoConstraints = false
+        bar.addSubview(done)
+        NSLayoutConstraint.activate([
+            done.trailingAnchor.constraint(equalTo: bar.trailingAnchor, constant: -10),
+            done.centerYAnchor.constraint(equalTo: bar.centerYAnchor, constant: 1),
+            done.widthAnchor.constraint(equalToConstant: 104),
+            done.heightAnchor.constraint(equalToConstant: 34)
+        ])
+
+        field.inputAccessoryView = bar
         return field
     }
 

@@ -265,7 +265,7 @@ function createEngine({
     onEvent = () => {},
     language = 'pl',
     config: initialConfig = {},
-    version = '4.3.0'
+    version = '4.3.1'
 } = {}) {
     const state = {
         version,

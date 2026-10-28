@@ -4,32 +4,26 @@ import UserNotifications
 @main
 final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
+    static private(set) var shared: AppDelegate?
+
     var window: UIWindow?
-    private var controller: MainViewController?
+    private(set) var controller: MainViewController?
 
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        AppDelegate.shared = self
         UNUserNotificationCenter.current().delegate = self
-
-        let controller = MainViewController()
-        self.controller = controller
-
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        window.rootViewController = controller
-        window.makeKeyAndVisible()
-        self.window = window
-
         return true
     }
 
-    func application(
-        _ app: UIApplication,
-        open url: URL,
-        options: [UIApplication.OpenURLOptionsKey: Any] = [:]
-    ) -> Bool {
-        guard url.scheme?.lowercased() == "instalingbot" else { return false }
+    func attach(controller: MainViewController) {
+        self.controller = controller
+    }
+
+    func handle(url: URL) {
+        guard url.scheme?.lowercased() == "instalingbot" else { return }
         switch url.host?.lowercased() {
         case "start":
             controller?.requestStart()
@@ -38,7 +32,6 @@ final class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationC
         default:
             break
         }
-        return true
     }
 
     // Show reminders even while the app is in the foreground.

@@ -2,6 +2,15 @@
 
 All notable changes to this fork are documented here.
 
+## [4.3.1] - 2026-10-28
+
+### Fixed
+- **iOS app no longer crashes on launch on iOS 26 and newer.** Apps built with the iOS 26 SDK must adopt the UIScene lifecycle; without it UIKit raised a runtime issue at startup and the process trapped before the first frame, leaving a white screen or a bounce back to the home screen. Added `SceneDelegate` and `UIApplicationSceneManifest`, and moved window/root-controller setup and the `instalingbot://start|stop` deep links into the scene lifecycle. The 4.3.0 IPA was never published because of this.
+- **iOS "Gotowe"/"Done" bar above the number pad looks like the rest of the app.** Replaced the `UIToolbar` (which iOS 26 renders as an oversized glass capsule) with a hand-built classic accessory bar: light gray background, 2 px dark divider and a beveled navy-on-gray button. It still dismisses the keyboard with `UIApplication.sendAction`.
+
+### Changed
+- Version bumped to `4.3.1` (userscript `4.3.1`, iOS `MARKETING_VERSION` 4.3.1 / `CURRENT_PROJECT_VERSION` 40301).
+
 ## [4.3.0] - 2026-10-28
 
 ### Added
