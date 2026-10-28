@@ -74,10 +74,13 @@ okna, gdy zauważysz, że sesja stoi.
 ## Gdzie zmienić ustawienia na telefonie?
 
 - **Android / iOS (APK, IPA):** naciśnij **⚙** na górnym pasku. Zmienisz poprawność
-  odpowiedzi, czasy pisania, godzinę przypomnienia i jego powtarzanie; wartości zapisują
-  się od razu.
-- **Userscript:** kliknij logo bota i rozwiń **Ustawienia** — poprawność, czasy pisania
-  i autostart.
+  odpowiedzi, wszystkie czasy (klik, przejście dalej, pisanie, literówki), godzinę
+  przypomnienia i jego częstotliwość (lista: raz dziennie lub co 15/30/60/120/180 min).
+  Przycisk **Przywróć domyślne** resetuje ustawienia poza loginem, hasłem i językiem.
+  Statystyki otworzysz przyciskiem **📊**.
+- **Userscript:** kliknij logo bota i rozwiń **Ustawienia** — poprawność, czasy pisania,
+  autostart i przywracanie domyślnych; zakładki **Statystyki** pokazują ten sam zakres
+  (tydzień/miesiąc/rok/całość).
 
 ## Czy jest wersja na telefon?
 
@@ -104,7 +107,8 @@ Androidzie przetrwa też restart telefonu.
 - **Android / iOS (APK, IPA):** pamięć WebView w aplikacji — zapamiętane słówka i ustawienia.
 - **Userscript:** `GM_setValue` (magazyn Tampermonkey/Violentmonkey/Userscripts).
 
-Statystyki i `stats.json` to funkcja desktopu i CLI.
+Statystyki (tydzień/miesiąc/rok/całość) pokazuje każda platforma: desktop, CLI, aplikacje
+mobilne i userscript. Plik `stats.json` współdzielą desktop i CLI.
 
 ## Jak zgłosić błąd lub pomysł?
 

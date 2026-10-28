@@ -279,6 +279,7 @@ The mobile engine is **tick-based**, not a long `while` loop: instaling.pl perfo
   "credentials": { "login": "...", "password": "..." },
   "delays": {
     "click_min": 2000, "click_max": 4500,
+    "nav_min": 2000, "nav_max": 4500,
     "type_min": 90, "type_max": 230,
     "type_pause_chance": 0.12,
     "type_pause_min": 250, "type_pause_max": 700,
@@ -294,15 +295,17 @@ The mobile engine is **tick-based**, not a long `while` loop: instaling.pl perfo
   "window_width": 1366,
   "window_height": 900,
   "debug": false,
-  "reminder": { "enabled": true, "time": "17:00" },
-  "background": { "run_in_tray": false, "start_at_login": false }
+  "reminder": { "enabled": true, "time": "17:00", "repeat_minutes": 0 },
+  "background": { "run_in_tray": false, "start_at_login": false },
+  "notifications": { "session_finished": true }
 }
 ```
 
 - Raising delays = slower and less aggressive.
+- `nav_min` / `nav_max` drive the "next", login and start/continue waits; the engine keeps the deadline across instaling.pl's reloads. `check_min` / `check_max` and `next_word_min` / `next_word_max` remain as internal fallbacks.
 - `type_min` / `type_max` are per character. `typo_chance` simulates a wrong key + Backspace and is verified afterwards.
 - `valid_chance` failures pick one of three errors with equal probability: blank, wrong saved translation (fallback: misspelling), misspelling.
-- `reminder.time` is local `HH:MM`; the desktop checks every minute while running, the CLI via `npm run remind`.
+- `reminder.time` is local `HH:MM`; `repeat_minutes` re-fires every N minutes until the day's session is done (`0` = once a day). The desktop checks every minute while running, the CLI via `npm run remind`.
 - `background.*` only affects the desktop app (tray icon and OS login item). Hidden startup requires **both** `run_in_tray` and `start_at_login`; autostart alone opens the window.
 - The canonical template is `config/Config.defaults.json`; there is no remote word database.
 - Desktop clamps GUI values before writing the file: 0–1 for chances, 0–120000 ms for click delays, 0–5000 ms for per-character typing.

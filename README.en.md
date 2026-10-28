@@ -321,14 +321,15 @@ Template for all options: [`config/Config.defaults.json`](config/Config.defaults
 - `INSTALING_LOGIN` / `INSTALING_PASSWORD` — environment variables with credentials; they take precedence over `credentials` in `Config.json`. Useful in CI and on servers where the password should not be written to disk.
 - `delays` — wait times in milliseconds (1 s = 1000 ms); the bot picks a random value between min and max
   - `click_min` / `click_max` — default delay after clicking a button
+  - `nav_min` / `nav_max` — pause before moving on (next word, login, session start/continue); survives a page reload
   - `type_min` / `type_max` — delay per single letter
   - `type_pause_chance` — chance of an extra pause while typing (`0.12` = 12%)
   - `type_pause_min` / `type_pause_max` — length of that pause
   - `typo_chance` — chance of a simulated typo with backspace (`0.15` = 15%)
   - `quick_click_min` / `quick_click_max` — short pause after navigation clicks
   - `selector` — wait for an element on the page (increase on a slow connection)
-  - `check_min` / `check_max` — wait for an answer to be checked
-  - `next_word_min` / `next_word_max` — wait between words
+  - `check_min` / `check_max` — wait for an answer to be checked (internal fallback)
+  - `next_word_min` / `next_word_max` — wait between words (internal fallback)
 - `valid_chance` — the share of answers that should be correct (`1` = 100%, `0.8` = 80%); on a failed attempt the bot picks one of three mistakes: an empty field, a different saved translation (fallback: a typo) or a typo
 - `show_browser` — shows the Chrome window; set `false` on a headless server
 - `mute_audio` — mutes browser audio
@@ -362,7 +363,7 @@ Problems are split into the **desktop app**, **mobile** and the **CLI**. The app
 
 - **The APK will not install** — allow installation from unknown sources for the browser or file manager that opens it. The APK is signed with a developer key, not by the Play Store.
 - **"Could not find the session start button"** — sign in inside the app and open the learning page before pressing **Start**. The mobile bot does not log in for you.
-- **The session stops when I lock the phone** — expected. WebView is suspended in the background, and 4.0 has no hidden mode. Keep the app in the foreground.
+- **The session stops when I lock the phone** — expected. WebView is suspended in the background, so the bot does not run in the background on a phone. Keep the app in the foreground for the duration of the session (the reminder still arrives).
 - **No notifications on Android 13+** — enable notification permission in the app settings and tap ⏰ again.
 - **The IPA will not install in SideStore/AltStore** — it is unsigned; sign it with your own Apple ID. A free account needs a refresh after 7 days.
 - **The userscript does not see the page** — check that the Userscripts/Tampermonkey extension is allowed on `instaling.pl` and that the script is enabled for that domain.

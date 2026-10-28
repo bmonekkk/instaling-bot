@@ -1,9 +1,11 @@
 # instaling-bot mobile plan (4.0–4.2)
 
-Status: implemented — 4.0.0 shipped the shells, 4.1.0 added settings and statistics, and
-4.2.0 added the full timing controls, repeating native reminders, the userscript reminder
-banner and classic visual parity.
-Last updated: 2026-10-27
+Status: implemented — 4.0.0 shipped the shells, 4.1.0 added settings and statistics, 4.2.0
+added the full timing controls, repeating native reminders, the userscript reminder banner
+and classic visual parity, 4.2.1 brought statistics, restore-defaults and the shared
+`nav_min`/`nav_max` navigation delays to every platform, and 4.2.2 made the navigation pause
+survive instaling.pl's page reloads.
+Last updated: 2026-10-28
 
 ## Goal
 
@@ -95,9 +97,9 @@ Deliverable: `src/core/` + tests, mobile fixtures, spike script.
 |---|---|---|---|---|
 | PL/EN interface | yes | yes | yes | yes |
 | Humanized typing | yes | yes | yes | yes |
-| Timing settings (click/type/pause/typo + accuracy) | yes | yes | yes | yes |
+| Timing settings (click/nav/type/pause/typo + accuracy) | yes | yes | yes | yes |
 | Daily reminder | yes (repeating) | in-page banner | yes (repeating) | yes (repeating) |
-| Statistics (today/accuracy/streak) | yes | yes | yes | yes |
+| Statistics (day/week/month/year/all) | yes | yes | yes | yes |
 | Update check | yes | yes | yes | yes |
 | Saved words | file | GM storage | WebView storage | WKWebView storage |
 | Automation | tray/CLI | `?autostart=1` | deep link | URL scheme/Shortcuts |
@@ -160,3 +162,20 @@ Shipped as one 4.0.0 release instead of a separate 3.4.0 beta:
   in-page banner when a tab opens after the reminder time and today's session is not done.
 - **Visual parity.** The desktop window, the userscript panel and the website share one classic
   light-gray, Tahoma/MS Sans Serif, square-bevel, navy-title-bar look.
+
+## Implementation notes (4.2.1 – 4.2.2)
+
+- **Statistics on every shell.** `mobile/engine/engine.js` records `sessions` and `durationMs`
+  per day and exposes `periods` (week/month/year/all) mirroring `src/stats.js`, so Android
+  (📊 + period spinner), iOS (📊 + segmented control) and the userscript panel show the same
+  grid as the desktop.
+- **Restore defaults.** Each shell's settings surface has a reset button that clears every
+  option except login, password and language.
+- **Shared navigation delays.** `nav_min`/`nav_max` (defaults 2000/4500 ms) drive the "next
+  word", login and start/continue waits in the engine, in `src/main.js` and in every shell;
+  reminder frequency on Android/iOS became a dropdown matching the desktop select.
+- **Reload-safe navigation pause (4.2.2).** Because instaling.pl reloads on "next"/"continue",
+  the engine persists the pause deadline (`navUntil`) before the click and re-applies the
+  remainder at the start of the next tick instead of relying on an in-page `setTimeout`.
+- **Oversized userscript panel (fixed in 4.2.1).** The panel uses
+  `max-height: calc(100dvh - 96px)` with a `100vh` fallback and `overscroll-behavior: contain`.

@@ -55,7 +55,7 @@ platform uses the same icon generated from `build/icon.png`.
 
 Mobile apps do not store passwords; they reuse the normal website session in the WebView.
 A session runs only while the app or browser tab is open. Every app — desktop, Android,
-iOS and the userscript — shows week/month/year statistics; the full desktop additionally
+iOS and the userscript — shows week/month/year/all statistics; the full desktop additionally
 keeps saved-word export, tray mode and hidden background sessions.
 
 ## Install

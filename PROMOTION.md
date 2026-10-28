@@ -12,7 +12,7 @@ Strona: https://bmonekkk.github.io/instaling-bot/ · Repo: https://github.com/bm
 - [ ] **Google Search Console** — dodaj usługę `https://bmonekkk.github.io/instaling-bot/`,
       potwierdź własność (plik `google0890551163baf2b9.html` jest już w `docs/`).
 - [ ] Wyślij sitemapę: `https://bmonekkk.github.io/instaling-bot/sitemap.xml`.
-- [ ] Dla każdej strony (index, android, ios, userscript, cli) użyj **URL Inspection → Request indexing**.
+- [ ] Dla strony głównej użyj **URL Inspection → Request indexing** po każdej większej zmianie.
 - [ ] **Bing Webmaster Tools** — dodaj stronę i potwierdź własność (wygeneruj `BingSiteAuth.xml`
       albo dodaj `<meta name="msvalidate.01" ...>` do `<head>`).
 - [ ] Wyślij sitemapę również do Binga.
@@ -108,6 +108,8 @@ Subreddity: `r/opensource`, `r/SideProject`, `r/androidapps`, `r/learnpolish` (d
 
 ## 5. Rytm publikacji
 
-- Do każdego wydania dołącz link do **strony głównej** i **poradników** z repo tej strony.
-- Aktualizuj `CHANGELOG.md` i `llms.txt` — pomaga to też wyszukiwarkom i asystentom AI.
-- Nowe treści dodawaj jako osobne strony (SEO lubi osobne adresy dla osobnych tematów).
+- Do każdego wydania dołącz link do **strony głównej** i do README/wiki w repo.
+- Aktualizuj `CHANGELOG.md`, `docs/llms.txt` i `docs/sitemap.xml` — pomaga to też wyszukiwarkom
+  i asystentom AI.
+- Strona jest teraz jednym `index.html`; nowy temat dodawaj jako sekcję na stronie głównej
+  (link z kotwicą), dopóki nie uzbiera się dość treści na osobny adres.

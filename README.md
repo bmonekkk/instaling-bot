@@ -321,14 +321,15 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 - `INSTALING_LOGIN` / `INSTALING_PASSWORD` — zmienne środowiskowe z danymi logowania; mają pierwszeństwo przed `credentials` w `Config.json`. Przydatne w CI i na serwerach, gdzie hasło nie powinno trafiać na dysk.
 - `delays` — czasy oczekiwania w milisekundach (1 s = 1000 ms); bot losuje wartość między min i max
   - `click_min` / `click_max` — domyślne opóźnienie po kliknięciu w przycisk
+  - `nav_min` / `nav_max` — pauza przed przejściem dalej (następne słówko, logowanie, start/kontynuacja sesji); działa też po przeładowaniu strony
   - `type_min` / `type_max` — opóźnienie na pojedynczą literę
   - `type_pause_chance` — szansa na dodatkową pauzę w trakcie pisania (`0.12` = 12%)
   - `type_pause_min` / `type_pause_max` — długość takiej pauzy
   - `typo_chance` — szansa na symulowaną literówkę z backspace (`0.15` = 15%)
   - `quick_click_min` / `quick_click_max` — krótka pauza po kliknięciach nawigacyjnych
   - `selector` — oczekiwanie na element na stronie (zwiększ, jeśli masz wolne łącze)
-  - `check_min` / `check_max` — oczekiwanie na sprawdzenie odpowiedzi
-  - `next_word_min` / `next_word_max` — oczekiwanie między słówkami
+  - `check_min` / `check_max` — oczekiwanie na sprawdzenie odpowiedzi (wewnętrzny fallback)
+  - `next_word_min` / `next_word_max` — oczekiwanie między słówkami (wewnętrzny fallback)
 - `valid_chance` — jaka część odpowiedzi ma być poprawna (`1` = 100%, `0.8` = 80%); przy nieudanej próbie bot losuje jeden z trzech błędów: puste pole, inne zapisane tłumaczenie (fallback: literówka) lub literówkę
 - `show_browser` — pokazuje okno Chrome; ustaw `false` na serwerze bez GUI
 - `mute_audio` — wycisza dźwięk przeglądarki
@@ -362,7 +363,7 @@ Problemy są podzielone na **aplikację desktopową**, **mobile** i **CLI**. Okn
 
 - **APK się nie instaluje** — zezwól na instalację z nieznanych źródeł dla przeglądarki lub menedżera plików, którym otwierasz plik. APK jest podpisany kluczem deweloperskim, nie przez Play Store.
 - **„Nie znalazłem przycisku startu sesji"** — zaloguj się w oknie aplikacji i otwórz stronę nauki, zanim naciśniesz **Start**. Bot nie loguje się za Ciebie na telefonie.
-- **Sesja zatrzymuje się po zablokowaniu telefonu** — to normalne. WebView jest wstrzymywany w tle, a wersja 4.0 nie ma trybu ukrytego. Zostaw aplikację na pierwszym planie.
+- **Sesja zatrzymuje się po zablokowaniu telefonu** — to normalne. WebView jest wstrzymywany w tle — bot nie działa w tle na telefonie. Zostaw aplikację na pierwszym planie na czas sesji (przypomnienie i tak dotrze).
 - **Brak powiadomień na Androidzie 13+** — włącz uprawnienie powiadomień w ustawieniach aplikacji i ponownie dotknij ⏰.
 - **IPA nie instaluje się w SideStore/AltStore** — plik jest niepodpisany; podpisz go własnym Apple ID. Darmowe konto wymaga odświeżenia po 7 dniach.
 - **Userscript nie widzi strony** — sprawdź, czy rozszerzenie Userscripts/Tampermonkey ma zgodę dla `instaling.pl` i czy skrypt jest włączony dla tej domeny.

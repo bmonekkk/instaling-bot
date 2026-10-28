@@ -131,3 +131,6 @@ mobile/ios/build/
 mobile/ios/InstalingBot.xcodeproj/
 mobile/ios/InstalingBot/Info.plist
 mobile/ios/InstalingBot/Resources/core.js
+
+# Release-verification downloads
+release-assets/

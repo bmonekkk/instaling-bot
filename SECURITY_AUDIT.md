@@ -1,10 +1,20 @@
-# Security audit — instaling-bot 4.2.0
+# Security audit — instaling-bot 4.2.2
 
 Scope: desktop (Electron), CLI + shared core, browser userscript, Android WebView APK,
 iOS WKWebView IPA, website, and the CI/release pipeline. This is a **self-assessment**, not
 an external penetration test, and it does **not** claim the project is fully secure. Every
-finding below is either fixed (in 4.1.0 or 4.2.0), mitigated by design, or listed as an
+finding below is either fixed (in 4.1.0, 4.2.0 or 4.2.2), mitigated by design, or listed as an
 accepted limitation.
+
+## 4.2.1 / 4.2.2 — no security-surface change
+
+4.2.1 (statistics on every platform, restore-defaults button, shared `nav_min`/`nav_max`
+navigation delays, reminder-frequency dropdown) and 4.2.2 (persisting the `navUntil` pause
+deadline across page reloads, and honoring nav delays on desktop session start/continue) are
+behaviour/UI changes only. They add no new network calls, no new trust boundary and no new
+stored data: the new timings live in the same `SharedPreferences`/`UserDefaults`/GM storage as
+the existing delays and are clamped by `USER_DELAY_KEYS`/`DELAY_BOUNDS`; statistics are
+computed from the local run counter already kept on each shell.
 
 ## Fixes shipped in 4.2.0
 
@@ -86,7 +96,7 @@ tool. They are **not** claiming to be solved.
    can be prefilled). The password lives in renderer memory while the window is open.
 6. **Supply chain (Low–Medium).** GitHub Actions are pinned to mutable major tags rather
    than commit SHAs; `release.yml` grants workflow-wide `contents: write`; no build
-   provenance/SBOM. Hardening planned but not part of 4.2.0.
+   provenance/SBOM. Hardening planned but not part of 4.2.x.
 7. **Swift is not covered by CodeQL** (JS/TS and Java/Kotlin only).
 
 ## Reproducing the checks

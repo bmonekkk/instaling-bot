@@ -19,8 +19,8 @@ loguje się za Ciebie i nie czyta `Config.json`.
 
 ### Sesja zatrzymuje się po zablokowaniu telefonu
 
-To normalne. WebView jest wstrzymywany w tle, a 4.0 nie ma trybu ukrytego. Zostaw aplikację
-na pierwszym planie.
+To normalne. WebView jest wstrzymywany w tle — bot nie działa w tle na telefonie. Zostaw
+aplikację na pierwszym planie na czas sesji (przypomnienie i tak dotrze).
 
 ### Brak powiadomień na Androidzie 13+
 
