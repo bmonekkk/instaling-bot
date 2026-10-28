@@ -418,7 +418,7 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 
 - 🍎 **iOS no longer crashes on launch.** Apps built with the iOS 26 SDK must adopt the UIScene lifecycle; without it the process trapped before drawing the first screen. Added `SceneDelegate` and `UIApplicationSceneManifest`, and moved the window, root controller and `instalingbot://` links into the scene.
 - ⌨️ **"Done" is a floating button.** Instead of a `UIToolbar` (an oversized glass capsule on iOS 26) there is only a beveled button pinned to the right edge above the keyboard, with no gray bar covering the page. It still hides the keyboard.
-- 📱 **Android matches iOS.** The title-bar buttons are 34×26 dp instead of 88×48 dp, Start/Stop are 34 dp tall and "instaling-bot" stays on one line.
+- 📱 **Android matches iOS.** The title-bar buttons are 34×30 dp instead of 88×48 dp, Start/Stop are 34 dp tall, the 44 dp bar shows the same gradient as iOS and "instaling-bot" stays on one line. The window frame is drawn by a shell view, so nothing pokes past the border.
 - 🔢 **Version `4.3.1`** (userscript `4.3.1`, iOS 4.3.1 / 40301). 4.3.0 was never published.
 
 ### 4.3.0 — 2026-10-28

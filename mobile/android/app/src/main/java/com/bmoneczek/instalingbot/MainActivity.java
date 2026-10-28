@@ -39,6 +39,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -199,19 +200,30 @@ public class MainActivity extends Activity {
     }
 
     private void buildUi() {
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
+        // Classic window frame: a gray shell with a 2 px black outline, and the
+        // real content inset by that same 2 px so no child view covers the
+        // frame and pokes out to the screen edge.
+        FrameLayout shell = new FrameLayout(this);
         GradientDrawable frame = new GradientDrawable();
         frame.setColor(C_WINDOW);
         frame.setStroke(dp(2), C_INK);
-        root.setBackground(frame);
+        shell.setBackground(frame);
+
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundColor(C_WINDOW);
+        int frameInset = dp(2);
+        FrameLayout.LayoutParams rootParams = new FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT);
+        rootParams.setMargins(frameInset, frameInset, frameInset, frameInset);
+        shell.addView(root, rootParams);
 
         // Classic navy title bar: wordmark on the left, small beveled controls
         // on the right, exactly like the desktop window chrome.
         LinearLayout titleBar = new LinearLayout(this);
         titleBar.setOrientation(LinearLayout.HORIZONTAL);
         titleBar.setGravity(Gravity.CENTER_VERTICAL);
-        titleBar.setPadding(dp(8), dp(3), dp(4), dp(3));
+        titleBar.setPadding(dp(8), dp(7), dp(6), dp(7));
         titleBar.setBackground(new GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT, new int[]{C_TITLE_1, C_TITLE_2}));
 
@@ -307,8 +319,8 @@ public class MainActivity extends Activity {
         webView.setBackgroundColor(C_WINDOW);
         root.addView(webView);
 
-        setContentView(root);
-        applySystemBarInsets(root);
+        setContentView(shell);
+        applySystemBarInsets(shell);
         refreshReminderButton();
     }
 
@@ -361,7 +373,7 @@ public class MainActivity extends Activity {
         Button button = classicButton(text, C_WINDOW, C_INK);
         button.setTextSize(13);
         button.setPadding(0, 0, 0, 0);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(34), dp(26));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(34), dp(30));
         params.setMargins(dp(4), 0, 0, 0);
         button.setLayoutParams(params);
         return button;
