@@ -395,8 +395,10 @@ Health files live at the repository root: `SECURITY.md`, `CONTRIBUTING.md`, `SUP
 - `docs/index.html` has a Polish title and description, canonical URL, `hreflang`, Open Graph
   and Twitter cards, `SoftwareApplication` + `FAQPage` JSON-LD, a favicon, an English summary
   section, `robots.txt`, `sitemap.xml` and `llms.txt` for AI crawlers.
-- `docs/social-preview.png` is a 1200x630 card for link previews. Upload it in GitHub
-  Settings → Social preview for the repository.
+- `docs/social-preview.png` is the 1200x630 card used by `og:image`/`twitter:image`; it shows
+  the current version (`v4.3.1`), the six download targets and the classic window chrome, so
+  re-render it on every release. Upload it in GitHub Settings → Social preview for the
+  repository (GitHub does not read it from the repo).
 - `scripts/submit-indexnow.sh` (`npm run indexnow`) submits the page to IndexNow, which covers
   Bing, Yandex, Seznam, Naver and other participants. Run it after a Pages deploy.
 - Google does not use IndexNow. Add the URL-prefix property
