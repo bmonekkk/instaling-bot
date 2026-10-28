@@ -1,0 +1,54 @@
+name: Sync wiki
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "wiki/**"
+      - ".github/workflows/wiki.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    name: Publish wiki/
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Push the tracked wiki pages to the GitHub wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          # The wiki tab is backed by a separate <owner>/<repo>.wiki.git repo.
+          # GITHUB_TOKEN with contents: write can push to it once the wiki
+          # exists (it does — pages are already published).
+          WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.wiki.git"
+          git clone --depth 1 "$WIKI_URL" wiki-repo
+
+          # Mirror wiki/*.md exactly: replace the pages, drop removed ones.
+          rm -f wiki-repo/*.md
+          cp -f wiki/*.md wiki-repo/
+
+          cd wiki-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "Wiki is already up to date."
+            exit 0
+          fi
+
+          git add -A
+          git commit -m "Sync wiki from ${GITHUB_SHA::7}"
+          git push
