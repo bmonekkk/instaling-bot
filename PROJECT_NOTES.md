@@ -27,7 +27,7 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
 | Release workflow | `.github/workflows/release.yml` |
-| Windows installer (local build) | `dist/instaling-bot-4.2.2-setup-win64.exe` (gitignored) |
+| Windows installer (local build) | `dist/instaling-bot-4.3.1-setup-win64.exe` (gitignored) |
 | Mobile assets | `mobile/android/.../app-release.apk`, `mobile/ios/build/...ipa`, `dist/instaling-bot.user.js` |
 | Mobile plan | `MOBILE_PLAN.md` |
 
