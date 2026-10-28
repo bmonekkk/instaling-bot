@@ -95,7 +95,10 @@ jobs:
 
   ios:
     name: iOS unsigned build
-    runs-on: macos-15
+    # macos-15 (arm64) is frequently starved of runners, so the job sat queued
+    # until it failed with "not acquired by Runner of type hosted". The Intel
+    # runner is available and builds the device archive fine.
+    runs-on: macos-15-intel
     timeout-minutes: 25
     steps:
       - name: Check out repository
