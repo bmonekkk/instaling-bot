@@ -9,15 +9,14 @@ Strona: https://bmonekkk.github.io/instaling-bot/ · Repo: https://github.com/bm
 
 ## 1. Indeksacja i wyszukiwarki (zrób raz, potem pilnuj)
 
-- [ ] **Google Search Console** — dodaj usługę `https://bmonekkk.github.io/instaling-bot/`,
-      potwierdź własność (plik `google0890551163baf2b9.html` jest już w `docs/`).
-- [ ] Wyślij sitemapę: `https://bmonekkk.github.io/instaling-bot/sitemap.xml`.
-- [ ] Dla strony głównej użyj **URL Inspection → Request indexing** po każdej większej zmianie.
-- [ ] **Bing Webmaster Tools** — dodaj stronę i potwierdź własność (wygeneruj `BingSiteAuth.xml`
-      albo dodaj `<meta name="msvalidate.01" ...>` do `<head>`).
-- [ ] Wyślij sitemapę również do Binga.
-- [ ] **IndexNow** (Bing + Yandex) — jest już gotowy klucz:
-      plik `docs/4378f80532d5cec0574a28e80a26421e.txt`.
+- [x] **Google Search Console** — usługa `https://bmonekkk.github.io/instaling-bot/` dodana
+      i potwierdzona (plik `google0890551163baf2b9.html` leży w `docs/`).
+- [x] Sitemapa wysłana: `https://bmonekkk.github.io/instaling-bot/sitemap.xml`.
+- [x] Dla strony głównej zrobione **URL Inspection → Request indexing** (ponów po większych zmianach).
+- [x] **Bing Webmaster Tools** — strona dodana i potwierdzona (`BingSiteAuth.xml`).
+- [x] Sitemapa wysłana również do Binga.
+- [x] **IndexNow** (Bing + Yandex) — wysłane (`npm run indexnow`, HTTP 200). Klucz:
+      `docs/4378f80532d5cec0574a28e80a26421e.txt`. Powtarzaj po każdym deployu.
       Ponieważ strona jest projektowa (pod `bmonekkk.github.io/instaling-bot/`), klucz leży
       w podkatalogu — użyj `keyLocation`. Po każdym deployu możesz zgłosić zmiany:
 
@@ -64,39 +63,47 @@ Te dane są wystarczające do monitorowania SEO, a odwiedzający blokujący trac
 
 ### 4a. Wykop.pl (PL)
 
-> **instaling-bot — bot do instaling.pl na wszystkie systemy (open source)**
+> **instaling-bot 4.3.1 — bot do instaling.pl na wszystkie systemy (open source)**
 >
-> Zrobiłem otwartoźródłowego bota do instaling.pl: aplikacja desktop (Windows/macOS),
-> APK na Androida, IPA i userscript na iOS, CLI na Linuksa i do terminala. Wspólny silnik,
-> humanizacja pisania (losowe pauzy i literówki), statystyki i przypomnienia. Interfejs PL/EN.
-> Bez backendu i telemetrii, nie zapisuje haseł.
+> Zrobiłem otwartoźródłowego bota do instaling.pl: desktop na Windows i macOS, APK na
+> Androida, niepodpisana IPA na iOS (SideStore/AltStore), userscript do Safari i Firefoksa
+> oraz CLI na Linuksa. Jeden wspólny silnik i interfejs PL/EN.
 >
-> Strona: https://bmonekkk.github.io/instaling-bot/ · Kod: https://github.com/bmonekkk/instaling-bot
+> Najnowsze wydanie dodaje dwie prawdziwe pauzy: bot najpierw „myśli" o tłumaczeniu, zanim
+> zacznie pisać, a po sprawdzeniu odpowiedzi chwilę czyta wynik, zanim kliknie „dalej".
+> Każdy czas jest losowany z podanego zakresu, więc tempo wygląda po ludzku. Do tego
+> literówki z backspace, statystyki tygodnia/miesiąca/roku i przypomnienia na każdej platformie.
 >
-> Projekt edukacyjny, niepowiązany z InstaLing. #opensource #programowanie
+> Bez backendu i telemetrii, nigdy nie zapisuje hasła — korzysta z normalnej sesji strony.
+> Projekt edukacyjny, niepowiązany z InstaLing. #opensource #programowanie #koa
 
 ### 4b. Reddit (EN)
 
 Subreddity: `r/opensource`, `r/SideProject`, `r/androidapps`, `r/learnpolish` (delikatnie).
 
-> **I built an open-source vocabulary bot for instaling.pl that works on Windows, macOS, Android, iOS, and the terminal**
+> **I built an open-source vocabulary bot for instaling.pl that runs on Windows, macOS, Android, iOS and the terminal**
 >
-> It shares one answer engine across a desktop app, an Android APK, an unsigned iOS IPA,
-> a Safari/Firefox userscript, and a CLI. It types human-like (random delays, corrected typos),
-> keeps stats and reminders, and never stores your password. No backend, no telemetry.
+> One answer engine powers a desktop app, an Android APK, an unsigned iOS IPA, a
+> Safari/Firefox userscript and a CLI. The latest release adds two human-like pauses: it
+> waits before the first keystroke as if thinking about the translation, then reads the
+> result before hitting "next" — longer after a mistake or a new word, briefly after a
+> correct answer. Every delay is randomised, on top of per-letter timing and corrected typos.
+> Stats and reminders on every platform, and your password is never stored.
 >
 > Site: https://bmonekkk.github.io/instaling-bot/ · Code: https://github.com/bmonekkk/instaling-bot
 >
-> It's an educational project, not affiliated with InstaLing.
+> Educational project, not affiliated with InstaLing.
 
 ### 4c. Show HN (EN)
 
 > **Show HN: instaling-bot – open-source vocab bot for instaling.pl on every platform**
 >
 > One shared JS engine powers a Windows/macOS desktop app (Electron), an Android WebView
-> shell, an unsigned iOS IPA, a userscript for Safari and Firefox-on-Android, and a Node.js CLI.
-> It automates a daily vocabulary session with human-like typing (random delays, corrected
-> typos, believable mistakes), plus stats and reminders. Local-only, no password storage.
+> shell, an unsigned iOS IPA, a userscript for Safari and Firefox-on-Android, and a Node.js
+> CLI. The engine answers a daily vocabulary session the way a person might: it pauses to
+> "think" before typing, reads the result before continuing (longer after a typo, wrong word
+> or new word), randomises every delay and occasionally mistypes then backspaces. Plus
+> week/month/year stats and reminders. Local-only, no accounts, no password storage.
 >
 > https://bmonekkk.github.io/instaling-bot/
 
@@ -104,8 +111,32 @@ Subreddity: `r/opensource`, `r/SideProject`, `r/androidapps`, `r/learnpolish` (d
 
 - **Tagline:** Automate your instaling.pl vocabulary practice on any device.
 - **Description:** Open-source bot for instaling.pl — desktop (Windows/macOS), Android APK,
-  iOS IPA and userscript, and a CLI. Human-like typing, configurable accuracy, stats and
-  reminders. No backend, no telemetry, passwords are never stored.
+  iOS IPA and userscript, plus a CLI. It types like a human: a pause to "think" before
+  answering, a longer read after a mistake, randomised delays and corrected typos. Configurable
+  accuracy, stats and reminders on every platform. No backend, no telemetry, passwords are
+  never stored.
+
+### 4e. GitHub Discussions (announcement)
+
+> **instaling-bot 4.3.1 — działający iOS, unoszące się „Gotowe" i Android jak iOS**
+>
+> 4.3.1 to wydanie poprawkowe: aplikacja iOS nie crashuje już przy starcie na iOS 26 (cykl
+> życia `UIScene`), a „Gotowe" nad klawiaturą to teraz pojedynczy, klasyczny przycisk bez
+> szarego paska. Android dostał ten sam kompaktowy wygląd co iOS — mniejszy pasek tytułu,
+> gradient przedłużony w pasek stanu i symetryczną ramkę okna.
+>
+> Dwóch ludzkich pauz z 4.3.0 (myślenie przed pisaniem i czytanie wyniku przed „dalej")
+> nie ruszamy. Pełna lista zmian: [CHANGELOG](https://github.com/bmonekkk/instaling-bot/blob/master/CHANGELOG.md).
+> Pobierz: https://github.com/bmonekkk/instaling-bot/releases/latest
+
+### 4f. Krótkie „co nowego w 4.3.1" do wklejenia
+
+- dwie losowe pauzy (myślenie przed pisaniem, czytanie wyniku przed „dalej"),
+- „Gotowe" jako unoszący się przycisk na iOS + brak crasha na iOS 26,
+- Android jak iOS: kompaktowy pasek tytułu, gradient w pasku stanu, symetryczna ramka,
+- jeden silnik na desktop, Androida, iOS, userscript i CLI,
+- statystyki tygodnia/miesiąca/roku i przypomnienia na każdej platformie,
+- bez backendu, bez telemetrii, hasła nigdy nie są zapisywane.
 
 ## 5. Rytm publikacji
 
