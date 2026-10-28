@@ -103,7 +103,10 @@ jobs:
 
   ios:
     name: iOS IPA
-    runs-on: macos-15
+    # macos-15 (arm64) has been repeatedly starved of runners, leaving the job
+    # queued until it times out. The Intel runner is available and builds the
+    # device archive fine (ONLY_ACTIVE_ARCH=NO targets arm64 iOS regardless).
+    runs-on: macos-15-intel
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
