@@ -107,7 +107,7 @@ tool. They are **not** claiming to be solved.
    can be prefilled). The password lives in renderer memory while the window is open.
 6. **Supply chain (Low–Medium).** GitHub Actions are pinned to mutable major tags rather
    than commit SHAs; `release.yml` grants workflow-wide `contents: write`; no build
-   provenance/SBOM. Hardening planned but not part of 4.2.x.
+   provenance/SBOM. Hardening planned but not done yet as of 4.3.1.
 7. **Swift is not covered by CodeQL** (JS/TS and Java/Kotlin only).
 
 ## Reproducing the checks

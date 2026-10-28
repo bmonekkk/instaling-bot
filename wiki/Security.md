@@ -21,7 +21,7 @@ osobowymi. Zredaguj logi przed wysłaniem.
 
 | Wersja | Wsparcie |
 |---|---|
-| 4.2.x (desktop, CLI, APK, IPA, userscript) | ✅ |
+| 4.3.x (desktop, CLI, APK, IPA, userscript) | ✅ |
 | 4.0.x | ✅ |
 | 3.3.x | ✅ |
 | < 3.3 | ❌ |
