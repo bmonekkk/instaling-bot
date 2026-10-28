@@ -74,13 +74,23 @@ okna, gdy zauważysz, że sesja stoi.
 ## Gdzie zmienić ustawienia na telefonie?
 
 - **Android / iOS (APK, IPA):** naciśnij **⚙** na górnym pasku. Zmienisz poprawność
-  odpowiedzi, wszystkie czasy (klik, przejście dalej, pisanie, literówki), godzinę
-  przypomnienia i jego częstotliwość (lista: raz dziennie lub co 15/30/60/120/180 min).
-  Przycisk **Przywróć domyślne** resetuje ustawienia poza loginem, hasłem i językiem.
-  Statystyki otworzysz przyciskiem **📊**.
-- **Userscript:** kliknij logo bota i rozwiń **Ustawienia** — poprawność, czasy pisania,
-  autostart i przywracanie domyślnych; zakładki **Statystyki** pokazują ten sam zakres
-  (tydzień/miesiąc/rok/całość).
+  odpowiedzi, pauzę przed pisaniem (`think_*`), pauzę po błędzie lub nowym słówku
+  (`review_*`), pauzę po poprawnej odpowiedzi (`review_correct_*`), czasy pisania,
+  literówki, godzinę przypomnienia i jego częstotliwość (lista: raz dziennie lub co
+  15/30/60/120/180 min). Przycisk **Przywróć domyślne** resetuje ustawienia poza loginem,
+  hasłem i językiem. Statystyki otworzysz przyciskiem **📊**.
+- **Userscript:** kliknij logo bota i rozwiń **Ustawienia** — poprawność, pauzy przed
+  pisaniem i po wyniku, czasy pisania, autostart i przywracanie domyślnych; zakładki
+  **Statystyki** pokazują ten sam zakres (tydzień/miesiąc/rok/całość).
+
+## Jak działa tempo pisania i pauzy?
+
+Bot najpierw czeka losowo `think_min`–`think_max` ms po pojawieniu się słówka, zanim
+zacznie pisać. Po sprawdzeniu odpowiedzi czeka przed „dalej": `review_min`–`review_max` ms
+po literówce, złym słowie, pustym polu lub nowym słówku i `review_correct_min`–
+`review_correct_max` ms po poprawnej odpowiedzi. Dzięki temu przerwy są losowe i różnią się
+między słówkami. Stare `click_min`/`click_max` i `nav_min`/`nav_max` nie są już pokazywane
+w panelach, ale nadal działają jako ciche fallbacki dla starszych konfiguracji.
 
 ## Czy jest wersja na telefon?
 

@@ -19,10 +19,12 @@ const els = {
     typoChanceValue: $('typo-chance-value'),
     pauseChance: $('pause-chance'),
     pauseChanceValue: $('pause-chance-value'),
-    clickMin: $('click-min'),
-    clickMax: $('click-max'),
-    navMin: $('nav-min'),
-    navMax: $('nav-max'),
+    thinkMin: $('think-min'),
+    thinkMax: $('think-max'),
+    reviewMin: $('review-min'),
+    reviewMax: $('review-max'),
+    reviewCorrectMin: $('review-correct-min'),
+    reviewCorrectMax: $('review-correct-max'),
     debug: $('debug'),
     reminderEnabled: $('reminder-enabled'),
     reminderTime: $('reminder-time'),
@@ -182,10 +184,12 @@ function fillForm(config) {
     els.typeMax.value = String(config.delays?.type_max ?? 230);
     els.typoChance.value = String(Math.round((config.delays?.typo_chance ?? 0.15) * 100));
     els.pauseChance.value = String(Math.round((config.delays?.type_pause_chance ?? 0.12) * 100));
-    els.clickMin.value = String(config.delays?.click_min ?? 2000);
-    els.clickMax.value = String(config.delays?.click_max ?? 4500);
-    els.navMin.value = String(config.delays?.nav_min ?? 2000);
-    els.navMax.value = String(config.delays?.nav_max ?? 4500);
+    els.thinkMin.value = String(config.delays?.think_min ?? 1500);
+    els.thinkMax.value = String(config.delays?.think_max ?? 4000);
+    els.reviewMin.value = String(config.delays?.review_min ?? 2500);
+    els.reviewMax.value = String(config.delays?.review_max ?? 5500);
+    els.reviewCorrectMin.value = String(config.delays?.review_correct_min ?? 500);
+    els.reviewCorrectMax.value = String(config.delays?.review_correct_max ?? 1200);
     els.debug.checked = Boolean(config.debug);
     els.reminderEnabled.checked = config.reminder?.enabled !== false;
     els.reminderTime.value = config.reminder?.time ?? '17:00';
@@ -226,10 +230,12 @@ function collectSettings() {
             type_max: Math.max(0, Math.round(toNumber(els.typeMax, 230))),
             typo_chance: toNumber(els.typoChance, 15) / 100,
             type_pause_chance: toNumber(els.pauseChance, 12) / 100,
-            click_min: Math.max(0, Math.round(toNumber(els.clickMin, 2000))),
-            click_max: Math.max(0, Math.round(toNumber(els.clickMax, 4500))),
-            nav_min: Math.max(0, Math.round(toNumber(els.navMin, 2000))),
-            nav_max: Math.max(0, Math.round(toNumber(els.navMax, 4500)))
+            think_min: Math.max(0, Math.round(toNumber(els.thinkMin, 1500))),
+            think_max: Math.max(0, Math.round(toNumber(els.thinkMax, 4000))),
+            review_min: Math.max(0, Math.round(toNumber(els.reviewMin, 2500))),
+            review_max: Math.max(0, Math.round(toNumber(els.reviewMax, 5500))),
+            review_correct_min: Math.max(0, Math.round(toNumber(els.reviewCorrectMin, 500))),
+            review_correct_max: Math.max(0, Math.round(toNumber(els.reviewCorrectMax, 1200)))
         }
     };
 }
@@ -383,7 +389,7 @@ async function loadState() {
         applyLanguage(state.config?.language ?? language);
         fillForm(state.config ?? {});
         applyBotState(state.bot);
-        const version = state.version ? `v${state.version}` : 'v4.2.2';
+        const version = state.version ? `v${state.version}` : 'v4.3.0';
         els.titleVersion.textContent = version;
         els.footerVersion.textContent = version;
         document.title = `instaling-bot ${version}`;

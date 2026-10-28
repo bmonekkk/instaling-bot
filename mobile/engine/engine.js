@@ -34,6 +34,14 @@ const DEFAULT_CONFIG = {
         // Advanced section.
         nav_min: 2000,
         nav_max: 4500,
+        // Human-like waiting: think before typing, then read the result before
+        // moving on (longer after a mistake, quick after a correct answer).
+        think_min: 1500,
+        think_max: 4000,
+        review_min: 2500,
+        review_max: 5500,
+        review_correct_min: 500,
+        review_correct_max: 1200,
         check_min: 3000,
         check_max: 5500
     }
@@ -63,6 +71,12 @@ const USER_DELAY_KEYS = [
     'click_max',
     'nav_min',
     'nav_max',
+    'think_min',
+    'think_max',
+    'review_min',
+    'review_max',
+    'review_correct_min',
+    'review_correct_max',
     'type_min',
     'type_max',
     'type_pause_chance',
@@ -75,6 +89,12 @@ const DELAY_BOUNDS = {
     click_max: [0, 120000, true],
     nav_min: [0, 120000, true],
     nav_max: [0, 120000, true],
+    think_min: [0, 120000, true],
+    think_max: [0, 120000, true],
+    review_min: [0, 120000, true],
+    review_max: [0, 120000, true],
+    review_correct_min: [0, 120000, true],
+    review_correct_max: [0, 120000, true],
     type_min: [0, 5000, true],
     type_max: [0, 5000, true],
     type_pause_chance: [0, 1, false],
@@ -115,9 +135,17 @@ function sanitizeConfig(value = {}) {
             const clamped = Math.min(max, Math.max(min, parsed));
             delays[key] = integer ? Math.round(clamped) : clamped;
         }
-        if (delays.click_max < delays.click_min) delays.click_max = delays.click_min;
-        if (delays.nav_max < delays.nav_min) delays.nav_max = delays.nav_min;
-        if (delays.type_max < delays.type_min) delays.type_max = delays.type_min;
+        const pairs = [
+            ['click_min', 'click_max'],
+            ['nav_min', 'nav_max'],
+            ['think_min', 'think_max'],
+            ['review_min', 'review_max'],
+            ['review_correct_min', 'review_correct_max'],
+            ['type_min', 'type_max']
+        ];
+        for (const [minKey, maxKey] of pairs) {
+            if (delays[maxKey] < delays[minKey]) delays[maxKey] = delays[minKey];
+        }
         out.delays = delays;
     }
     return out;
@@ -237,7 +265,7 @@ function createEngine({
     onEvent = () => {},
     language = 'pl',
     config: initialConfig = {},
-    version = '4.2.2'
+    version = '4.3.0'
 } = {}) {
     const state = {
         version,
@@ -288,6 +316,16 @@ function createEngine({
     const randomBetween = (min, max) => Math.round(min + Math.random() * (max - min));
     // Shared delay before/after navigation clicks ("next", login/start, continue).
     const navWait = () => randomBetween(config.delays.nav_min, config.delays.nav_max);
+    // "Thinking" pause after the prompt is visible, before the first keystroke.
+    const thinkWait = () => randomBetween(config.delays.think_min, config.delays.think_max);
+    // "Reading the result" pause before "next": longer after a mistake or a new
+    // word, short after a correct answer.
+    const reviewWait = correct => (correct
+        ? randomBetween(config.delays.review_correct_min, config.delays.review_correct_max)
+        : randomBetween(config.delays.review_min, config.delays.review_max));
+    // Short transition wait after a plain click. The real pacing is the think
+    // pause on the fresh page, so this only lets an AJAX response settle.
+    const transitionWait = () => randomBetween(150, 400);
     // Remembers when the current navigation pause ends *before* the click, so it
     // survives the page reload the site performs on "next"/"continue". Without
     // it the delay would run as an in-page timer and die on navigation, making
@@ -306,8 +344,8 @@ function createEngine({
         // Do not step on a newer navigation planned while we waited.
         if ((Number(storage.get(NAV_KEY, 0)) || 0) === deadline) storage.set(NAV_KEY, 0);
     }
-    async function clickWithNav(click) {
-        beginNavWait();
+    async function clickWithNav(click, waitMs = navWait()) {
+        storage.set(NAV_KEY, Date.now() + waitMs);
         click();
         await endNavWait();
     }
@@ -461,10 +499,14 @@ function createEngine({
             if (dontKnow) dom.click(dontKnow);
         }
         await dom.wait(randomBetween(config.delays.check_min, config.delays.check_max));
-        const advanced = await clickFirst(SELECTORS.nextWord, 10000, true);
+        // A revealed new word is read like a correction, so use the longer pause.
+        await dom.wait(reviewWait(false));
+        const advanced = await clickFirst(SELECTORS.nextWord, 10000);
         if (!advanced) {
             const next = await dom.findByText(TEXT.next, 2500, shouldContinue);
-            if (next) await clickWithNav(() => dom.click(next));
+            if (next) await clickWithNav(() => dom.click(next), transitionWait());
+        } else {
+            await dom.wait(transitionWait());
         }
         emit({type: 'progress'});
     }
@@ -473,9 +515,11 @@ function createEngine({
      * Records the answer that was typed before a navigation. instaling.pl reloads
      * on "check", so the result page finishes the bookkeeping started there.
      */
+    /** Records the result of the pending answer. Returns whether it was correct,
+     * or null when there is nothing pending. */
     function completePending(revealed) {
         const pending = state.pending;
-        if (!pending) return false;
+        if (!pending) return null;
         const validEnglish = revealed || pending.valid || '';
         if (validEnglish) rememberWord(pending.polish, validEnglish, pending.sentence);
         const correct = Boolean(validEnglish && pending.typed === validEnglish);
@@ -498,16 +542,16 @@ function createEngine({
         });
         state.pending = null;
         persistRun();
-        return true;
+        return correct;
     }
 
     async function advanceNext() {
         const next = await dom.find(SELECTORS.nextWord, 12000, shouldContinue);
         if (next) {
-            await clickWithNav(() => dom.click(next));
+            await clickWithNav(() => dom.click(next), transitionWait());
         } else {
             const fallback = await dom.findByText(TEXT.next, 2000, shouldContinue);
-            if (fallback) await clickWithNav(() => dom.click(fallback));
+            if (fallback) await clickWithNav(() => dom.click(fallback), transitionWait());
         }
         log(t('log.next'));
         emit({type: 'progress'});
@@ -546,6 +590,9 @@ function createEngine({
         const answerEl = await dom.find(SELECTORS.answer, 8000, shouldContinue);
         if (!answerEl) throw new Error(t('error.noAnswer'));
 
+        // Think of the translation before typing, like a person would.
+        await dom.wait(thinkWait());
+        if (!shouldContinue()) return;
         await dom.typeText(answerEl, typed, config.delays, shouldContinue);
         if (!shouldContinue()) return;
         const checkEl = await dom.find(SELECTORS.check, 5000, shouldContinue);
@@ -563,7 +610,10 @@ function createEngine({
         // tick finds it on the fresh document and calls completePending().
         const revealedEl = await dom.find(SELECTORS.correctWord, 2500, shouldContinue);
         if (!revealedEl) return;
-        completePending(dom.text(revealedEl));
+        const correct = completePending(dom.text(revealedEl));
+        // Read the correction before moving on; correctness changes the pause.
+        if (correct !== null) await dom.wait(reviewWait(correct));
+        if (!shouldContinue()) return;
         await advanceNext();
     }
 
@@ -624,13 +674,16 @@ function createEngine({
             } else if (answerForm) {
                 await answerOne();
             } else {
+                let answeredCorrect = null;
                 if (state.pending) {
                     const revealedEl = await dom.find(SELECTORS.correctWord, 1500, shouldContinue);
-                    completePending(dom.text(revealedEl));
+                    answeredCorrect = completePending(dom.text(revealedEl));
                 }
                 const next = await dom.find(SELECTORS.nextWord, 800, shouldContinue);
                 if (next) {
-                    await clickWithNav(() => dom.click(next));
+                    if (answeredCorrect !== null) await dom.wait(reviewWait(answeredCorrect));
+                    if (!shouldContinue()) return;
+                    await clickWithNav(() => dom.click(next), transitionWait());
                 } else if (!startAttempted) {
                     startAttempted = true;
                     await startSession();

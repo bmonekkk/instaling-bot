@@ -3,8 +3,9 @@
 Status: implemented — 4.0.0 shipped the shells, 4.1.0 added settings and statistics, 4.2.0
 added the full timing controls, repeating native reminders, the userscript reminder banner
 and classic visual parity, 4.2.1 brought statistics, restore-defaults and the shared
-`nav_min`/`nav_max` navigation delays to every platform, and 4.2.2 made the navigation pause
-survive instaling.pl's page reloads.
+`nav_min`/`nav_max` navigation delays to every platform, 4.2.2 made the navigation pause
+survive instaling.pl's page reloads, and 4.3.0 replaced the click/nav fields with three
+human-like pause ranges and fixed the iOS keyboard accessory bar.
 Last updated: 2026-10-28
 
 ## Goal
@@ -163,7 +164,7 @@ Shipped as one 4.0.0 release instead of a separate 3.4.0 beta:
 - **Visual parity.** The desktop window, the userscript panel and the website share one classic
   light-gray, Tahoma/MS Sans Serif, square-bevel, navy-title-bar look.
 
-## Implementation notes (4.2.1 – 4.2.2)
+## Implementation notes (4.2.1 – 4.3.0)
 
 - **Statistics on every shell.** `mobile/engine/engine.js` records `sessions` and `durationMs`
   per day and exposes `periods` (week/month/year/all) mirroring `src/stats.js`, so Android
@@ -177,5 +178,14 @@ Shipped as one 4.0.0 release instead of a separate 3.4.0 beta:
 - **Reload-safe navigation pause (4.2.2).** Because instaling.pl reloads on "next"/"continue",
   the engine persists the pause deadline (`navUntil`) before the click and re-applies the
   remainder at the start of the next tick instead of relying on an in-page `setTimeout`.
+- **Human-like pauses (4.3.0).** Three random ranges replace the old click/nav fields:
+  `think_*` before typing, `review_*` before "next" after a mistake or new word, and
+  `review_correct_*` after a correct answer. `completePending()` returns the correctness so
+  both the in-page and reloaded paths pick the right pause; the old keys stay as fallbacks.
+  Every shell shows the six new fields instead of click/nav.
+- **iOS keyboard accessory (4.3.0).** `makeNumberField` sets `.light` keyboard appearance,
+  themes the toolbar with `ClassicPalette`, and the Done item calls
+  `UIApplication.sendAction(#selector(UIResponder.resignFirstResponder))` so the number pad
+  always closes.
 - **Oversized userscript panel (fixed in 4.2.1).** The panel uses
   `max-height: calc(100dvh - 96px)` with a `100vh` fallback and `overscroll-behavior: contain`.

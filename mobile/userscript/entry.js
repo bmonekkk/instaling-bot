@@ -297,14 +297,18 @@ function buildUi() {
                 </fieldset>
                 <fieldset>
                     <legend class="legend-timing"></legend>
-                    <label class="field"><span class="settings-clickMin"></span>
-                        <input type="number" min="0" max="120000" step="100" class="click-min" inputmode="numeric"></label>
-                    <label class="field"><span class="settings-clickMax"></span>
-                        <input type="number" min="0" max="120000" step="100" class="click-max" inputmode="numeric"></label>
-                    <label class="field"><span class="settings-navMin"></span>
-                        <input type="number" min="0" max="120000" step="100" class="nav-min" inputmode="numeric"></label>
-                    <label class="field"><span class="settings-navMax"></span>
-                        <input type="number" min="0" max="120000" step="100" class="nav-max" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-thinkMin"></span>
+                        <input type="number" min="0" max="120000" step="100" class="think-min" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-thinkMax"></span>
+                        <input type="number" min="0" max="120000" step="100" class="think-max" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-reviewMin"></span>
+                        <input type="number" min="0" max="120000" step="100" class="review-min" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-reviewMax"></span>
+                        <input type="number" min="0" max="120000" step="100" class="review-max" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-reviewCorrectMin"></span>
+                        <input type="number" min="0" max="120000" step="100" class="review-correct-min" inputmode="numeric"></label>
+                    <label class="field"><span class="settings-reviewCorrectMax"></span>
+                        <input type="number" min="0" max="120000" step="100" class="review-correct-max" inputmode="numeric"></label>
                     <label class="field"><span class="settings-typeMin"></span>
                         <input type="number" min="0" max="5000" step="10" class="type-min" inputmode="numeric"></label>
                     <label class="field"><span class="settings-typeMax"></span>
@@ -389,10 +393,12 @@ function buildUi() {
         legendReminder: panel.querySelector('.legend-reminder'),
         settingsValidity: panel.querySelector('.settings-validity'),
         settingsAutostart: panel.querySelector('.settings-autostart'),
-        settingsClickMin: panel.querySelector('.settings-clickMin'),
-        settingsClickMax: panel.querySelector('.settings-clickMax'),
-        settingsNavMin: panel.querySelector('.settings-navMin'),
-        settingsNavMax: panel.querySelector('.settings-navMax'),
+        settingsThinkMin: panel.querySelector('.settings-thinkMin'),
+        settingsThinkMax: panel.querySelector('.settings-thinkMax'),
+        settingsReviewMin: panel.querySelector('.settings-reviewMin'),
+        settingsReviewMax: panel.querySelector('.settings-reviewMax'),
+        settingsReviewCorrectMin: panel.querySelector('.settings-reviewCorrectMin'),
+        settingsReviewCorrectMax: panel.querySelector('.settings-reviewCorrectMax'),
         settingsTypeMin: panel.querySelector('.settings-typeMin'),
         settingsTypeMax: panel.querySelector('.settings-typeMax'),
         settingsTypoChance: panel.querySelector('.settings-typoChance'),
@@ -403,10 +409,12 @@ function buildUi() {
         settingsReminderHint: panel.querySelector('.settings-reminderHint'),
         validity: panel.querySelector('.validity'),
         autostart: panel.querySelector('.autostart'),
-        clickMin: panel.querySelector('.click-min'),
-        clickMax: panel.querySelector('.click-max'),
-        navMin: panel.querySelector('.nav-min'),
-        navMax: panel.querySelector('.nav-max'),
+        thinkMin: panel.querySelector('.think-min'),
+        thinkMax: panel.querySelector('.think-max'),
+        reviewMin: panel.querySelector('.review-min'),
+        reviewMax: panel.querySelector('.review-max'),
+        reviewCorrectMin: panel.querySelector('.review-correct-min'),
+        reviewCorrectMax: panel.querySelector('.review-correct-max'),
         typeMin: panel.querySelector('.type-min'),
         typeMax: panel.querySelector('.type-max'),
         typoChance: panel.querySelector('.typo-chance'),
@@ -495,10 +503,12 @@ function applyStaticText() {
     els.legendReminder.textContent = t('settings.reminders');
     els.settingsValidity.textContent = t('settings.validity');
     els.settingsAutostart.textContent = t('settings.autostart');
-    els.settingsClickMin.textContent = t('settings.clickMin');
-    els.settingsClickMax.textContent = t('settings.clickMax');
-    els.settingsNavMin.textContent = t('settings.navMin');
-    els.settingsNavMax.textContent = t('settings.navMax');
+    els.settingsThinkMin.textContent = t('settings.thinkMin');
+    els.settingsThinkMax.textContent = t('settings.thinkMax');
+    els.settingsReviewMin.textContent = t('settings.reviewMin');
+    els.settingsReviewMax.textContent = t('settings.reviewMax');
+    els.settingsReviewCorrectMin.textContent = t('settings.reviewCorrectMin');
+    els.settingsReviewCorrectMax.textContent = t('settings.reviewCorrectMax');
     els.settingsTypeMin.textContent = t('settings.typeMin');
     els.settingsTypeMax.textContent = t('settings.typeMax');
     els.settingsTypoChance.textContent = t('settings.typoChance');
@@ -546,10 +556,12 @@ function syncSettings() {
     const config = engine.getConfig();
     const delays = config.delays ?? {};
     els.validity.value = String(Math.round((config.valid_chance ?? 0.8) * 100));
-    els.clickMin.value = String(delays.click_min ?? 2000);
-    els.clickMax.value = String(delays.click_max ?? 4500);
-    els.navMin.value = String(delays.nav_min ?? 2000);
-    els.navMax.value = String(delays.nav_max ?? 4500);
+    els.thinkMin.value = String(delays.think_min ?? 1500);
+    els.thinkMax.value = String(delays.think_max ?? 4000);
+    els.reviewMin.value = String(delays.review_min ?? 2500);
+    els.reviewMax.value = String(delays.review_max ?? 5500);
+    els.reviewCorrectMin.value = String(delays.review_correct_min ?? 500);
+    els.reviewCorrectMax.value = String(delays.review_correct_max ?? 1200);
     els.typeMin.value = String(delays.type_min ?? 90);
     els.typeMax.value = String(delays.type_max ?? 230);
     els.typoChance.value = String(Math.round((delays.typo_chance ?? 0.15) * 100));
@@ -578,10 +590,12 @@ function saveSettings() {
     engine.setConfig({
         valid_chance: Math.min(100, Math.max(0, percent)) / 100,
         delays: {
-            click_min: Math.max(0, Math.round(number(els.clickMin, 2000))),
-            click_max: Math.max(0, Math.round(number(els.clickMax, 4500))),
-            nav_min: Math.max(0, Math.round(number(els.navMin, 2000))),
-            nav_max: Math.max(0, Math.round(number(els.navMax, 4500))),
+            think_min: Math.max(0, Math.round(number(els.thinkMin, 1500))),
+            think_max: Math.max(0, Math.round(number(els.thinkMax, 4000))),
+            review_min: Math.max(0, Math.round(number(els.reviewMin, 2500))),
+            review_max: Math.max(0, Math.round(number(els.reviewMax, 5500))),
+            review_correct_min: Math.max(0, Math.round(number(els.reviewCorrectMin, 500))),
+            review_correct_max: Math.max(0, Math.round(number(els.reviewCorrectMax, 1200))),
             type_min: Math.max(0, Math.round(number(els.typeMin, 90))),
             type_max: Math.max(0, Math.round(number(els.typeMax, 230))),
             typo_chance: Math.min(100, Math.max(0, typo)) / 100,

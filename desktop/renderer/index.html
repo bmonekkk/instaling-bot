@@ -11,7 +11,7 @@
 <div class="app" id="app">
     <header class="titlebar" id="titlebar">
         <span class="titlebar-icon" aria-hidden="true">🤖</span>
-        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.2.2</span></span>
+        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.3.0</span></span>
         <div class="window-controls">
             <button class="window-button" id="win-minimize" type="button" data-i18n-title="window.minimize" data-i18n-aria-label="window.minimize" title="Minimalizuj" aria-label="Minimalizuj">_</button>
             <button class="window-button" id="win-maximize" type="button" data-i18n-title="window.maximize" data-i18n-aria-label="window.maximize" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
@@ -148,23 +148,33 @@
                                 </label>
                             </div>
                             <div class="row two">
-                                <label class="field" for="click-min">
-                                    <span data-i18n="advanced.clickMin">Pauza po kliknięciu min (ms)</span>
-                                    <input id="click-min" type="number" min="0" max="120000" step="100" value="2000">
+                                <label class="field" for="think-min">
+                                    <span data-i18n="advanced.thinkMin">Pauza przed pisaniem min (ms)</span>
+                                    <input id="think-min" type="number" min="0" max="120000" step="100" value="1500">
                                 </label>
-                                <label class="field" for="click-max">
-                                    <span data-i18n="advanced.clickMax">Pauza po kliknięciu max (ms)</span>
-                                    <input id="click-max" type="number" min="0" max="120000" step="100" value="4500">
+                                <label class="field" for="think-max">
+                                    <span data-i18n="advanced.thinkMax">Pauza przed pisaniem max (ms)</span>
+                                    <input id="think-max" type="number" min="0" max="120000" step="100" value="4000">
                                 </label>
                             </div>
                             <div class="row two">
-                                <label class="field" for="nav-min">
-                                    <span data-i18n="advanced.navMin">Szybkość klikania przycisków min (ms)</span>
-                                    <input id="nav-min" type="number" min="0" max="120000" step="100" value="2000">
+                                <label class="field" for="review-min">
+                                    <span data-i18n="advanced.reviewMin">Pauza po błędzie min (ms)</span>
+                                    <input id="review-min" type="number" min="0" max="120000" step="100" value="2500">
                                 </label>
-                                <label class="field" for="nav-max">
-                                    <span data-i18n="advanced.navMax">Szybkość klikania przycisków max (ms)</span>
-                                    <input id="nav-max" type="number" min="0" max="120000" step="100" value="4500">
+                                <label class="field" for="review-max">
+                                    <span data-i18n="advanced.reviewMax">Pauza po błędzie max (ms)</span>
+                                    <input id="review-max" type="number" min="0" max="120000" step="100" value="5500">
+                                </label>
+                            </div>
+                            <div class="row two">
+                                <label class="field" for="review-correct-min">
+                                    <span data-i18n="advanced.reviewCorrectMin">Pauza po poprawnej min (ms)</span>
+                                    <input id="review-correct-min" type="number" min="0" max="120000" step="100" value="500">
+                                </label>
+                                <label class="field" for="review-correct-max">
+                                    <span data-i18n="advanced.reviewCorrectMax">Pauza po poprawnej max (ms)</span>
+                                    <input id="review-correct-max" type="number" min="0" max="120000" step="100" value="1200">
                                 </label>
                             </div>
                             <label class="check"><input id="debug" type="checkbox"> <span data-i18n="advanced.debug">Logi debug i zrzuty stron</span></label>
@@ -239,7 +249,7 @@
         <span class="status-cell" id="footer-status" data-i18n="footer.ready">Gotowy</span>
         <span class="status-cell grow" id="footer-path" data-i18n-title="footer.dataFolder" title="Folder danych">—</span>
         <button class="status-cell link" id="footer-author" type="button" data-i18n-title="footer.author" title="Profil autora na GitHubie">by bmonekkk</button>
-        <span class="status-cell" id="footer-version">v4.2.2</span>
+        <span class="status-cell" id="footer-version">v4.3.0</span>
     </footer>
 </div>
 

@@ -57,17 +57,20 @@ edytowania. Ustawienia i zapamiętane słówka trzymają w pamięci WebView (And
 
 ## Humanizacja pisania
 
+- `delays.think_min` / `think_max` — pauza po pojawieniu się słówka, przed pierwszym znakiem (domyślnie 1500–4000 ms).
+- `delays.review_min` / `review_max` — pauza przed „dalej" po błędzie, literówce, pustym polu lub nowym słówku (2500–5500 ms).
+- `delays.review_correct_min` / `review_correct_max` — krótsza pauza przed „dalej" po poprawnej odpowiedzi (500–1200 ms).
 - `delays.type_min` / `type_max` — opóźnienie na literę.
 - `delays.type_pause_chance` — szansa na pauzę w trakcie pisania.
 - `delays.typo_chance` — szansa na symulowaną literówkę z backspace.
-- `delays.click_min` / `click_max` — opóźnienie po kliknięciu.
-- `delays.nav_min` / `nav_max` — pauza przed przejściem dalej (następne słowo, logowanie,
-  start/kontynuacja sesji); działa też po przeładowaniu strony.
+- `delays.click_min` / `click_max` — dawna pauza po kliknięciu; ukryta w panelach, nadal działa jako fallback.
+- `delays.nav_min` / `nav_max` — dawna pauza przed przejściem dalej; ukryta w panelach, nadal działa jako fallback.
 - `delays.quick_click_min` / `quick_click_max` — krótka pauza po nawigacji.
 
-Te same opóźnienia (`click_min`/`click_max`, `nav_min`/`nav_max`, `type_min`/`type_max`,
-`typo_chance`, `type_pause_chance`) wraz z `valid_chance` możesz ustawić także na telefonie
-(APK/IPA) i w userscripcie; przycisk przywracania domyślnych resetuje je jednym kliknięciem.
+Te same czasy (`think_min`/`think_max`, `review_min`/`review_max`, `review_correct_min`/
+`review_correct_max`, `type_min`/`type_max`, `typo_chance`, `type_pause_chance`) wraz z
+`valid_chance` możesz ustawić także na telefonie (APK/IPA) i w userscripcie; przycisk
+przywracania domyślnych resetuje je jednym kliknięciem.
 
 Więcej w [README → Konfiguracja](https://github.com/bmonekkk/instaling-bot#%EF%B8%8F-konfiguracja)
 i [README → Humanizacja](https://github.com/bmonekkk/instaling-bot#-humanizacja-pisania).

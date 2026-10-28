@@ -19,15 +19,15 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**4.2.2**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
+Aktualna wersja (**4.3.0**) to wydanie spójności — desktop, telefon i userscript wyglądają i działają tak samo:
 
 - 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
 - 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, ustawienia sesji, statystyki i konfigurowalne przypomnienia,
 - 🌐 **userscript** dla Safari na iOS/iPadOS oraz Firefoksa na Androidzie, z trwałym panelem ustawień,
 - ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
-- 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów.
+- 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów, a do tego **pauzę na pomyślenie** przed wpisaniem tłumaczenia i **pauzę na przeczytanie wyniku** przed „dalej".
 
-Wersja 4.2.2 poprawia **szybkość klikania przycisków** (`nav_min` / `nav_max`): instaling.pl przeładowuje stronę przy „dalej", „kontynuuj" i starcie sesji, a pauza była wcześniej liczona tylko w obrębie jednej strony — znikała po przeładowaniu, więc przejście między słówkami było zawsze tak szybkie jak wczytanie strony. Silnik zapisuje teraz termin pauzy przed kliknięciem i dolicza resztę na świeżej stronie, na desktopie i telefonie. Do tego desktop honoruje to ustawienie również przy starcie i kontynuacji sesji. Wydanie 4.2.1 wyrównało możliwości wszystkich platform: wspólny **panel statystyk** (tydzień / miesiąc / rok / wszystko: sesje, odpowiedzi, skuteczność, nowe słówka, czas, aktywne dni), przycisk **Przywróć domyślne** (resetuje wszystko poza loginem, hasłem i językiem), listę częstotliwości przypomnienia na Androidzie i iOS (raz dziennie, co 15/30/60/120/180 min) z godziną wyrównaną do lewej oraz panel userscriptu, który nie wychodzi już poza ekran w Safari (`100dvh`). Statystyki mobilne liczą sesje i czas trwania tak samo jak desktop. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
+Wersja 4.3.0 porządkuje tempo pracy tak, jak robiłby to człowiek. Najpierw bot czeka chwilę po pojawieniu się słówka, zanim zacznie pisać (`think_min` / `think_max`, domyślnie 1500–4000 ms) — w tym czasie „myśli" o tłumaczeniu. Po sprawdzeniu odpowiedzi czyta wynik przed kliknięciem „dalej": dłużej, gdy była literówka, złe słowo, puste pole albo nowe słówko (`review_min` / `review_max`, 2500–5500 ms), i krótko po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`, 500–1200 ms). Wszystkie wartości są losowane z podanego zakresu i działają na desktopie, Androidzie, iOS oraz w userscripcie. Stare `click_min` / `click_max` i `nav_min` / `nav_max` zniknęły z paneli ustawień, ale nadal działają jako ciche fallbacki dla starszych konfiguracji. Na iOS pasek **„Gotowe"** nad klawiaturą ma teraz jasny, klasyczny wygląd i niezawodnie chowa klawiaturę. Wydanie 4.2.2 naprawiło przechodzenie między słówkami po przeładowaniu strony, a 4.2.1 wyrównało statystyki, reset ustawień i przypomnienia na wszystkich platformach. Aplikacje mobilne nadal nie zapisują haseł — korzystają z normalnej, trwałej sesji strony. Desktop i CLI zachowują wszystkie wcześniejsze funkcje.
 
 Open source, licencja ISC.
 
@@ -66,9 +66,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.2.2-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.2.2-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.2.2-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.3.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.3.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.3.0-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -145,18 +145,18 @@ Pliki można edytować także ręcznie — aplikacja używa tego samego formatu 
 
 ## 📱 Mobile: Android i iOS
 
-Wersja 4.2.2 naprawia tempo klikania przycisków na telefonie (pauza działa teraz też po przeładowaniu strony). Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, opóźnienia klikania i pisania, szybkość klikania przycisków, szanse na pauzę i literówkę, godzina i częstotliwość przypomnienia) oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok / wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni). W każdym panelu ustawień jest **Przywróć domyślne**. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
+Wersja 4.3.0 porządkuje też tempo pracy na telefonie: bot myśli przed pisaniem, a po sprawdzeniu odpowiedzi czyta wynik przed „dalej" — dłużej po błędzie lub nowym słówku, krótko po poprawnej odpowiedzi. Aplikacje mobilne nie są okrojoną podróbką: używają **tego samego silnika odpowiedzi**, humanizacji pisania, zapisywania słówek i trybu PL/EN. Mają też **te same ustawienia** (poprawność odpowiedzi, trzy zakresy pauz, opóźnienia pisania, szanse na pauzę i literówkę, godzina i częstotliwość przypomnienia) oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok / wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni). W każdym panelu ustawień jest **Przywróć domyślne**. Różnica jest w powłoce — na telefonie bot działa w otwartej aplikacji lub karcie przeglądarki, bez pracy w tle.
 
 ### 🤖 Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.2.2-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Pobierz `instaling-bot-4.3.0-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
 
 Górny pasek ma przełącznik **PL/EN**, przycisk statystyk 📊, przypomnienie ⏰, ustawienia ⚙, Start i Stop. Pod paskiem widać status, licznik odpowiedzi oraz dzisiejsze statystyki. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
 
-**Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, opóźnienia klikania i pisania (`click_min` / `click_max`, `type_min` / `type_max`), **szybkość klikania przycisków** (`nav_min` / `nav_max`), szansę na pauzę (`type_pause_chance`), szansę na literówkę (`typo_chance`) oraz **godzinę i częstotliwość przypomnienia**. Przycisk **Przywróć domyślne** resetuje wszystkie ustawienia poza loginem, hasłem i językiem. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
+**Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, **pauzę przed pisaniem** (`think_min` / `think_max`), **pauzę po błędzie lub nowym słówku** (`review_min` / `review_max`), **pauzę po poprawnej odpowiedzi** (`review_correct_min` / `review_correct_max`), opóźnienia liter (`type_min` / `type_max`), szansę na pauzę (`type_pause_chance`), szansę na literówkę (`typo_chance`) oraz **godzinę i częstotliwość przypomnienia**. Przycisk **Przywróć domyślne** resetuje wszystkie ustawienia poza loginem, hasłem i językiem. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
 
 **Statystyki:** dotknij 📊, aby zobaczyć panel z zakładkami tydzień / miesiąc / rok / wszystko — sesje, odpowiedzi, poprawne i błędne, skuteczność, nowe słówka, łączny czas i aktywne dni. Liczby pochodzą z tego samego modelu co desktop.
 
@@ -173,13 +173,13 @@ Chrome na iOS nie obsługuje rozszerzeń, ale Safari tak:
 3. Otwórz [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) w Safari i zaimportuj skrypt w Userscripts.
 4. Wejdź na `instaling.pl`, zaloguj się i dotknij pływającego przycisku 🤖.
 
-Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **panel statystyk** (zakładki tydzień / miesiąc / rok / wszystko) i **Przywróć domyślne**. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, wszystkie desktopowe opóźnienia pisania i klikania (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`), **szybkość klikania przycisków** (`nav_min` / `nav_max`) oraz autostart — wartości zapisują się trwale w pamięci rozszerzenia. Panel ma `max-height` oparty na `100dvh`, więc nie wychodzi poza ekran Safari. Słowa również zapisują się między sesjami. Userscript nie wysyła powiadomień przeglądarki: gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona, pokazuje mały baner na stronie. Skrypt aktualizuje się sam przez `@updateURL`.
+Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **panel statystyk** (zakładki tydzień / miesiąc / rok / wszystko) i **Przywróć domyślne**. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, pauzę przed pisaniem (`think_min` / `think_max`), pauzę po błędzie lub nowym słówku (`review_min` / `review_max`), pauzę po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`), opóźnienia liter (`type_min` / `type_max`, `typo_chance`, `type_pause_chance`) oraz autostart — wartości zapisują się trwale w pamięci rozszerzenia. Panel ma `max-height` oparty na `100dvh`, więc nie wychodzi poza ekran Safari. Słowa również zapisują się między sesjami. Userscript nie wysyła powiadomień przeglądarki: gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona, pokazuje mały baner na stronie. Skrypt aktualizuje się sam przez `@updateURL`.
 
 ### 🍏 iOS: IPA dla SideStore / AltStore
 
 Dla osób, które wolą osobną aplikację:
 
-1. Pobierz `instaling-bot-4.2.2-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.3.0-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
@@ -304,6 +304,8 @@ npx puppeteer browsers install chrome
 - Bot robi czasem krótką pauzę w trakcie pisania (`type_pause_chance`, `type_pause_min`, `type_pause_max`).
 - Z szansą `typo_chance` naciska zły, sąsiedni klawisz, kasuje go backspace'em i wpisuje poprawną literę.
 - Wartość pola jest zawsze weryfikowana, więc symulowana literówka nie psuje odpowiedzi.
+- Po pojawieniu się słówka bot czeka losowo `think_min`–`think_max` ms, zanim zacznie pisać — tak jak człowiek, który najpierw pomyśli o tłumaczeniu.
+- Po sprawdzeniu odpowiedzi czyta wynik przed „dalej": `review_min`–`review_max` ms po literówce, złym słowie, pustym polu lub nowym słówku, a `review_correct_min`–`review_correct_max` ms po poprawnej odpowiedzi.
 - Kliknięcia nawigacyjne (kontynuuj sesję, rozpocznij) mają krótkie pauzy (`quick_click_min` / `quick_click_max`).
 - Logowanie to wyjątek: dane są wpisywane szybko i dokładnie, a odrzucony formularz jest ponawiany tylko raz.
 
@@ -320,8 +322,11 @@ Wzór wszystkich opcji: [`config/Config.defaults.json`](config/Config.defaults.j
 - `notifications.session_finished` — powiadomienie o zakończeniu sesji, gdy okno jest ukryte lub zminimalizowane (`true` domyślnie)
 - `INSTALING_LOGIN` / `INSTALING_PASSWORD` — zmienne środowiskowe z danymi logowania; mają pierwszeństwo przed `credentials` w `Config.json`. Przydatne w CI i na serwerach, gdzie hasło nie powinno trafiać na dysk.
 - `delays` — czasy oczekiwania w milisekundach (1 s = 1000 ms); bot losuje wartość między min i max
-  - `click_min` / `click_max` — domyślne opóźnienie po kliknięciu w przycisk
-  - `nav_min` / `nav_max` — pauza przed przejściem dalej (następne słówko, logowanie, start/kontynuacja sesji); działa też po przeładowaniu strony
+  - `think_min` / `think_max` — pauza po pojawieniu się słówka, przed pierwszym znakiem (domyślnie 1500–4000 ms)
+  - `review_min` / `review_max` — pauza przed „dalej" po błędzie, literówce, pustym polu lub nowym słówku (2500–5500 ms)
+  - `review_correct_min` / `review_correct_max` — krótsza pauza przed „dalej" po poprawnej odpowiedzi (500–1200 ms)
+  - `click_min` / `click_max` — dawna pauza po kliknięciu; ukryta w panelach, nadal działa jako fallback
+  - `nav_min` / `nav_max` — dawna pauza przed przejściem dalej; ukryta w panelach, nadal działa jako fallback
   - `type_min` / `type_max` — opóźnienie na pojedynczą literę
   - `type_pause_chance` — szansa na dodatkową pauzę w trakcie pisania (`0.12` = 12%)
   - `type_pause_min` / `type_pause_max` — długość takiej pauzy
@@ -408,6 +413,13 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 
 ## 📦 Ostatnie zmiany
+
+### 4.3.0 — 2026-10-28
+
+- 🧠 **Dwie prawdziwe pauzy.** Przed pisaniem bot czeka `think_min` / `think_max` (domyślnie 1500–4000 ms), a po sprawdzeniu odpowiedzi czyta wynik przed „dalej": `review_min` / `review_max` (2500–5500 ms) po literówce, złym słowie, pustym polu albo nowym słówku i `review_correct_min` / `review_correct_max` (500–1200 ms) po poprawnej odpowiedzi. Wszystkie wartości są losowane z zakresu i działają na desktopie, Androidzie, iOS i w userscripcie.
+- ⚙️ **Stare ustawienia klikania ukryte.** `click_min` / `click_max` i `nav_min` / `nav_max` zniknęły z paneli ustawień, ale nadal działają jako ciche fallbacki dla starszych konfiguracji.
+- ⌨️ **iOS „Gotowe".** Pasek nad klawiaturą liczbową ma jasny, klasyczny wygląd, wymusza jasną klawiaturę i niezawodnie chowa ją po dotknięciu.
+- 🔢 **Porządki.** Wersja podniesiona do `4.3.0` (userscript `4.3.0`) w `package.json`, projekcie iOS (`MARKETING_VERSION` 4.3.0 / `CURRENT_PROJECT_VERSION` 40300), silniku, interfejsie desktopu, stronie, README (PL/EN), wiki, `docs/llms.txt`, `PROJECT_NOTES.md` i notatkach wydania.
 
 ### 4.2.2 — 2026-10-28
 

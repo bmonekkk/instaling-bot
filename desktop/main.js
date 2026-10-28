@@ -315,7 +315,13 @@ function applySettings(current, payload) {
         click_min: clampNumber(delays.click_min, current.delays?.click_min ?? 2000, 0, 120000, true),
         click_max: clampNumber(delays.click_max, current.delays?.click_max ?? 4500, 0, 120000, true),
         nav_min: clampNumber(delays.nav_min, current.delays?.nav_min ?? 2000, 0, 120000, true),
-        nav_max: clampNumber(delays.nav_max, current.delays?.nav_max ?? 4500, 0, 120000, true)
+        nav_max: clampNumber(delays.nav_max, current.delays?.nav_max ?? 4500, 0, 120000, true),
+        think_min: clampNumber(delays.think_min, current.delays?.think_min ?? 1500, 0, 120000, true),
+        think_max: clampNumber(delays.think_max, current.delays?.think_max ?? 4000, 0, 120000, true),
+        review_min: clampNumber(delays.review_min, current.delays?.review_min ?? 2500, 0, 120000, true),
+        review_max: clampNumber(delays.review_max, current.delays?.review_max ?? 5500, 0, 120000, true),
+        review_correct_min: clampNumber(delays.review_correct_min, current.delays?.review_correct_min ?? 500, 0, 120000, true),
+        review_correct_max: clampNumber(delays.review_correct_max, current.delays?.review_correct_max ?? 1200, 0, 120000, true)
     };
     if (next.delays.type_max < next.delays.type_min) {
         next.delays.type_max = next.delays.type_min;
@@ -325,6 +331,15 @@ function applySettings(current, payload) {
     }
     if (next.delays.nav_max < next.delays.nav_min) {
         next.delays.nav_max = next.delays.nav_min;
+    }
+    if (next.delays.think_max < next.delays.think_min) {
+        next.delays.think_max = next.delays.think_min;
+    }
+    if (next.delays.review_max < next.delays.review_min) {
+        next.delays.review_max = next.delays.review_min;
+    }
+    if (next.delays.review_correct_max < next.delays.review_correct_min) {
+        next.delays.review_correct_max = next.delays.review_correct_min;
     }
 
     const effective = resolveCredentials(next.credentials);
@@ -380,7 +395,13 @@ function configForRenderer(config) {
             click_min: config.delays?.click_min ?? 2000,
             click_max: config.delays?.click_max ?? 4500,
             nav_min: config.delays?.nav_min ?? 2000,
-            nav_max: config.delays?.nav_max ?? 4500
+            nav_max: config.delays?.nav_max ?? 4500,
+            think_min: config.delays?.think_min ?? 1500,
+            think_max: config.delays?.think_max ?? 4000,
+            review_min: config.delays?.review_min ?? 2500,
+            review_max: config.delays?.review_max ?? 5500,
+            review_correct_min: config.delays?.review_correct_min ?? 500,
+            review_correct_max: config.delays?.review_correct_max ?? 1200
         },
         reminder: {
             enabled: config.reminder?.enabled !== false,

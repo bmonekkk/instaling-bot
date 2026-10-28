@@ -154,6 +154,38 @@ function navPause() {
     return delay(getRandomInt(min, max));
 }
 
+// "Thinking" pause after the prompt is visible, before the first keystroke.
+function thinkDelays() {
+    return [
+        config.delays?.think_min ?? 1500,
+        config.delays?.think_max ?? 4000
+    ];
+}
+
+function thinkPause() {
+    const [min, max] = thinkDelays();
+    return delay(getRandomInt(min, max));
+}
+
+// "Reading the result" pause before "next": the longer pair after a mistake or
+// a new word, the short pair after a correct answer.
+function reviewDelays(correct) {
+    return correct
+        ? [
+            config.delays?.review_correct_min ?? 500,
+            config.delays?.review_correct_max ?? 1200
+        ]
+        : [
+            config.delays?.review_min ?? 2500,
+            config.delays?.review_max ?? 5500
+        ];
+}
+
+function reviewPause(correct) {
+    const [min, max] = reviewDelays(correct);
+    return delay(getRandomInt(min, max));
+}
+
 async function login(page) {
     if (config.debug) {
         page.on('console', message => console.log(`${message.type().slice(0, 3).toUpperCase()} ${message.text()}`))
@@ -315,6 +347,7 @@ async function answerQuestion(page) {
     }
 
     let mistake = null;
+    await thinkPause();
     if (english) {
         green(`[ANSWER ${i}] Found translation for: \`${chalk.white(polish)}\`: \`${chalk.cyan(english)}\``);
         const random = Math.random();
@@ -368,7 +401,8 @@ async function answerQuestion(page) {
     });
 
     blue(`[ANSWER ${i}] Next word!`);
-    await clickWait(page, SELECTORS.nextWord, ...navDelays());
+    await reviewPause(correct);
+    await quickClick(page, SELECTORS.nextWord);
 }
 
 async function newWord(page) {
@@ -379,8 +413,10 @@ async function newWord(page) {
     await savePage(page, `${i}_new_word_0`);
     await clickWait(page, SELECTORS.dontKnowNew, config.delays?.check_min, config.delays?.check_max);
     await savePage(page, `${i}_new_word_1`);
+    // Read the revealed word like a correction before moving on.
+    await reviewPause(false);
     blue(`[ANSWER ${i}] Next word!`);
-    await clickWait(page, SELECTORS.nextWord, ...navDelays());
+    await quickClick(page, SELECTORS.nextWord);
 }
 
 async function isSessionFinished(page) {

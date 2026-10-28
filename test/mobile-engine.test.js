@@ -9,6 +9,7 @@ const {
     sanitizeConfig
 } = require('../mobile/engine/engine.js');
 const {STRINGS} = require('../mobile/engine/i18n.js');
+const engineDom = require('../mobile/engine/dom.js');
 
 function memoryStorage(initial = {}) {
     const data = new Map(Object.entries(initial));
@@ -96,7 +97,13 @@ const fastConfig = {
         check_min: 1,
         check_max: 2,
         nav_min: 1,
-        nav_max: 2
+        nav_max: 2,
+        think_min: 1,
+        think_max: 2,
+        review_min: 1,
+        review_max: 2,
+        review_correct_min: 1,
+        review_correct_max: 2
     }
 };
 
@@ -262,7 +269,7 @@ test('mobile engine waits out a navigation pause that a page reload interrupted'
     });
     const engine = createEngine({
         storage,
-        config: {valid_chance: 1, delays: {type_min: 1, type_max: 2, type_pause_chance: 0, typo_chance: 0, nav_min: 1, nav_max: 2}},
+        config: {valid_chance: 1, delays: {type_min: 1, type_max: 2, type_pause_chance: 0, typo_chance: 0, nav_min: 1, nav_max: 2, think_min: 1, think_max: 2, review_min: 1, review_max: 2, review_correct_min: 1, review_correct_max: 2}},
         language: 'pl',
         onEvent: () => {}
     });
@@ -351,6 +358,15 @@ test('sanitizeConfig clamps accuracy and the humanization delays', () => {
         {delays: {click_min: 0, typo_chance: 1}}
     );
     assert.deepEqual(sanitizeConfig({delays: {type_max: 'x'}}), {delays: {}});
+    // New humanization pairs are clamped and min/max are kept in order.
+    assert.deepEqual(
+        sanitizeConfig({delays: {think_min: -1, think_max: 999999}}),
+        {delays: {think_min: 0, think_max: 120000}}
+    );
+    assert.deepEqual(
+        sanitizeConfig({delays: {review_min: 900, review_max: 100}}),
+        {delays: {review_min: 900, review_max: 900}}
+    );
     // Internal timings the shells do not expose are passed through untouched.
     assert.deepEqual(sanitizeConfig({delays: {check_min: 3000}}), {delays: {check_min: 3000}});
 });
@@ -368,6 +384,12 @@ test('setConfig persists the user-facing settings', () => {
             click_max: 3,
             nav_min: 2000,
             nav_max: 4500,
+            think_min: 1500,
+            think_max: 4000,
+            review_min: 2500,
+            review_max: 5500,
+            review_correct_min: 500,
+            review_correct_max: 1200,
             type_min: 90,
             type_max: 230,
             type_pause_chance: 0.12,
@@ -391,6 +413,84 @@ test('a new engine restores persisted settings and the shell can override them',
     });
     assert.equal(overridden.getConfig().valid_chance, 0.9);
     assert.equal(overridden.getConfig().delays.click_min, 2000);
+});
+
+test('mobile engine thinks before typing and reads a correct result before next', async () => {
+    const calls = [];
+    const originalWait = engineDom.wait;
+    engineDom.wait = async ms => {
+        calls.push(ms);
+        return originalWait(ms);
+    };
+    try {
+        const dom = setupDom();
+        const storage = memoryStorage({
+            savedWords: [{polish: 'dom', english: 'house', sentence: ''}]
+        });
+        const engine = createEngine({
+            storage,
+            config: {
+                ...fastConfig,
+                delays: {
+                    ...fastConfig.delays,
+                    think_min: 111,
+                    think_max: 111,
+                    review_correct_min: 1111,
+                    review_correct_max: 1111
+                }
+            },
+            language: 'pl',
+            onEvent: () => {}
+        });
+
+        await engine.start();
+        const state = await waitForStatus(engine, 'finished');
+        assert.equal(state.correct, 1, state.lastError);
+        assert.ok(calls.includes(111), 'waited before typing');
+        assert.ok(calls.includes(1111), 'waited on the correct result before next');
+        dom.window.close();
+    } finally {
+        engineDom.wait = originalWait;
+    }
+});
+
+test('mobile engine uses the longer review pause after a mistake', async () => {
+    const calls = [];
+    const originalWait = engineDom.wait;
+    engineDom.wait = async ms => {
+        calls.push(ms);
+        return originalWait(ms);
+    };
+    try {
+        const dom = setupDom();
+        const storage = memoryStorage({
+            savedWords: [{polish: 'dom', english: 'house', sentence: ''}]
+        });
+        const engine = createEngine({
+            storage,
+            config: {
+                ...fastConfig,
+                valid_chance: 0,
+                delays: {
+                    ...fastConfig.delays,
+                    think_min: 111,
+                    think_max: 111,
+                    review_min: 2222,
+                    review_max: 2222
+                }
+            },
+            language: 'en',
+            onEvent: () => {}
+        });
+
+        await engine.start();
+        const state = await waitForStatus(engine, 'finished');
+        assert.equal(state.wrong, 1, state.lastError);
+        assert.ok(calls.includes(2222), 'waited on the mistake before next');
+        dom.window.close();
+    } finally {
+        engineDom.wait = originalWait;
+    }
 });
 
 test('accuracy and streak helpers ignore empty days', () => {

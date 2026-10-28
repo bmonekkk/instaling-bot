@@ -19,15 +19,15 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**4.2.2**) is a consistency release — desktop, phone and userscript look and behave the same:
+The current version (**4.3.0**) is a consistency release — desktop, phone and userscript look and behave the same:
 
 - 🖥️ **desktop** for Windows and macOS: GUI, live log, statistics and a bundled Chrome,
 - 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, session settings, statistics and configurable reminders,
 - 🌐 **userscript** for Safari on iOS/iPadOS and Firefox on Android, with a persistent settings panel,
 - ⌨️ a full **CLI** for Linux and the terminal, installed with a single `curl` command,
-- 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes.
+- 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes, plus a **thinking pause** before typing the translation and a **review pause** before "next".
 
-Version 4.2.2 fixes the **navigation-button click speed** (`nav_min` / `nav_max`). instaling.pl reloads the page on "next", "continue" and session start, and the pause used to be counted only within a single page — it was lost on reload, so the between-word transition was always as fast as the page load. The engine now stores the pause deadline before the click and waits out the remainder on the fresh page, on desktop and on phones; the desktop also honors the setting when starting or continuing a session. Version 4.2.1 levelled the capabilities of every platform: the same **statistics panel** (week / month / year / all: sessions, answers, accuracy, new words, total time, active days), a **restore-defaults** button (resets everything except login, password and language), a reminder-frequency dropdown on Android and iOS too (once a day, every 15/30/60/120/180 min) with a left-aligned time, and a userscript panel that no longer overflows on Safari (`100dvh`). Mobile statistics record sessions and duration exactly like the desktop. The mobile apps still never store your password — they keep the normal, persistent website session. Desktop and CLI keep every earlier feature.
+Version 4.3.0 reworks the timing to match how a person works. After the word appears the bot waits before the first keystroke (`think_min` / `think_max`, defaults 1500–4000 ms), as if thinking about the translation. After checking the answer it reads the result before clicking "next": longer after a typo, wrong word, empty answer or a new word (`review_min` / `review_max`, 2500–5500 ms), and briefly after a correct answer (`review_correct_min` / `review_correct_max`, 500–1200 ms). Every value is picked at random from its range and works on desktop, Android, iOS and in the userscript. The old `click_min` / `click_max` and `nav_min` / `nav_max` settings are gone from the panels but still act as silent fallbacks for older configs. On iOS the **"Done"/"Gotowe"** bar above the number pad now has a light, classic look and reliably hides the keyboard. Version 4.2.2 fixed the between-word transition after a page reload, and 4.2.1 aligned statistics, restore-defaults and reminders across platforms. The mobile apps still never store your password — they keep the normal, persistent website session. Desktop and CLI keep every earlier feature.
 
 Open source, ISC license.
 
@@ -66,9 +66,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.2.2-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.2.2-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.2.2-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.3.0-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.3.0-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.3.0-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -145,18 +145,18 @@ You can edit the files by hand too — the app uses the same format as the CLI.
 
 ## 📱 Mobile: Android and iOS
 
-Version 4.2.2 fixes the navigation-button click speed on the phone (the pause now survives the page reload). The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, clicking and typing delays, navigation-button click speed, pause and typo chances, reminder time and frequency) and **full statistics** with week / month / year / all tabs (sessions, answers, accuracy, new words, total time and active days). Every settings panel has a **restore-defaults** button. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
+Version 4.3.0 reworks the timing on the phone too: the bot thinks before typing, then reads the result before "next" — longer after a mistake or a new word, briefly after a correct answer. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, the three timing ranges, typing delays, pause and typo chances, reminder time and frequency) and **full statistics** with week / month / year / all tabs (sessions, answers, accuracy, new words, total time and active days). Every settings panel has a **restore-defaults** button. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
 
 ### 🤖 Android: APK (recommended)
 
-1. Download `instaling-bot-4.2.2-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Download `instaling-bot-4.3.0-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Open the file and allow installation from this source when Android asks.
 3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
 4. Open the learning page and press **Start** in the top bar.
 
 The top bar has a **PL/EN** switch, a 📊 statistics button, a ⏰ reminder, ⚙ settings, Start and Stop. Below it you see the status, the answer counter and today's statistics. When a newer release exists, the app shows an **Update** button linking to GitHub.
 
-**Settings:** tap ⚙ to change answer accuracy, clicking and typing delays (`click_min` / `click_max`, `type_min` / `type_max`), the **navigation-button click speed** (`nav_min` / `nav_max`), the pause chance (`type_pause_chance`), the typo chance (`typo_chance`) and the **reminder time and frequency**. A **restore-defaults** button resets every setting except login, password and language. Values are saved in the app and apply immediately, without a restart.
+**Settings:** tap ⚙ to change answer accuracy, the **pause before typing** (`think_min` / `think_max`), the **pause after a mistake or a new word** (`review_min` / `review_max`), the **pause after a correct answer** (`review_correct_min` / `review_correct_max`), letter delays (`type_min` / `type_max`), the pause chance (`type_pause_chance`), the typo chance (`typo_chance`) and the **reminder time and frequency**. A **restore-defaults** button resets every setting except login, password and language. Values are saved in the app and apply immediately, without a restart.
 
 **Statistics:** tap 📊 to open the week / month / year / all panel — sessions, answers, correct and wrong, accuracy, new words, total time and active days. The numbers come from the same model as the desktop app.
 
@@ -173,17 +173,17 @@ Chrome on iOS does not support extensions, but Safari does:
 3. Open [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) in Safari and import it into Userscripts.
 4. Visit `instaling.pl`, sign in and tap the floating 🤖 button.
 
-The panel has Start/Stop, PL/EN, an answer counter, a toggleable **statistics panel** (week / month / year / all tabs) and **restore-defaults**. Expand **Settings** to change answer accuracy, all the desktop clicking and typing delays (`click_min` / `click_max`, `type_min` / `type_max`, `typo_chance`, `type_pause_chance`), the **navigation-button click speed** (`nav_min` / `nav_max`) and autostart — values persist in the extension storage, and saved words persist between sessions too. The panel sizes itself with `100dvh`, so it stays inside Safari's viewport. The script sends no browser notifications: when you open a tab after the reminder time and today's session is not done, it shows a small in-page banner. It updates itself through `@updateURL`.
+The panel has Start/Stop, PL/EN, an answer counter, a toggleable **statistics panel** (week / month / year / all tabs) and **restore-defaults**. Expand **Settings** to change answer accuracy, the pause before typing (`think_min` / `think_max`), the pause after a mistake or a new word (`review_min` / `review_max`), the pause after a correct answer (`review_correct_min` / `review_correct_max`), letter delays (`type_min` / `type_max`, `typo_chance`, `type_pause_chance`) and autostart — values persist in the extension storage, and saved words persist between sessions too. The panel sizes itself with `100dvh`, so it stays inside Safari's viewport. The script sends no browser notifications: when you open a tab after the reminder time and today's session is not done, it shows a small in-page banner. It updates itself through `@updateURL`.
 
 ### 🍏 iOS: IPA for SideStore / AltStore
 
 For people who prefer a separate app:
 
-1. Download `instaling-bot-4.2.2-ios.ipa` from the latest release.
+1. Download `instaling-bot-4.3.0-ios.ipa` from the latest release.
 2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
 3. Sign in to `instaling.pl` in the app and press **Start**.
 
-The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, session settings (accuracy, typing and clicking delays, navigation-button click speed, pause and typo chances), a **reminder-frequency dropdown** with a left-aligned time, a **statistics panel** (week / month / year / all), **restore-defaults** and an update button.
+The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, session settings (accuracy, the three timing ranges, typing delays, pause and typo chances), a **reminder-frequency dropdown** with a left-aligned time, a **statistics panel** (week / month / year / all), **restore-defaults** and an update button.
 
 **Shortcuts:** the app accepts `instalingbot://start` and `instalingbot://stop`, so an iOS automation can start a session. The session only runs while the app is in the foreground.
 
@@ -304,6 +304,8 @@ npx puppeteer browsers install chrome
 - The bot sometimes takes a short pause while typing (`type_pause_chance`, `type_pause_min`, `type_pause_max`).
 - With probability `typo_chance` it presses a wrong neighbouring key, deletes it with backspace and types the correct letter.
 - The field value is always verified, so the simulated typo never breaks the answer.
+- After the word appears the bot waits a random `think_min`–`think_max` ms before typing, as if thinking about the translation.
+- After checking the answer it reads the result before "next": `review_min`–`review_max` ms after a typo, wrong word, empty answer or new word, and `review_correct_min`–`review_correct_max` ms after a correct answer.
 - Navigation clicks (continue session, start) have short pauses (`quick_click_min` / `quick_click_max`).
 - Login is the exception: credentials are typed quickly and precisely, and a rejected form is retried only once.
 
@@ -320,8 +322,11 @@ Template for all options: [`config/Config.defaults.json`](config/Config.defaults
 - `notifications.session_finished` — session-finished notification when the window is hidden or minimized (`true` by default)
 - `INSTALING_LOGIN` / `INSTALING_PASSWORD` — environment variables with credentials; they take precedence over `credentials` in `Config.json`. Useful in CI and on servers where the password should not be written to disk.
 - `delays` — wait times in milliseconds (1 s = 1000 ms); the bot picks a random value between min and max
-  - `click_min` / `click_max` — default delay after clicking a button
-  - `nav_min` / `nav_max` — pause before moving on (next word, login, session start/continue); survives a page reload
+  - `think_min` / `think_max` — pause after the word appears, before the first keystroke (default 1500–4000 ms)
+  - `review_min` / `review_max` — pause before "next" after a mistake, typo, empty answer or new word (2500–5500 ms)
+  - `review_correct_min` / `review_correct_max` — shorter pause before "next" after a correct answer (500–1200 ms)
+  - `click_min` / `click_max` — legacy post-click pause; hidden in the panels, still a fallback
+  - `nav_min` / `nav_max` — legacy navigation pause; hidden in the panels, still a fallback
   - `type_min` / `type_max` — delay per single letter
   - `type_pause_chance` — chance of an extra pause while typing (`0.12` = 12%)
   - `type_pause_min` / `type_pause_max` — length of that pause
@@ -408,6 +413,13 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 
 
 ## 📦 Recent changes
+
+### 4.3.0 — 2026-10-28
+
+- 🧠 **Two real pauses.** Before typing the bot waits `think_min` / `think_max` (defaults 1500–4000 ms), and after checking the answer it reads the result before "next": `review_min` / `review_max` (2500–5500 ms) after a typo, wrong word, empty answer or new word, and `review_correct_min` / `review_correct_max` (500–1200 ms) after a correct answer. Every value is random within its range and works on desktop, Android, iOS and in the userscript.
+- ⚙️ **Old click settings hidden.** `click_min` / `click_max` and `nav_min` / `nav_max` are gone from the settings panels but still act as silent fallbacks for older configs.
+- ⌨️ **iOS "Done".** The bar above the number pad now has a light, classic look, forces the light keyboard and reliably hides it on tap.
+- 🔢 **Housekeeping.** Version bumped to `4.3.0` (userscript `4.3.0`) in `package.json`, the iOS project (`MARKETING_VERSION` 4.3.0 / `CURRENT_PROJECT_VERSION` 40300), the engine, the desktop renderer, the website, README (PL/EN), wiki, `docs/llms.txt`, `PROJECT_NOTES.md` and the release notes.
 
 ### 4.2.2 — 2026-10-28
 

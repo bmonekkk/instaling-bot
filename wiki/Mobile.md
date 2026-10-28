@@ -1,11 +1,14 @@
 # 📱 Mobile: Android i iOS
 
-Wersja 4.2.2 naprawia tempo klikania przycisków na telefonie — pauza `nav_min` / `nav_max`
-działa teraz też po przeładowaniu strony przez instaling.pl (przy „dalej", „kontynuuj" i
-starcie sesji). Wszystkie warianty mobilne używają tego samego
+Wersja 4.3.0 porządkuje tempo pracy na telefonie: bot czeka chwilę po pojawieniu się
+słówka, zanim zacznie pisać (`think_min` / `think_max`), a po sprawdzeniu odpowiedzi czyta
+wynik przed „dalej" — dłużej po błędzie lub nowym słówku (`review_min` / `review_max`),
+krótko po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`). Wszystkie
+wartości są losowane z zakresu. Na iOS pasek **„Gotowe"** nad klawiaturą ma jasny,
+klasyczny wygląd i niezawodnie chowa klawiaturę. Wszystkie warianty mobilne używają tego samego
 silnika co desktop: odpowiedzi, literówki, zapamiętywanie słówek i interfejs PL/EN. Mają
-też te same **ustawienia** (poprawność odpowiedzi, czasy pisania i klikania, szybkość
-klikania przycisków, literówki, godzina i częstotliwość przypomnienia), przycisk
+też te same **ustawienia** (poprawność odpowiedzi, trzy zakresy pauz, czasy pisania,
+literówki, godzina i częstotliwość przypomnienia), przycisk
 **Przywróć domyślne** oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok /
 wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni).
 
@@ -15,7 +18,7 @@ otwartej aplikacji lub karcie — telefon może wstrzymać WebView w tle.
 
 ## Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.2.2-android.apk` z
+1. Pobierz `instaling-bot-4.3.0-android.apk` z
    [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik i zezwól na instalację z tego źródła.
 3. Zaloguj się na `instaling.pl` w aplikacji.
@@ -25,9 +28,10 @@ Górny pasek: **PL/EN**, 📊 (statystyki), ⏰ (przypomnienie), ⚙ (ustawienia
 **Stop**. Pod paskiem widać status, licznik odpowiedzi i dzisiejsze statystyki. Gdy jest
 nowsze wydanie, pojawia się przycisk **Aktualizacja**.
 
-- **Ustawienia (⚙):** poprawność odpowiedzi (`valid_chance`), czasy pisania i klikania
-  (`type_min`/`type_max`, `click_min`/`click_max`), szybkość klikania przycisków
-  (`nav_min`/`nav_max`), szanse na pauzę i literówkę (`type_pause_chance`, `typo_chance`)
+- **Ustawienia (⚙):** poprawność odpowiedzi (`valid_chance`), pauza przed pisaniem
+  (`think_min`/`think_max`), pauza po błędzie lub nowym słówku (`review_min`/`review_max`),
+  pauza po poprawnej odpowiedzi (`review_correct_min`/`review_correct_max`), czasy pisania
+  (`type_min`/`type_max`), szanse na pauzę i literówkę (`type_pause_chance`, `typo_chance`)
   oraz godzina i częstotliwość przypomnienia. Przycisk **Przywróć domyślne** resetuje
   wszystko poza loginem, hasłem i językiem. Wartości zapisują się w aplikacji i działają
   od razu.
@@ -54,9 +58,9 @@ nowsze wydanie, pojawia się przycisk **Aktualizacja**.
 
 Panel ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **panel statystyk** (zakładki
 tydzień / miesiąc / rok / wszystko) i **Przywróć domyślne**. Rozwijane **Ustawienia** mają
-poprawność, czasy pisania i klikania, szybkość klikania przycisków (`nav_min`/`nav_max`)
-oraz autostart. Ustawienia i słówka zapisują się w `GM_setValue`. Panel używa `100dvh`,
-więc nie wychodzi poza ekran Safari. Skrypt aktualizuje się przez `@updateURL`.
+poprawność, pauzy przed pisaniem i po wyniku (`think_*`, `review_*`, `review_correct_*`),
+czasy pisania oraz autostart. Ustawienia i słówka zapisują się w `GM_setValue`. Panel używa
+`100dvh`, więc nie wychodzi poza ekran Safari. Skrypt aktualizuje się przez `@updateURL`.
 
 Zamiast powiadomień w tle userscript pokazuje **banner na stronie**: pojawia się, gdy
 otworzysz kartę `instaling.pl` po godzinie przypomnienia, a dzisiejsza sesja nie jest
@@ -64,7 +68,7 @@ jeszcze ukończona.
 
 ## iOS: IPA dla SideStore / AltStore
 
-1. Pobierz `instaling-bot-4.2.2-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.3.0-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj IPA.
 3. Zaloguj się na `instaling.pl` i naciśnij **Start**.
 

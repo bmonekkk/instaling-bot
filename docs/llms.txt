@@ -22,18 +22,21 @@ resumes a session, reads each prompt, answers with a configurable accuracy, reme
 translations and can make believable mistakes (empty field, different translation or a
 typo) for human-like behaviour. Everything runs locally; there is no backend or telemetry.
 
-Version 4.2.2 aligns every platform and fixes the shared navigation-button click speed:
-instaling.pl reloads the page on "next", "continue" and session start, and the pause used
-to be counted only within one page, so the between-word transition was always as fast as
-the page load. The engine now keeps the pause deadline across the reload, on desktop and
-on phones, and the desktop also honors it when starting or continuing a session. The
-desktop and CLI keep every earlier feature, and a shared engine powers three mobile
-variants. Desktop, Android, iOS and the userscript all expose the same week/month/year/all
-statistics panel, a "restore defaults" action (keeping login, password and language) and
-one shared min/max navigation-button click speed:
+Version 4.3.0 reworks the timing to be genuinely human-like. After a prompt appears the
+bot waits `think_min`–`think_max` (defaults 1500–4000 ms) before typing, then reads the
+result before "next": `review_min`–`review_max` (2500–5500 ms) after a misspelling, wrong
+word, blank answer or new word, and `review_correct_min`–`review_correct_max`
+(500–1200 ms) after a correct answer. Every value is random within its range, on desktop,
+Android, iOS and the userscript. The old `click_min`/`click_max` and `nav_min`/`nav_max`
+fields are hidden from every settings panel but still act as silent fallbacks. The iOS
+"Gotowe"/"Done" bar above the number pad now has a light classic look and reliably hides
+the keyboard. The desktop and CLI keep every earlier feature, and a shared engine powers
+three mobile variants. Desktop, Android, iOS and the userscript all expose the same
+week/month/year/all statistics panel, a "restore defaults" action (keeping login, password
+and language) and the same three timing ranges:
 
 - **Android APK** — native WebView shell with Start/Stop, PL/EN, answer counter,
-  statistics, a ⚙ settings dialog (accuracy, all typing delays, navigation speed,
+  statistics, a ⚙ settings dialog (accuracy, the three pause ranges, typing delays,
   reminder time and a frequency dropdown), a reminder that repeats every N minutes and
   stops once a session is finished that day, a "restore defaults" button, an update
   button and `instalingbot://start` / `instalingbot://stop` deep links for
@@ -42,7 +45,7 @@ one shared min/max navigation-button click speed:
   statistics, a reminder-frequency dropdown, a repeating configurable reminder and a URL
   scheme for Shortcuts. A free Apple ID needs a refresh every 7 days.
 - **Userscript** — floating panel for Safari on iOS/iPadOS and Firefox on Android, with
-  a persisted settings panel (accuracy, all typing delays, navigation speed, reminder
+  a persisted settings panel (accuracy, the three pause ranges, typing delays, reminder
   time and frequency, autostart), statistics, a "restore defaults" button, an in-page
   reminder banner, `?autostart=1`, `?lang=en`, GM storage and automatic updates through
   `@updateURL`. The panel is sized with `100dvh` so it stays inside Safari's viewport.
@@ -60,10 +63,10 @@ keeps saved-word export, tray mode and hidden background sessions.
 
 ## Install
 
-- Windows: `instaling-bot-4.2.2-setup-win64.exe` from the latest release.
-- macOS: `instaling-bot-4.2.2-macos-arm64.pkg` or `instaling-bot-4.2.2-macos-x64.pkg`.
-- Android: `instaling-bot-4.2.2-android.apk`.
-- iOS: `instaling-bot-4.2.2-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
+- Windows: `instaling-bot-4.3.0-setup-win64.exe` from the latest release.
+- macOS: `instaling-bot-4.3.0-macos-arm64.pkg` or `instaling-bot-4.3.0-macos-x64.pkg`.
+- Android: `instaling-bot-4.3.0-android.apk`.
+- iOS: `instaling-bot-4.3.0-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
 - Linux / terminal: `curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash`
 
 ## Notes

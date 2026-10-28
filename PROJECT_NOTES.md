@@ -22,7 +22,7 @@ It is **not** an official InstaLing tool. Educational project, ISC license, use 
 | Local repo | `/Users/bmonek/Projects/instaling-bot` |
 | Your fork | https://github.com/bmonekkk/instaling-bot |
 | Upstream | https://github.com/PanSzelescik/instaling-bot |
-| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v4.2.2) |
+| Latest release | https://github.com/bmonekkk/instaling-bot/releases/latest (v4.3.0) |
 | Landing page | https://bmonekkk.github.io/instaling-bot/ |
 | Remote `origin` | your fork (`bmonekkk/instaling-bot`) |
 | Remote `upstream` | `PanSzelescik/instaling-bot` |
@@ -278,6 +278,9 @@ The mobile engine is **tick-based**, not a long `while` loop: instaling.pl perfo
 {
   "credentials": { "login": "...", "password": "..." },
   "delays": {
+    "think_min": 1500, "think_max": 4000,
+    "review_min": 2500, "review_max": 5500,
+    "review_correct_min": 500, "review_correct_max": 1200,
     "click_min": 2000, "click_max": 4500,
     "nav_min": 2000, "nav_max": 4500,
     "type_min": 90, "type_max": 230,
@@ -302,13 +305,14 @@ The mobile engine is **tick-based**, not a long `while` loop: instaling.pl perfo
 ```
 
 - Raising delays = slower and less aggressive.
-- `nav_min` / `nav_max` drive the "next", login and start/continue waits; the engine keeps the deadline across instaling.pl's reloads. `check_min` / `check_max` and `next_word_min` / `next_word_max` remain as internal fallbacks.
+- `think_min` / `think_max` run after the prompt is visible and before the first keystroke. `review_min` / `review_max` run before "next" after a mistake, typo, empty answer or new word; `review_correct_min` / `review_correct_max` after a correct answer. Every value is a random point in its range.
+- `nav_min` / `nav_max` still drive the login and start/continue waits and remain a fallback for navigation pacing; the engine keeps the deadline across instaling.pl's reloads. `click_min` / `click_max` stay as a post-click fallback. Both pairs are hidden from every settings panel. `check_min` / `check_max` and `next_word_min` / `next_word_max` remain internal fallbacks.
 - `type_min` / `type_max` are per character. `typo_chance` simulates a wrong key + Backspace and is verified afterwards.
 - `valid_chance` failures pick one of three errors with equal probability: blank, wrong saved translation (fallback: misspelling), misspelling.
 - `reminder.time` is local `HH:MM`; `repeat_minutes` re-fires every N minutes until the day's session is done (`0` = once a day). The desktop checks every minute while running, the CLI via `npm run remind`.
 - `background.*` only affects the desktop app (tray icon and OS login item). Hidden startup requires **both** `run_in_tray` and `start_at_login`; autostart alone opens the window.
 - The canonical template is `config/Config.defaults.json`; there is no remote word database.
-- Desktop clamps GUI values before writing the file: 0–1 for chances, 0–120000 ms for click delays, 0–5000 ms for per-character typing.
+- Desktop clamps GUI values before writing the file: 0–1 for chances, 0–120000 ms for click and pause delays, 0–5000 ms for per-character typing.
 
 ## Building
 
@@ -475,6 +479,14 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - Windows NSIS installer and macOS PKG builds for arm64/x64 via GitHub Actions.
 - Shared engine/config/words with the CLI, including graceful stop and IPC events.
 
+## What changed in 4.3.0
+
+- Reworked the timing into two human-like pauses. `answerOne()` now waits `think_min`–`think_max` after the prompt is visible and before typing, then `review_min`–`review_max` before "next" when the answer was wrong, misspelled, blank or a new word, and `review_correct_min`–`review_correct_max` after a correct answer. `completePending()` returns the correctness (or `null`) so the tick path can choose the right pause; a revealed new word uses the longer review pause too. The desktop (`src/main.js`) mirrors this with `thinkPause()` / `reviewPause()`.
+- New config pairs `think_min/max`, `review_min/max`, `review_correct_min/max` (defaults 1500–4000, 2500–5500, 500–1200 ms) added to `Config.defaults.json`, the engine defaults, `USER_DELAY_KEYS`, `DELAY_BOUNDS` and pair normalization.
+- Replaced the `click_min/max` and `nav_min/max` fields in the desktop Advanced section, Android ⚙, iOS ⚙ and the userscript panel with the six new pause fields. The old keys remain in configs and are still applied by the engine as silent fallbacks.
+- iOS keyboard fix: `makeNumberField` forces `keyboardAppearance = .light`, themes the accessory toolbar with the classic palette and ends editing through `UIApplication.sendAction` so "Gotowe"/"Done" always hides the number pad.
+- Two new engine tests cover the think pause / correct review and the longer review after a mistake. Version bumped to `4.3.0` (userscript `4.3.0`, iOS 4.3.0 / 40300).
+
 ## What changed in 4.2.2
 
 - Fixed the navigation-click speed on the phones. instaling.pl reloads the page on "next"/"continue"/start, which destroyed the in-page `setTimeout` that applied the `nav_min`/`nav_max` pause; the "pause after next" looked fine only when the click stayed on the same page, and the between-word transition was always as fast as the page load. The engine now persists the pause deadline (`navUntil`) *before* the click and re-applies it at the start of the next tick, so every transition waits out the remaining `nav_min`/`nav_max` on the fresh page. Covered by two new tests.
@@ -591,8 +603,8 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 
 Copy this into a new chat:
 
-> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v4.2.2).
+> Project: `/Users/bmonek/Projects/instaling-bot` (fork of PanSzelescik/instaling-bot, v4.3.0).
 > Read `PROJECT_NOTES.md`, `README.md`, `src/main.js`, `desktop/main.js`, `src/helpers.js`, `src/config.js` first.
-> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux + three mobile shells sharing `src/core/` and `mobile/engine/` (Android WebView APK, unsigned iOS WKWebView IPA for SideStore/AltStore, and a userscript for Safari iOS / Firefox Android). Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`; the same workflow attaches the APK, IPA and userscript. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. The desktop has a full PL/EN interface, configurable session-finished notifications, owner-only config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides. Update checks run at startup, daily and at session start; the tray icon/menu indicate available updates, and Ko-fi sits under Show window. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run. Mobile shells never read `Config.json` or store the password; they keep words in WebView/GM storage, inject the engine only on `instaling.pl`, and route every other link to the system browser. Since 4.2.0 the shells and userscript also expose accuracy plus every desktop timing control and repeating native reminders, the userscript shows an in-page reminder banner, and all platforms share one classic look and one icon generated from `build/icon.png`. Since 4.2.1 desktop, Android, iOS and the userscript all show the same week/month/year/all statistics panel and a restore-defaults button, share one `nav_min`/`nav_max` navigation-click speed, and use a reminder-frequency dropdown on mobile; the website detects the visitor's device and highlights the matching download. 4.2.2 makes that navigation-click speed actually apply across the page reloads instaling.pl performs (a persisted `navUntil` deadline) and extends it to the desktop session start/continue buttons.
+> Current state: Electron desktop app for Windows/macOS + fully supported CLI for Linux + three mobile shells sharing `src/core/` and `mobile/engine/` (Android WebView APK, unsigned iOS WKWebView IPA for SideStore/AltStore, and a userscript for Safari iOS / Firefox Android). Shared engine in `src/`, IPC events and graceful stop, bundled Chrome for Testing in `resources/browser`, Windows NSIS and macOS PKG builds via `.github/workflows/release.yml`; the same workflow attaches the APK, IPA and userscript. Cookie consent is blocked/dismissed; the Windows hidden-window bug is patched; typing is humanized (random per-letter delays, simulated typos with Backspace) and login is fast/verified with one retry. Wrong answers randomize between blank/wrong-word/misspelling. The desktop has a full PL/EN interface, configurable session-finished notifications, owner-only config permissions, password redaction and `INSTALING_LOGIN` / `INSTALING_PASSWORD` overrides. Update checks run at startup, daily and at session start; the tray icon/menu indicate available updates, and Ko-fi sits under Show window. Daily reminder (optionally repeated), statistics and update checking are shared by desktop and CLI. The CLI entry point is `bin/instaling-bot.js` (`start`, `stats`, `remind`, `update-check`, `help`, `version`); `src/main.js` exports `run()`. The CLI blocks outdated starts unless `--skip-update-check` is passed. The desktop clears its console two hours after a run. Mobile shells never read `Config.json` or store the password; they keep words in WebView/GM storage, inject the engine only on `instaling.pl`, and route every other link to the system browser. Since 4.2.0 the shells and userscript also expose accuracy plus every desktop timing control and repeating native reminders, the userscript shows an in-page reminder banner, and all platforms share one classic look and one icon generated from `build/icon.png`. Since 4.2.1 desktop, Android, iOS and the userscript all show the same week/month/year/all statistics panel and a restore-defaults button, share one `nav_min`/`nav_max` navigation-click speed, and use a reminder-frequency dropdown on mobile; the website detects the visitor's device and highlights the matching download. 4.2.2 makes that navigation-click speed actually apply across the page reloads instaling.pl performs (a persisted `navUntil` deadline) and extends it to the desktop session start/continue buttons. 4.3.0 replaces the old click/nav timing fields with three random pause ranges (think before typing, review after a mistake/new word, quick review after a correct answer), hides the old keys as fallbacks, and fixes the iOS "Gotowe" accessory bar.
 > Do not regress: cookie handling, notification visibility semantics (visible window = no duplicate), update checks not firing on session end, tray icon refresh, offline dialogs without the README FAQ button, saved-words path, config compatibility, login reliability, quick navigation, bundled Chrome path, `asar: false`, IPC sender checks, equal-random error types, reminder state and its repeat interval, stats aggregation, credential redaction, manual-only updates. Mobile: engine injected only on `instaling.pl` over HTTPS, non-bot links open externally, the JS bridge ignores non-bot frames, no `Config.json` or password on phones, pending answer saved before the reload/check, runs older than 15 minutes are not resumed, persisted settings stay limited to `valid_chance` and the user timing controls, and the download page keeps every option visible even when detection is inconclusive.
 > Stop a run manually for testing (there is no answer limit), update `CHANGELOG.md`, and prepare a release.

@@ -50,7 +50,10 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                "Tydzień", "Miesiąc", "Rok", "Wszystko", "Okres", "Sesje", "Odpowiedzi", "Dobrze",
                "Błędnie", "Skuteczność", "Nowe słówka", "Czas łącznie", "Aktywne dni",
                "Brak danych dla wybranego okresu.", "Zamknij",
-               "Raz dziennie", "Co 15 minut", "Co 30 minut", "Co godzinę", "Co 2 godziny", "Co 3 godziny"],
+               "Raz dziennie", "Co 15 minut", "Co 30 minut", "Co godzinę", "Co 2 godziny", "Co 3 godziny",
+               "Pauza przed pisaniem min (ms)", "Pauza przed pisaniem max (ms)",
+               "Pauza po błędzie min (ms)", "Pauza po błędzie max (ms)",
+               "Pauza po poprawnej min (ms)", "Pauza po poprawnej max (ms)"],
         "en": ["Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                "Session finished", "Error", "Stopped", "Update",
                "Session settings", "Answer accuracy (%)", "Repeat reminder",
@@ -64,7 +67,10 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                "Wrong", "Accuracy", "New words", "Total time", "Active days",
                "No data for the selected period.", "Close",
                "Once a day", "Every 15 minutes", "Every 30 minutes", "Every hour", "Every 2 hours",
-               "Every 3 hours"]
+               "Every 3 hours",
+               "Min pause before typing (ms)", "Max pause before typing (ms)",
+               "Min pause after a mistake (ms)", "Max pause after a mistake (ms)",
+               "Min pause after a correct answer (ms)", "Max pause after a correct answer (ms)"]
     ]
 
     private func label(_ index: Int) -> String {
@@ -273,6 +279,12 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                         click_max: \(clickMax),
                         nav_min: \(navMin),
                         nav_max: \(navMax),
+                        think_min: \(thinkMin),
+                        think_max: \(thinkMax),
+                        review_min: \(reviewMin),
+                        review_max: \(reviewMax),
+                        review_correct_min: \(reviewCorrectMin),
+                        review_correct_max: \(reviewCorrectMax),
                         type_min: \(typeMin),
                         type_max: \(typeMax),
                         type_pause_chance: \(pauseChance),
@@ -505,6 +517,12 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private var clickMax: Int { max(0, intSetting("click_max", 4500)) }
     private var navMin: Int { max(0, intSetting("nav_min", 2000)) }
     private var navMax: Int { max(0, intSetting("nav_max", 4500)) }
+    private var thinkMin: Int { max(0, intSetting("think_min", 1500)) }
+    private var thinkMax: Int { max(0, intSetting("think_max", 4000)) }
+    private var reviewMin: Int { max(0, intSetting("review_min", 2500)) }
+    private var reviewMax: Int { max(0, intSetting("review_max", 5500)) }
+    private var reviewCorrectMin: Int { max(0, intSetting("review_correct_min", 500)) }
+    private var reviewCorrectMax: Int { max(0, intSetting("review_correct_max", 1200)) }
     private var typeMin: Int { max(0, intSetting("type_min", 90)) }
     private var typeMax: Int { max(0, intSetting("type_max", 230)) }
     private var typoChance: Double { min(1, max(0, doubleSetting("typo_chance", 0.15))) }
@@ -554,18 +572,24 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         stack.addArrangedSubview(validityField)
 
         stack.addArrangedSubview(makeSectionLabel(label(17)))
-        let clickMinField = makeNumberField(String(clickMin))
-        stack.addArrangedSubview(makeFieldLabel(label(18)))
-        stack.addArrangedSubview(clickMinField)
-        let clickMaxField = makeNumberField(String(clickMax))
-        stack.addArrangedSubview(makeFieldLabel(label(19)))
-        stack.addArrangedSubview(clickMaxField)
-        let navMinField = makeNumberField(String(navMin))
-        stack.addArrangedSubview(makeFieldLabel(label(24)))
-        stack.addArrangedSubview(navMinField)
-        let navMaxField = makeNumberField(String(navMax))
-        stack.addArrangedSubview(makeFieldLabel(label(25)))
-        stack.addArrangedSubview(navMaxField)
+        let thinkMinField = makeNumberField(String(thinkMin))
+        stack.addArrangedSubview(makeFieldLabel(label(50)))
+        stack.addArrangedSubview(thinkMinField)
+        let thinkMaxField = makeNumberField(String(thinkMax))
+        stack.addArrangedSubview(makeFieldLabel(label(51)))
+        stack.addArrangedSubview(thinkMaxField)
+        let reviewMinField = makeNumberField(String(reviewMin))
+        stack.addArrangedSubview(makeFieldLabel(label(52)))
+        stack.addArrangedSubview(reviewMinField)
+        let reviewMaxField = makeNumberField(String(reviewMax))
+        stack.addArrangedSubview(makeFieldLabel(label(53)))
+        stack.addArrangedSubview(reviewMaxField)
+        let reviewCorrectMinField = makeNumberField(String(reviewCorrectMin))
+        stack.addArrangedSubview(makeFieldLabel(label(54)))
+        stack.addArrangedSubview(reviewCorrectMinField)
+        let reviewCorrectMaxField = makeNumberField(String(reviewCorrectMax))
+        stack.addArrangedSubview(makeFieldLabel(label(55)))
+        stack.addArrangedSubview(reviewCorrectMaxField)
         let typeMinField = makeNumberField(String(typeMin))
         stack.addArrangedSubview(makeFieldLabel(label(20)))
         stack.addArrangedSubview(typeMinField)
@@ -639,20 +663,24 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         save.addAction(UIAction { [weak self] _ in
             guard let self else { return }
             let percent = min(100, max(0, Int(validityField.text ?? "") ?? 80))
-            let clickMinValue = min(120000, max(0, Int(clickMinField.text ?? "") ?? 2000))
-            let clickMaxValue = max(clickMinValue, min(120000, max(0, Int(clickMaxField.text ?? "") ?? 4500)))
-            let navMinValue = min(120000, max(0, Int(navMinField.text ?? "") ?? 2000))
-            let navMaxValue = max(navMinValue, min(120000, max(0, Int(navMaxField.text ?? "") ?? 4500)))
+            let thinkMinValue = min(120000, max(0, Int(thinkMinField.text ?? "") ?? 1500))
+            let thinkMaxValue = max(thinkMinValue, min(120000, max(0, Int(thinkMaxField.text ?? "") ?? 4000)))
+            let reviewMinValue = min(120000, max(0, Int(reviewMinField.text ?? "") ?? 2500))
+            let reviewMaxValue = max(reviewMinValue, min(120000, max(0, Int(reviewMaxField.text ?? "") ?? 5500)))
+            let reviewCorrectMinValue = min(120000, max(0, Int(reviewCorrectMinField.text ?? "") ?? 500))
+            let reviewCorrectMaxValue = max(reviewCorrectMinValue, min(120000, max(0, Int(reviewCorrectMaxField.text ?? "") ?? 1200)))
             let typeMinValue = min(5000, max(0, Int(typeMinField.text ?? "") ?? 90))
             let typeMaxValue = max(typeMinValue, min(5000, max(0, Int(typeMaxField.text ?? "") ?? 230)))
             let typoValue = min(100, max(0, Int(typoField.text ?? "") ?? 15))
             let pauseValue = min(100, max(0, Int(pauseField.text ?? "") ?? 12))
             let time = Calendar.current.dateComponents([.hour, .minute], from: timePicker.date)
             UserDefaults.standard.set(Double(percent) / 100, forKey: "valid_chance")
-            UserDefaults.standard.set(clickMinValue, forKey: "click_min")
-            UserDefaults.standard.set(clickMaxValue, forKey: "click_max")
-            UserDefaults.standard.set(navMinValue, forKey: "nav_min")
-            UserDefaults.standard.set(navMaxValue, forKey: "nav_max")
+            UserDefaults.standard.set(thinkMinValue, forKey: "think_min")
+            UserDefaults.standard.set(thinkMaxValue, forKey: "think_max")
+            UserDefaults.standard.set(reviewMinValue, forKey: "review_min")
+            UserDefaults.standard.set(reviewMaxValue, forKey: "review_max")
+            UserDefaults.standard.set(reviewCorrectMinValue, forKey: "review_correct_min")
+            UserDefaults.standard.set(reviewCorrectMaxValue, forKey: "review_correct_max")
             UserDefaults.standard.set(typeMinValue, forKey: "type_min")
             UserDefaults.standard.set(typeMaxValue, forKey: "type_max")
             UserDefaults.standard.set(Double(typoValue) / 100, forKey: "typo_chance")
@@ -692,6 +720,9 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         let field = UITextField()
         field.text = value
         field.keyboardType = .numberPad
+        // The app is dark-themed around a classic light UI, so force the light
+        // number pad instead of inheriting the system dark keyboard.
+        field.keyboardAppearance = .light
         field.textColor = ClassicPalette.ink
         field.font = .systemFont(ofSize: 15)
         field.backgroundColor = .white
@@ -701,20 +732,41 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 1))
         field.leftViewMode = .always
         field.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        // The number pad has no return key, so add a Done button above it.
+        // The number pad has no return key, so add a themed Done bar above it.
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+        toolbar.barStyle = .default
+        toolbar.isTranslucent = false
+        toolbar.barTintColor = ClassicPalette.windowLight
+        toolbar.tintColor = ClassicPalette.title1
+        toolbar.overrideUserInterfaceStyle = .light
+        let done = UIBarButtonItem(
+            title: language == "en" ? "Done" : "Gotowe",
+            style: .done,
+            target: self,
+            action: #selector(hideKeyboard)
+        )
+        done.setTitleTextAttributes([
+            .font: UIFont.boldSystemFont(ofSize: 17),
+            .foregroundColor: ClassicPalette.title1
+        ], for: .normal)
         toolbar.items = [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
-            UIBarButtonItem(
-                title: language == "en" ? "Done" : "Gotowe",
-                style: .done,
-                target: field,
-                action: #selector(UIResponder.resignFirstResponder)
-            )
+            done
         ]
         toolbar.sizeToFit()
         field.inputAccessoryView = toolbar
         return field
+    }
+
+    /// Hides the keyboard from the numeric accessory bar, whatever field (or
+    /// presented sheet) currently owns the first responder.
+    @objc private func hideKeyboard() {
+        UIApplication.shared.sendAction(
+            #selector(UIResponder.resignFirstResponder),
+            to: nil,
+            from: nil,
+            for: nil
+        )
     }
 
     private func makeFieldLabel(_ text: String) -> UILabel {
@@ -774,6 +826,12 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         defaults.set(4500, forKey: "click_max")
         defaults.set(2000, forKey: "nav_min")
         defaults.set(4500, forKey: "nav_max")
+        defaults.set(1500, forKey: "think_min")
+        defaults.set(4000, forKey: "think_max")
+        defaults.set(2500, forKey: "review_min")
+        defaults.set(5500, forKey: "review_max")
+        defaults.set(500, forKey: "review_correct_min")
+        defaults.set(1200, forKey: "review_correct_max")
         defaults.set(90, forKey: "type_min")
         defaults.set(230, forKey: "type_max")
         defaults.set(0.15, forKey: "typo_chance")
@@ -873,6 +931,9 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
             + "valid_chance:\(validChance),"
             + "delays:{click_min:\(clickMin),click_max:\(clickMax),"
             + "nav_min:\(navMin),nav_max:\(navMax),"
+            + "think_min:\(thinkMin),think_max:\(thinkMax),"
+            + "review_min:\(reviewMin),review_max:\(reviewMax),"
+            + "review_correct_min:\(reviewCorrectMin),review_correct_max:\(reviewCorrectMax),"
             + "type_min:\(typeMin),type_max:\(typeMax),"
             + "type_pause_chance:\(pauseChance),typo_chance:\(typoChance)}})"
         webView?.evaluateJavaScript(script)

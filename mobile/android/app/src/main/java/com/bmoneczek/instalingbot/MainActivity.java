@@ -114,7 +114,10 @@ public class MainActivity extends Activity {
                     "Przywr\u00f3cono ustawienia domy\u015blne", "Statystyki", "Tydzie\u0144",
                     "Miesi\u0105c", "Rok", "Wszystko", "Okres", "Sesje", "Odpowiedzi", "Dobrze",
                     "B\u0142\u0119dnie", "Skuteczno\u015b\u0107", "Nowe s\u0142\u00f3wka", "Czas \u0142\u0105cznie",
-                    "Aktywne dni", "Brak danych dla wybranego okresu.", "Zamknij"},
+                    "Aktywne dni", "Brak danych dla wybranego okresu.", "Zamknij",
+                    "Pauza przed pisaniem min (ms)", "Pauza przed pisaniem max (ms)",
+                    "Pauza po b\u0142\u0119dzie min (ms)", "Pauza po b\u0142\u0119dzie max (ms)",
+                    "Pauza po poprawnej min (ms)", "Pauza po poprawnej max (ms)"},
             // en
             {"Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                     "Session finished", "Error", "Stopped", "Daily reminder",
@@ -130,7 +133,10 @@ public class MainActivity extends Activity {
                     "Restore defaults", "Defaults restored", "Statistics", "Week",
                     "Month", "Year", "All time", "Period", "Sessions", "Answers", "Correct",
                     "Wrong", "Accuracy", "New words", "Total time", "Active days",
-                    "No data for the selected period.", "Close"}
+                    "No data for the selected period.", "Close",
+                    "Min pause before typing (ms)", "Max pause before typing (ms)",
+                    "Min pause after a mistake (ms)", "Max pause after a mistake (ms)",
+                    "Min pause after a correct answer (ms)", "Max pause after a correct answer (ms)"}
     };
     // Label indexes beyond the original block, appended so the older indices stay put.
     private static final int L_NAV_MIN = 33;
@@ -153,6 +159,12 @@ public class MainActivity extends Activity {
     private static final int L_ACTIVE_DAYS = 50;
     private static final int L_NO_DATA = 51;
     private static final int L_CLOSE = 52;
+    private static final int L_THINK_MIN = 53;
+    private static final int L_THINK_MAX = 54;
+    private static final int L_REVIEW_MIN = 55;
+    private static final int L_REVIEW_MAX = 56;
+    private static final int L_REVIEW_CORRECT_MIN = 57;
+    private static final int L_REVIEW_CORRECT_MAX = 58;
     // Repeat choices in minutes, matching the desktop select.
     private static final int[] REPEAT_MINUTES = {0, 15, 30, 60, 120, 180};
 
@@ -486,6 +498,12 @@ public class MainActivity extends Activity {
                 + ",click_max:" + prefs.getInt("click_max", 4500)
                 + ",nav_min:" + prefs.getInt("nav_min", 2000)
                 + ",nav_max:" + prefs.getInt("nav_max", 4500)
+                + ",think_min:" + prefs.getInt("think_min", 1500)
+                + ",think_max:" + prefs.getInt("think_max", 4000)
+                + ",review_min:" + prefs.getInt("review_min", 2500)
+                + ",review_max:" + prefs.getInt("review_max", 5500)
+                + ",review_correct_min:" + prefs.getInt("review_correct_min", 500)
+                + ",review_correct_max:" + prefs.getInt("review_correct_max", 1200)
                 + ",type_min:" + prefs.getInt("type_min", 90)
                 + ",type_max:" + prefs.getInt("type_max", 230)
                 + ",type_pause_chance:" + prefs.getFloat("type_pause_chance", 0.12f)
@@ -554,18 +572,24 @@ public class MainActivity extends Activity {
         content.addView(validity);
 
         content.addView(sectionLabel(label(20)));
-        final EditText clickMin = numberField(prefs.getInt("click_min", 2000));
-        content.addView(fieldLabel(label(21)));
-        content.addView(clickMin);
-        final EditText clickMax = numberField(prefs.getInt("click_max", 4500));
-        content.addView(fieldLabel(label(22)));
-        content.addView(clickMax);
-        final EditText navMin = numberField(prefs.getInt("nav_min", 2000));
-        content.addView(fieldLabel(label(L_NAV_MIN)));
-        content.addView(navMin);
-        final EditText navMax = numberField(prefs.getInt("nav_max", 4500));
-        content.addView(fieldLabel(label(L_NAV_MAX)));
-        content.addView(navMax);
+        final EditText thinkMin = numberField(prefs.getInt("think_min", 1500));
+        content.addView(fieldLabel(label(L_THINK_MIN)));
+        content.addView(thinkMin);
+        final EditText thinkMax = numberField(prefs.getInt("think_max", 4000));
+        content.addView(fieldLabel(label(L_THINK_MAX)));
+        content.addView(thinkMax);
+        final EditText reviewMin = numberField(prefs.getInt("review_min", 2500));
+        content.addView(fieldLabel(label(L_REVIEW_MIN)));
+        content.addView(reviewMin);
+        final EditText reviewMax = numberField(prefs.getInt("review_max", 5500));
+        content.addView(fieldLabel(label(L_REVIEW_MAX)));
+        content.addView(reviewMax);
+        final EditText reviewCorrectMin = numberField(prefs.getInt("review_correct_min", 500));
+        content.addView(fieldLabel(label(L_REVIEW_CORRECT_MIN)));
+        content.addView(reviewCorrectMin);
+        final EditText reviewCorrectMax = numberField(prefs.getInt("review_correct_max", 1200));
+        content.addView(fieldLabel(label(L_REVIEW_CORRECT_MAX)));
+        content.addView(reviewCorrectMax);
         final EditText typeMin = numberField(prefs.getInt("type_min", 90));
         content.addView(fieldLabel(label(23)));
         content.addView(typeMin);
@@ -606,7 +630,8 @@ public class MainActivity extends Activity {
                 .setTitle(label(13))
                 .setView(scroll)
                 .setPositiveButton(label(16), (dialog, which) -> saveSettings(
-                        validity, clickMin, clickMax, navMin, navMax, typeMin, typeMax,
+                        validity, thinkMin, thinkMax, reviewMin, reviewMax,
+                        reviewCorrectMin, reviewCorrectMax, typeMin, typeMax,
                         typoChance, pauseChance, time, repeat.getSelectedItemPosition()))
                 .setNeutralButton(label(L_RESET), (dialog, which) -> resetToDefaults())
                 .setNegativeButton(label(17), null)
@@ -621,6 +646,12 @@ public class MainActivity extends Activity {
                 .putInt("click_max", 4500)
                 .putInt("nav_min", 2000)
                 .putInt("nav_max", 4500)
+                .putInt("think_min", 1500)
+                .putInt("think_max", 4000)
+                .putInt("review_min", 2500)
+                .putInt("review_max", 5500)
+                .putInt("review_correct_min", 500)
+                .putInt("review_correct_max", 1200)
                 .putInt("type_min", 90)
                 .putInt("type_max", 230)
                 .putFloat("typo_chance", 0.15f)
@@ -701,28 +732,38 @@ public class MainActivity extends Activity {
         return prefs.getInt("reminder_repeat", 0);
     }
 
-    private void saveSettings(EditText validity, EditText clickMin, EditText clickMax,
-                              EditText navMin, EditText navMax, EditText typeMin, EditText typeMax,
+    private void saveSettings(EditText validity,
+                              EditText thinkMin, EditText thinkMax,
+                              EditText reviewMin, EditText reviewMax,
+                              EditText reviewCorrectMin, EditText reviewCorrectMax,
+                              EditText typeMin, EditText typeMax,
                               EditText typoChance, EditText pauseChance, int[] time, int repeatIndex) {
         int percent = clamp(parseInt(validity.getText().toString(), 80), 0, 100);
-        int cMin = clamp(parseInt(clickMin.getText().toString(), 2000), 0, 120000);
-        int cMax = clamp(parseInt(clickMax.getText().toString(), 4500), 0, 120000);
-        int nMin = clamp(parseInt(navMin.getText().toString(), 2000), 0, 120000);
-        int nMax = clamp(parseInt(navMax.getText().toString(), 4500), 0, 120000);
+        int thinkMinValue = clamp(parseInt(thinkMin.getText().toString(), 1500), 0, 120000);
+        int thinkMaxValue = clamp(parseInt(thinkMax.getText().toString(), 4000), 0, 120000);
+        int reviewMinValue = clamp(parseInt(reviewMin.getText().toString(), 2500), 0, 120000);
+        int reviewMaxValue = clamp(parseInt(reviewMax.getText().toString(), 5500), 0, 120000);
+        int reviewCorrectMinValue = clamp(parseInt(reviewCorrectMin.getText().toString(), 500), 0, 120000);
+        int reviewCorrectMaxValue = clamp(parseInt(reviewCorrectMax.getText().toString(), 1200), 0, 120000);
         int tMin = clamp(parseInt(typeMin.getText().toString(), 90), 0, 5000);
         int tMax = clamp(parseInt(typeMax.getText().toString(), 230), 0, 5000);
         int typo = clamp(parseInt(typoChance.getText().toString(), 15), 0, 100);
         int pause = clamp(parseInt(pauseChance.getText().toString(), 12), 0, 100);
-        if (cMax < cMin) cMax = cMin;
-        if (nMax < nMin) nMax = nMin;
+        if (thinkMaxValue < thinkMinValue) thinkMaxValue = thinkMinValue;
+        if (reviewMaxValue < reviewMinValue) reviewMaxValue = reviewMinValue;
+        if (reviewCorrectMaxValue < reviewCorrectMinValue) {
+            reviewCorrectMaxValue = reviewCorrectMinValue;
+        }
         if (tMax < tMin) tMax = tMin;
         int repeat = REPEAT_MINUTES[clamp(repeatIndex, 0, REPEAT_MINUTES.length - 1)];
         prefs.edit()
                 .putFloat("valid_chance", percent / 100f)
-                .putInt("click_min", cMin)
-                .putInt("click_max", cMax)
-                .putInt("nav_min", nMin)
-                .putInt("nav_max", nMax)
+                .putInt("think_min", thinkMinValue)
+                .putInt("think_max", thinkMaxValue)
+                .putInt("review_min", reviewMinValue)
+                .putInt("review_max", reviewMaxValue)
+                .putInt("review_correct_min", reviewCorrectMinValue)
+                .putInt("review_correct_max", reviewCorrectMaxValue)
                 .putInt("type_min", tMin)
                 .putInt("type_max", tMax)
                 .putFloat("typo_chance", typo / 100f)

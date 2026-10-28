@@ -2,6 +2,18 @@
 
 All notable changes to this fork are documented here.
 
+## [4.3.0] - 2026-10-28
+
+### Added
+- **Two real human-like pauses.** After the word appears the bot waits `think_min`–`think_max` (defaults 1500–4000 ms) before the first keystroke. After checking the answer it waits `review_min`–`review_max` (2500–5500 ms) before "next" when the answer was a misspelling, wrong word, blank or a new word, and `review_correct_min`–`review_correct_max` (500–1200 ms) after a correct answer. Every value is random within its range, on desktop, Android, iOS and the userscript.
+- The six new ranges are exposed in the desktop Advanced section, Android ⚙, iOS ⚙ and the userscript settings, and are sanitized/persisted by the shared engine.
+- Engine tests cover the think pause, the quick correct review and the longer mistake review.
+
+### Changed
+- **Old click/nav fields hidden.** `click_min` / `click_max` and `nav_min` / `nav_max` are no longer shown in any settings panel; they stay in configs and still act as silent fallbacks.
+- **iOS "Gotowe"/"Done" accessory bar.** It now forces the light keyboard, uses the classic palette and reliably hides the number pad through `UIApplication.sendAction`.
+- Version bumped to `4.3.0` (userscript `4.3.0`) across `package.json`, the iOS project (`MARKETING_VERSION` 4.3.0 / `CURRENT_PROJECT_VERSION` 40300), the engine default, the desktop renderer, the website, `docs/llms.txt`, README (PL/EN), the wiki, `PROJECT_NOTES.md`, `MOBILE_PLAN.md` and the release notes.
+
 ## [4.2.2] - 2026-10-28
 
 ### Fixed
