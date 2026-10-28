@@ -4,8 +4,9 @@ Wersja 4.3.1 porządkuje tempo pracy na telefonie: bot czeka chwilę po pojawien
 słówka, zanim zacznie pisać (`think_min` / `think_max`), a po sprawdzeniu odpowiedzi czyta
 wynik przed „dalej" — dłużej po błędzie lub nowym słówku (`review_min` / `review_max`),
 krótko po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`). Wszystkie
-wartości są losowane z zakresu. Na iOS pasek **„Gotowe"** nad klawiaturą ma jasny,
-klasyczny wygląd i niezawodnie chowa klawiaturę. Wszystkie warianty mobilne używają tego samego
+wartości są losowane z zakresu. Na iOS nad klawiaturą unosi się pojedynczy, klasyczny przycisk **„Gotowe"** (bez szarego
+paska) i niezawodnie chowa klawiaturę. Android używa tych samych, kompaktowych przycisków
+co iOS. Wszystkie warianty mobilne używają tego samego
 silnika co desktop: odpowiedzi, literówki, zapamiętywanie słówek i interfejs PL/EN. Mają
 też te same **ustawienia** (poprawność odpowiedzi, trzy zakresy pauz, czasy pisania,
 literówki, godzina i częstotliwość przypomnienia), przycisk

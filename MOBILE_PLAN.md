@@ -187,8 +187,8 @@ Shipped as one 4.0.0 release instead of a separate 3.4.0 beta:
   keyboard appearance and the Done button calls
   `UIApplication.sendAction(#selector(UIResponder.resignFirstResponder))` so the number pad
   always closes. Since iOS 26 renders a `UIToolbar`'s `.done` item as a glass capsule over
-  the field, 4.3.1 builds the bar by hand: a `UIView` with the `windowLight` background, a
-  2 px `windowDark` divider and a beveled `ClassicButton`.
+  the field, 4.3.1 uses a transparent `UIView` accessory that holds only a 104×36 beveled
+  `ClassicButton`, pinned 12 pt from the trailing edge.
 - **UIScene adoption (4.3.1).** Apps built with the iOS 26 SDK must use the scene lifecycle;
   without it UIKit traps at launch. `SceneDelegate` now creates the window and the
   `MainViewController`, and `UIApplicationSceneManifest` is declared in `project.yml`.

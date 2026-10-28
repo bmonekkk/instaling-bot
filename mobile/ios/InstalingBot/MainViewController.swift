@@ -732,19 +732,14 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 10, height: 1))
         field.leftViewMode = .always
         field.heightAnchor.constraint(equalToConstant: 44).isActive = true
-        // The number pad has no return key, so add a classic themed Done bar
-        // above it. A plain UIToolbar gets the system glass capsule treatment
-        // on iOS 26, which clashes with the classic UI, so build the bar by
-        // hand instead.
-        let bar = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 46))
-        bar.backgroundColor = ClassicPalette.windowLight
+        // The number pad has no return key, so float a classic Done button just
+        // above it. A full-width UIToolbar gets the system glass capsule
+        // treatment on iOS 26 and a solid bar hides the page, so keep the
+        // accessory view transparent and draw only the beveled button.
+        let bar = UIView(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 50))
+        bar.backgroundColor = .clear
         bar.autoresizingMask = [.flexibleWidth]
         bar.overrideUserInterfaceStyle = .light
-
-        let divider = UIView(frame: CGRect(x: 0, y: 0, width: bar.bounds.width, height: 2))
-        divider.backgroundColor = ClassicPalette.windowDark
-        divider.autoresizingMask = [.flexibleWidth]
-        bar.addSubview(divider)
 
         let done = ClassicButton(
             title: language == "en" ? "Done" : "Gotowe",
@@ -755,10 +750,10 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         done.translatesAutoresizingMaskIntoConstraints = false
         bar.addSubview(done)
         NSLayoutConstraint.activate([
-            done.trailingAnchor.constraint(equalTo: bar.trailingAnchor, constant: -10),
-            done.centerYAnchor.constraint(equalTo: bar.centerYAnchor, constant: 1),
+            done.trailingAnchor.constraint(equalTo: bar.trailingAnchor, constant: -12),
+            done.centerYAnchor.constraint(equalTo: bar.centerYAnchor),
             done.widthAnchor.constraint(equalToConstant: 104),
-            done.heightAnchor.constraint(equalToConstant: 34)
+            done.heightAnchor.constraint(equalToConstant: 36)
         ])
 
         field.inputAccessoryView = bar

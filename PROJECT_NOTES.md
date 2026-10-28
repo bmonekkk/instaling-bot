@@ -482,7 +482,8 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 ## What changed in 4.3.1
 
 - **iOS crash on launch on iOS 26+.** Apps built with the iOS 26 SDK must adopt the `UIScene` lifecycle; without it UIKit raised a runtime issue (`_UIApplicationEvaluateRuntimeIssueForNoSceneLifecycleAdoption`) and the process trapped before the first frame, so the app showed white or bounced straight back to the home screen. Added `SceneDelegate.swift` plus `UIApplicationSceneManifest` / `UISceneConfigurations` in `project.yml`, and moved window + `MainViewController` creation, `openURL` handling and the `instalingbot://start|stop` deep links into the scene. `AppDelegate` keeps only notifications and a `shared` reference.
-- **Classic "Gotowe"/"Done" accessory bar.** The `UIToolbar` was replaced with a hand-built `UIView` accessory (light gray background, 2 px dark divider, 44×104 `ClassicButton`) because iOS 26 renders a toolbar's `.done` item as an oversized glass capsule over the field. Dismissal still goes through `UIApplication.sendAction`, and the bar keeps the `.light` keyboard.
+- **Floating "Gotowe"/"Done" button.** The `UIToolbar` was replaced with a clear `UIView` accessory that contains only a 104×36 `ClassicButton` pinned 12 pt from the trailing edge, because iOS 26 renders a toolbar's `.done` item as an oversized glass capsule over the field. Dismissal still goes through `UIApplication.sendAction` and the keyboard stays `.light`.
+- **Android sizes aligned with iOS.** `classicButton` zeroes the platform `minWidth`/`minHeight` (88×48 dp) it inherits from the default `Button` style, and `titleButton` pins the title-bar controls to 34×26 dp. The title is single-line with `TruncateAt.END`, so the wordmark no longer wraps into four lines, and Start/Stop are 34 dp tall.
 - Version bumped to `4.3.1` (userscript `4.3.1`, iOS 4.3.1 / 40301). 4.3.0 was tagged but never published because of the crash.
 
 ## What changed in 4.3.0

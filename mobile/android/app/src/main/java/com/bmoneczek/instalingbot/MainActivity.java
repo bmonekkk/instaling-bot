@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowInsets;
@@ -210,7 +211,7 @@ public class MainActivity extends Activity {
         LinearLayout titleBar = new LinearLayout(this);
         titleBar.setOrientation(LinearLayout.HORIZONTAL);
         titleBar.setGravity(Gravity.CENTER_VERTICAL);
-        titleBar.setPadding(dp(8), dp(5), dp(6), dp(5));
+        titleBar.setPadding(dp(8), dp(3), dp(4), dp(3));
         titleBar.setBackground(new GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT, new int[]{C_TITLE_1, C_TITLE_2}));
 
@@ -220,24 +221,26 @@ public class MainActivity extends Activity {
         title.setTextSize(13);
         title.setTypeface(classicTypeface(Typeface.BOLD));
         title.setShadowLayer(1f, 1f, 1f, 0x59000000);
-        title.setPadding(0, 0, dp(6), 0);
+        title.setSingleLine(true);
+        title.setEllipsize(TextUtils.TruncateAt.END);
+        title.setPadding(0, 0, dp(4), 0);
         title.setLayoutParams(new LinearLayout.LayoutParams(
                 0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
         titleBar.addView(title);
 
-        languageButton = classicButton(language.toUpperCase(), C_WINDOW, C_INK);
+        languageButton = titleButton(language.toUpperCase());
         languageButton.setOnClickListener(view -> toggleLanguage());
         titleBar.addView(languageButton);
 
-        reminderButton = classicButton("\u23F0", C_WINDOW, C_INK);
+        reminderButton = titleButton("\u23F0");
         reminderButton.setOnClickListener(view -> toggleReminder());
         titleBar.addView(reminderButton);
 
-        statsButton = classicButton("\uD83D\uDCCA", C_WINDOW, C_INK);
+        statsButton = titleButton("\uD83D\uDCCA");
         statsButton.setOnClickListener(view -> openStats());
         titleBar.addView(statsButton);
 
-        settingsButton = classicButton("\u2699", C_WINDOW, C_INK);
+        settingsButton = titleButton("\u2699");
         settingsButton.setOnClickListener(view -> openSettings());
         titleBar.addView(settingsButton);
 
@@ -251,7 +254,7 @@ public class MainActivity extends Activity {
         startButton = classicButton(label(0), C_TITLE_1, Color.WHITE);
         startButton.setOnClickListener(view -> requestStart());
         LinearLayout.LayoutParams startParams = new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                0, dp(34), 1f);
         startParams.setMargins(0, 0, dp(3), 0);
         startButton.setLayoutParams(startParams);
         actionBar.addView(startButton);
@@ -260,7 +263,7 @@ public class MainActivity extends Activity {
         stopButton.setEnabled(false);
         stopButton.setOnClickListener(view -> stopBot());
         LinearLayout.LayoutParams stopParams = new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+                0, dp(34), 1f);
         stopParams.setMargins(dp(3), 0, 0, 0);
         stopButton.setLayoutParams(stopParams);
         actionBar.addView(stopButton);
@@ -336,13 +339,29 @@ public class MainActivity extends Activity {
                 new int[]{C_WINDOW_DARK, foreground}));
         button.setBackgroundTintList(null);
         button.setBackground(bevel(fill));
-        button.setPadding(dp(8), dp(5), dp(8), dp(5));
-        button.setMinWidth(dp(32));
-        button.setMinHeight(dp(32));
+        button.setPadding(dp(8), dp(4), dp(8), dp(4));
+        // Button's platform style forces an 88dp/48dp minimum; drop it so the
+        // shells can match the small desktop and iOS controls.
+        button.setMinWidth(0);
+        button.setMinimumWidth(0);
+        button.setMinHeight(0);
+        button.setMinimumHeight(0);
+        button.setIncludeFontPadding(false);
         button.setStateListAnimator(null);
         button.setElevation(0f);
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(dp(4), 0, 0, 0);
+        button.setLayoutParams(params);
+        return button;
+    }
+
+    /** Compact square-ish control for the navy title bar, sized like iOS. */
+    private Button titleButton(String text) {
+        Button button = classicButton(text, C_WINDOW, C_INK);
+        button.setTextSize(13);
+        button.setPadding(0, 0, 0, 0);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(34), dp(26));
         params.setMargins(dp(4), 0, 0, 0);
         button.setLayoutParams(params);
         return button;

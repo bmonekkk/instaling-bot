@@ -29,7 +29,7 @@ word, blank answer or new word, and `review_correct_min`–`review_correct_max`
 (500–1200 ms) after a correct answer. Every value is random within its range, on desktop,
 Android, iOS and the userscript. The old `click_min`/`click_max` and `nav_min`/`nav_max`
 fields are hidden from every settings panel but still act as silent fallbacks. The iOS
-"Gotowe"/"Done" bar above the number pad now has a light classic look and reliably hides
+a floating "Gotowe"/"Done" button sits above the number pad and reliably hides
 the keyboard. The desktop and CLI keep every earlier feature, and a shared engine powers
 three mobile variants. Desktop, Android, iOS and the userscript all expose the same
 week/month/year/all statistics panel, a "restore defaults" action (keeping login, password

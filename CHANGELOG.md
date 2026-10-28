@@ -6,7 +6,8 @@ All notable changes to this fork are documented here.
 
 ### Fixed
 - **iOS app no longer crashes on launch on iOS 26 and newer.** Apps built with the iOS 26 SDK must adopt the UIScene lifecycle; without it UIKit raised a runtime issue at startup and the process trapped before the first frame, leaving a white screen or a bounce back to the home screen. Added `SceneDelegate` and `UIApplicationSceneManifest`, and moved window/root-controller setup and the `instalingbot://start|stop` deep links into the scene lifecycle. The 4.3.0 IPA was never published because of this.
-- **iOS "Gotowe"/"Done" bar above the number pad looks like the rest of the app.** Replaced the `UIToolbar` (which iOS 26 renders as an oversized glass capsule) with a hand-built classic accessory bar: light gray background, 2 px dark divider and a beveled navy-on-gray button. It still dismisses the keyboard with `UIApplication.sendAction`.
+- **iOS "Gotowe"/"Done" is a floating button above the number pad.** Replaced the `UIToolbar` (which iOS 26 renders as an oversized glass capsule) with a transparent accessory view that holds only a 104×36 beveled navy-on-gray "Gotowe" button, aligned 12 pt from the right edge. It still dismisses the keyboard with `UIApplication.sendAction`.
+- **Android controls match the iOS sizes.** The title-bar buttons (EN, ⏰, 📊, ⚙) are now 34×26 dp instead of the platform default 88×48 dp, Start/Stop are 34 dp tall, and "instaling-bot" stays on one line instead of wrapping into four.
 
 ### Changed
 - Version bumped to `4.3.1` (userscript `4.3.1`, iOS `MARKETING_VERSION` 4.3.1 / `CURRENT_PROJECT_VERSION` 40301).

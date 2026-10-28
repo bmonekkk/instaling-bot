@@ -5,7 +5,8 @@ Poprawkowe wydanie 4.3.1 naprawia dwie rzeczy w aplikacji iOS: aplikacja nie wyw
 ## Naprawione w 4.3.1
 
 - **iOS nie crashuje przy starcie.** Aplikacje budowane z SDK iOS 26 muszą korzystać z cyklu życia `UIScene`. Bez niego UIKit zgłaszał błąd i proces kończył się, zanim narysował pierwszy ekran (biały ekran albo powrót do pulpitu). Dodano `SceneDelegate` i `UIApplicationSceneManifest`; okno, kontroler główny i linki `instalingbot://start|stop` obsługuje teraz scena.
-- **Pasek „Gotowe" wygląda jak reszta aplikacji.** Zamiast `UIToolbar` (który na iOS 26 rysuje się jako wielka szklana pigułka) jest ręcznie zbudowany klasyczny pasek: jasnoszare tło, ciemna linia i wypukły przycisk w stylu Windows 95. Nadal chowa klawiaturę przez `UIApplication.sendAction`.
+- **„Gotowe" to teraz unoszący się przycisk.** Zamiast `UIToolbar` (który na iOS 26 rysuje się jako wielka szklana pigułka) nad klawiaturą wisi tylko wypukły przycisk w stylu Windows 95, wyrównany do prawej krawędzi — bez szarego paska zasłaniającego stronę. Nadal chowa klawiaturę przez `UIApplication.sendAction`.
+- **Android wygląda jak iOS.** Przyciski w pasku tytułu (EN, ⏰, 📊, ⚙) mają 34×26 dp zamiast domyślnych 88×48 dp, Start/Stop mają 34 dp wysokości, a napis „instaling-bot" mieści się w jednej linii zamiast łamać się na cztery.
 
 ## Pauzy z 4.3.0
 
