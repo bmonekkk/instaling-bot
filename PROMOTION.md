@@ -40,14 +40,15 @@ Strona: https://bmonekkk.github.io/instaling-bot/ · Repo: https://github.com/bm
 
 ## 2. Analityka
 
-Strona jest domyślnie bez trackerów. Żeby widzieć ruch, utwórz darmowe konto w
-[GoatCounter](https://www.goatcounter.com/) i wpisz subkonto w `docs/analytics.js`:
+Strona jest w 100% bez trackerów — żadnych skryptów analitycznych ani ciasteczek.
+Ruch sprawdzamy w panelach wyszukiwarek, które nie wymagają niczego po stronie
+strony:
 
-```js
-var GOATCOUNTER_SUBACCOUNT = 'instaling-bot'; // -> https://instaling-bot.goatcounter.com
-```
+- [ ] **Google Search Console** → Skuteczność (wyświetlenia, kliknięcia, zapytania, top strony).
+- [ ] **Bing Webmaster Tools** → Site Explorer / Statystyki wyszukiwania.
 
-GoatCounter nie używa ciasteczek ani odcisków palca, więc jest przyjazny RODO.
+Te dane są wystarczające do monitorowania SEO, a odwiedzający blokujący trackery
+(np. AdGuard) i tak byliby niewidoczni dla skryptu analitycznego.
 
 ## 3. Backlinki i katalogi
 
