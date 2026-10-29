@@ -489,7 +489,9 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - **Renderer isolation.** `configForRenderer()` now returns `password: ''` and `password_saved: true/false`; the settings field is cleared, shows a "saved — leave empty to keep" placeholder and a dedicated hint, and `applySettings()` treats an empty submitted password as "keep the current one".
 - **Engine hand-off.** `startBot()` decrypts in the main process and puts `INSTALING_LOGIN` / `INSTALING_PASSWORD` in the child environment; `src/config.js` already prefers those over the file.
 - **Fallbacks.** Without keychain support `seal()` keeps the plaintext rather than dropping it; an undecryptable blob reads as an empty password so the app asks again. `session-recon.js` explains that it cannot decrypt `password_enc` and points at `INSTALING_PASSWORD` / `--manual`.
-- Tests: `test/credential-store.test.js` covers migration, sealing, idempotence, legacy configs, keychain-unavailable and undecryptable cases. 99 tests pass.
+- Tests: `test/credential-store.test.js` covers migration, sealing, idempotence, legacy configs, keychain-unavailable and undecryptable cases. 99 tests pass on the research branch; 85 on master (no research-only suites).
+- Verified against real Electron 45: `isEncryptionAvailable()` is true, `seal()` writes no plaintext and decrypts back correctly.
+- Follow-up: Electron 45 deprecates the synchronous `safeStorage` methods in favour of `isAsyncEncryptionAvailable()` / `encryptStringAsync()` / `decryptStringAsync()`. The sync calls still work; moving `credential-store.js` to the async variants is a future cleanup.
 - Version bumped to `4.3.2` (userscript `4.3.2`, iOS 4.3.2 / 40302). Android, iOS and the userscript do not store credentials and are functionally unchanged.
 
 ## What changed in 4.3.1
