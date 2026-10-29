@@ -1,4 +1,4 @@
-const {app, BrowserWindow, ipcMain, shell, Menu, Tray, nativeImage, Notification} = require('electron');
+const {app, BrowserWindow, ipcMain, shell, Menu, Tray, nativeImage, Notification, safeStorage} = require('electron');
 const {execFileSync, fork} = require('child_process');
 const fs = require('fs');
 const fsp = require('fs/promises');
@@ -16,6 +16,7 @@ const {
     repeatMinutes
 } = require('../src/reminder.js');
 const {loadStats, summarizeAll} = require('../src/stats.js');
+const {hasStoredPassword, migrate, readPassword, seal} = require('./credential-store.js');
 const {t, normalizeLanguage} = require('./renderer/i18n.js');
 
 const APP_ID = 'com.bmoneczek.instalingbot';
@@ -212,6 +213,8 @@ async function ensureDataFiles() {
         readJson(DEFAULT_CONFIG_PATH)
     ]);
     const merged = mergeDefaults(current, defaults);
+    // Never re-introduce an empty plaintext password next to the encrypted one.
+    if (merged.credentials?.password_enc) delete merged.credentials.password;
     if (JSON.stringify(merged) !== JSON.stringify(current)) {
         await writeJson(CONFIG_PATH, merged);
     }
@@ -236,7 +239,24 @@ function normalizeConfig(raw) {
 
 async function loadConfig() {
     await ensureDataFiles();
-    configCache = normalizeConfig(await readJson(CONFIG_PATH));
+
+    // Move a plaintext password into the OS keychain on first launch after the
+    // upgrade, then keep only the encrypted blob on disk.
+    const stored = await readJson(CONFIG_PATH);
+    const {config, changed} = migrate(safeStorage, stored);
+    if (changed) await writeJson(CONFIG_PATH, config);
+
+    const rawCredentials = config.credentials ?? {
+        login: config.login ?? '',
+        password: config.password ?? ''
+    };
+    configCache = normalizeConfig({
+        ...config,
+        credentials: {
+            ...rawCredentials,
+            password: readPassword(safeStorage, rawCredentials)
+        }
+    });
     return configCache;
 }
 
@@ -256,13 +276,17 @@ function applySettings(current, payload) {
     const credentials = payload?.credentials ?? {};
     const fromEnv = readEnvCredentials();
 
+    // The renderer never receives the stored password, so an empty field means
+    // "keep the current one" (the user only types when changing it).
+    const submittedPassword = String(credentials.password ?? '');
+    const storedPassword = String(current.credentials?.password ?? '');
     next.credentials = {
         login: fromEnv.hasLogin
             ? String(current.credentials?.login ?? '')
             : String(credentials.login ?? '').trim(),
         password: fromEnv.hasPassword
-            ? String(current.credentials?.password ?? '')
-            : String(credentials.password ?? '')
+            ? storedPassword
+            : (submittedPassword.length > 0 ? submittedPassword : storedPassword)
     };
     next.language = normalizeLanguage(payload?.language ?? current.language ?? 'pl');
 
@@ -353,7 +377,7 @@ function applySettings(current, payload) {
 async function saveSettings(payload) {
     const current = await loadConfig();
     const next = applySettings(current, payload);
-    await writeJson(CONFIG_PATH, next);
+    await writeJson(CONFIG_PATH, seal(safeStorage, next));
     configCache = next;
     applyBackgroundSettings();
     return next;
@@ -379,7 +403,10 @@ function configForRenderer(config) {
     return {
         credentials: {
             login: fromEnv.hasLogin ? fromEnv.login : config.credentials.login ?? '',
-            password: fromEnv.hasPassword ? '' : config.credentials.password ?? '',
+            // Never ship the secret to the renderer: tell it that one is stored
+            // and only send a value when the user types a new password.
+            password: '',
+            password_saved: hasStoredPassword(config.credentials),
             env_login: fromEnv.hasLogin,
             env_password: fromEnv.hasPassword
         },
@@ -592,6 +619,10 @@ async function startBot() {
         FORCE_COLOR: '0',
         NO_COLOR: '1'
     };
+    // Config.json only holds the encrypted password, so hand the engine the
+    // decrypted value through the environment for this run.
+    if (effectiveCredentials.login) env.INSTALING_LOGIN = effectiveCredentials.login;
+    if (effectiveCredentials.password) env.INSTALING_PASSWORD = effectiveCredentials.password;
     if (browser.executable) {
         env.INSTALING_CHROME = browser.executable;
         env.PUPPETEER_EXECUTABLE_PATH = browser.executable;
@@ -1074,7 +1105,7 @@ function registerIpc() {
         const current = await loadConfig();
         if (current.language !== language) {
             current.language = language;
-            await writeJson(CONFIG_PATH, current);
+            await writeJson(CONFIG_PATH, seal(safeStorage, current));
             configCache = current;
             if (tray) {
                 tray.destroy();
@@ -1157,7 +1188,7 @@ if (!gotLock) {
 
     app.whenReady().then(async () => {
         initPaths();
-        configCache = await ensureDataFiles();
+        configCache = await loadConfig();
         registerIpc();
         Menu.setApplicationMenu(null);
         updateTray();

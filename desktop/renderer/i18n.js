@@ -41,7 +41,9 @@
             'password.placeholder': 'twoje-hasło',
             'password.show': 'Pokaż',
             'password.hide': 'Ukryj',
+            'password.savedPlaceholder': 'zapisane — pozostaw puste, aby zachować',
             'account.hint': 'Dane są zapisywane lokalnie w folderze aplikacji i nigdy nie opuszczają tego komputera.',
+            'account.savedHint': 'Hasło jest zapisane i zaszyfrowane w pęku kluczy systemu. Pozostaw pole puste, aby je zachować, albo wpisz nowe, aby je zmienić.',
             'account.envHint': 'Pola zablokowane poniżej ustawiono zmiennymi środowiskowymi INSTALING_LOGIN / INSTALING_PASSWORD. Mają one pierwszeństwo przed Config.json.',
 
             'behavior.legend': 'Zachowanie',
@@ -230,7 +232,9 @@
             'password.placeholder': 'your-password',
             'password.show': 'Show',
             'password.hide': 'Hide',
+            'password.savedPlaceholder': 'saved — leave empty to keep',
             'account.hint': 'Your data is saved locally in the app folder and never leaves this computer.',
+            'account.savedHint': 'The password is stored encrypted in the system keychain. Leave the field empty to keep it, or type a new one to change it.',
             'account.envHint': 'Fields disabled below are set by the INSTALING_LOGIN / INSTALING_PASSWORD environment variables. They take precedence over Config.json.',
 
             'behavior.legend': 'Behavior',

@@ -82,6 +82,31 @@ reminder" flows need an unlock prompt.
 - **Storing in the repo / a committed config**: never. The repo's
   `config/Config.defaults.json` has empty credentials on purpose.
 
+## Status: implemented for the desktop app
+
+Option A now ships in `desktop/credential-store.js` and is wired into
+`desktop/main.js`:
+
+- `loadConfig()` migrates a plaintext `credentials.password` into
+  `credentials.password_enc` on first launch and rewrites `Config.json`;
+- every write path (`saveSettings`, language switch, defaults merge) seals the
+  config first, so the plaintext never reaches disk again;
+- the renderer never receives the secret — it gets `password_saved: true` and an
+  empty field, and only sends a value when the user types a new password;
+- `startBot()` decrypts in the main process and passes
+  `INSTALING_LOGIN` / `INSTALING_PASSWORD` to the engine child, which already
+  prefers the environment over the file;
+- if the OS keychain is unavailable the password is kept as before rather than
+  dropped silently;
+- an undecryptable blob (keychain reset, copied config) reads as "no password",
+  so the app asks for it again instead of failing to log in.
+
+`session-recon.js` detects `password_enc` and tells the user to set
+`INSTALING_PASSWORD` or use `--manual`; it cannot decrypt the keychain from plain
+Node. The CLI still accepts env vars or a plaintext config.
+
+The remaining Option B work (prompt on every run) is optional.
+
 ## Recommendation
 
 Go with **Option A for the desktop app** and **Option B for the CLI**:

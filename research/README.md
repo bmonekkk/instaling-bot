@@ -9,7 +9,7 @@ about it". The full write-up is in [`ANTI_DETECTION.md`](ANTI_DETECTION.md).
 |---|---|
 | `ANTI_DETECTION.md` | Findings, ranked detection vectors, measurements, recommendations |
 | `SESSION_API.md` | Sanitised map of the logged-in session app: endpoints, payloads, grade codes, timing the server can see |
-| `CREDENTIALS.md` | Why the password cannot be hashed, and the OS-keychain plan (`safeStorage`) |
+| `CREDENTIALS.md` | Why the password cannot be hashed, and the OS-keychain storage now used by the desktop app (`safeStorage`) |
 | `fingerprint-baseline.json` | Raw Puppeteer: 13/15 checks pass (webdriver, UA-CH brands fail) |
 | `fingerprint-stealth.json` | Bot defaults: 15/15 (headed) |
 | `fingerprint-stealth-headless.json` | Bot defaults: 15/15 (headless, after the UA rewrite) |

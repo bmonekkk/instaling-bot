@@ -47,6 +47,12 @@ function loadCredentials() {
         try {
             const raw = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
             stored = raw.credentials ?? {login: raw.login, password: raw.password};
+            if (stored?.password_enc && !stored.password && !process.env.INSTALING_PASSWORD) {
+                console.warn(
+                    `The password in ${file} is encrypted with the desktop app's OS keychain. ` +
+                    'Set INSTALING_PASSWORD or use --manual.'
+                );
+            }
         } catch (error) {
             console.warn(`Could not read ${file}: ${error.message}`);
         }
@@ -242,7 +248,7 @@ async function main() {
             await waitForEnter('Log in manually in the opened window, then press Enter here…');
         } else {
             if (!credentials.login || !credentials.password) {
-                throw new Error('No credentials. Set INSTALING_LOGIN/INSTALING_PASSWORD or create config/Config.json.');
+                throw new Error('No credentials. Set INSTALING_LOGIN/INSTALING_PASSWORD, use --manual, or create config/Config.json.');
             }
             console.log('→ signing in');
             await page.type(SELECTORS.loginEmail[0], credentials.login, {delay: 25});

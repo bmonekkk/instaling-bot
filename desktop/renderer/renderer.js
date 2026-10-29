@@ -9,6 +9,7 @@ const els = {
     password: $('password'),
     togglePassword: $('toggle-password'),
     envHint: $('env-credentials-hint'),
+    savedHint: $('credentials-saved-hint'),
     validChance: $('valid-chance'),
     validChanceValue: $('valid-chance-value'),
     showBrowser: $('show-browser'),
@@ -101,6 +102,7 @@ let language = 'pl';
 let maximized = false;
 let envLoginActive = false;
 let envPasswordActive = false;
+let passwordSavedActive = false;
 
 const README_FAQ_URLS = {
     pl: 'https://github.com/bmonekkk/instaling-bot/blob/master/README.md#-rozwiązywanie-problemów',
@@ -145,6 +147,10 @@ function applyLanguage(value) {
     for (const element of document.querySelectorAll('[data-i18n-aria-label]')) {
         element.setAttribute('aria-label', tr(element.dataset.i18nAriaLabel));
     }
+    // The saved-password placeholder is state-dependent, not static i18n.
+    if (passwordSavedActive) {
+        els.password.placeholder = tr('password.savedPlaceholder');
+    }
     for (const button of document.querySelectorAll('[data-lang]')) {
         const active = button.dataset.lang === language;
         button.classList.toggle('active', active);
@@ -169,14 +175,22 @@ function applyLanguage(value) {
 function fillForm(config) {
     const envLogin = Boolean(config.credentials?.env_login);
     const envPassword = Boolean(config.credentials?.env_password);
+    const passwordSaved = Boolean(config.credentials?.password_saved);
     envLoginActive = envLogin;
     envPasswordActive = envPassword;
+    passwordSavedActive = passwordSaved && !envPassword;
     els.login.value = config.credentials?.login ?? '';
+    // The main process never sends the stored password. An empty field with
+    // `password_saved` means "keep the one in the keychain".
     els.password.value = config.credentials?.password ?? '';
+    els.password.placeholder = passwordSavedActive
+        ? tr('password.savedPlaceholder')
+        : tr('password.placeholder');
     els.login.disabled = envLogin;
     els.password.disabled = envPassword;
     els.togglePassword.disabled = envPassword;
     els.envHint.hidden = !(envLogin || envPassword);
+    els.savedHint.hidden = !passwordSavedActive || envLogin || envPassword;
     els.validChance.value = String(Math.round((config.valid_chance ?? 0.8) * 100));
     els.showBrowser.checked = config.show_browser !== false;
     els.muteAudio.checked = config.mute_audio !== false;
@@ -241,7 +255,8 @@ function collectSettings() {
 }
 
 function validateCredentials() {
-    if ((!envLoginActive && !els.login.value.trim()) || (!envPasswordActive && !els.password.value)) {
+    const passwordMissing = !envPasswordActive && !passwordSavedActive && !els.password.value;
+    if ((!envLoginActive && !els.login.value.trim()) || passwordMissing) {
         toast(tr('toast.loginRequired'), true);
         if (!envLoginActive) els.login.focus();
         return false;
