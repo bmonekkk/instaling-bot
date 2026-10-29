@@ -197,21 +197,24 @@ Zostaw pierwszy komentarz z detalami o silniku i odpowiadaj na pytania o regulam
 ### 4e. GitHub Discussions (ogłoszenie o wydaniu)
 
 Opublikowane: https://github.com/bmonekkk/instaling-bot/discussions/3
-Tytuł: **🎉 instaling-bot 4.3.1 — udało się, wszystko działa!**
+Tytuł: **🎉 instaling-bot 4.3.2 — hasło w pęku kluczy, wszystko działa!**
 
-Ton jest celowo swobodny („udało się"), a treść wypunktowana: iOS startuje, „Gotowe" to
-pojedynczy przycisk, Android wygląda jak iOS, dwie pauzy zostają + tabela plików i link do
-releases. To jedyne miejsce, gdzie opisujemy zmiany w wydaniu — posty promocyjne (4a–4d)
-mają przedstawiać projekt, a nie changelog.
+Ton jest celowo swobodny („wszystko działa"), a treść wypunktowana: hasło desktopu
+szyfrowane w pęku kluczy systemu z automatyczną migracją, mobile i userscript bez zmian,
+poprawka przewijania na macOS + tabela plików i link do releases. Wcześniejsze punkty
+(iOS startuje, „Gotowe" to pojedynczy przycisk, Android jak iOS, trzy pauzy) zostają
+wspomniane jako nadal działające. To jedyne miejsce, gdzie opisujemy zmiany w wydaniu —
+posty promocyjne (4a–4d) mają przedstawiać projekt, a nie changelog.
 
 ### 4f. Krótkie „co nowego" — tylko do posta o wydaniu
 
-- dwie losowe pauzy (myślenie przed pisaniem, czytanie wyniku przed „dalej"),
-- „Gotowe" jako unoszący się przycisk na iOS + brak crasha na iOS 26,
-- Android jak iOS: kompaktowy pasek tytułu, gradient w pasku stanu, symetryczna ramka,
+- hasło desktopu szyfrowane w pęku kluczy systemu (Keychain / DPAPI / libsecret) z automatyczną migracją,
+- aplikacje mobilne i userscript nigdy nie zapisują hasła,
+- iOS startuje, „Gotowe" jako unoszący się przycisk, Android jak iOS,
 - jeden silnik na desktop, Androida, iOS, userscript i CLI,
 - statystyki tygodnia/miesiąca/roku i przypomnienia na każdej platformie,
-- bez backendu, bez telemetrii, hasło na desktopie szyfrowane w pęku kluczy systemu, a na telefonach nigdy nie zapisywane.
+- strona wykrywa system i na macOS przewija do instrukcji instalacji,
+- bez backendu i bez telemetrii.
 
 ## 5. Rytm publikacji
 
