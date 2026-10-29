@@ -13,8 +13,10 @@ Ciebie.
 
 ## Czy bot wysyła moje dane na jakiś serwer?
 
-Nie. Bot działa lokalnie. Login, hasło, słówka i statystyki są zapisywane w plikach w folderze
-aplikacji. Nie ma własnego backendu ani telemetrii.
+Nie. Bot działa lokalnie. Login, słówka i statystyki są zapisywane w plikach w folderze
+aplikacji, a hasło w desktopie trafia tylko do systemowego pęku kluczy jako zaszyfrowany
+`password_enc` (na telefonie i w userscripcie nie jest zapisywane wcale). Nie ma własnego
+backendu ani telemetrii.
 
 ## Gdzie są moje dane?
 

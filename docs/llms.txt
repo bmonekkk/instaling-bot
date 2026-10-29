@@ -22,20 +22,23 @@ resumes a session, reads each prompt, answers with a configurable accuracy, reme
 translations and can make believable mistakes (empty field, different translation or a
 typo) for human-like behaviour. Everything runs locally; there is no backend or telemetry.
 
-Version 4.3.1 reworks the timing to be genuinely human-like. After a prompt appears the
-bot waits `think_min`–`think_max` (defaults 1500–4000 ms) before typing, then reads the
-result before "next": `review_min`–`review_max` (2500–5500 ms) after a misspelling, wrong
-word, blank answer or new word, and `review_correct_min`–`review_correct_max`
-(500–1200 ms) after a correct answer. Every value is random within its range, on desktop,
-Android, iOS and the userscript. The old `click_min`/`click_max` and `nav_min`/`nav_max`
-fields are hidden from every settings panel but still act as silent fallbacks. On iOS a
-single floating "Gotowe"/"Done" button sits above the number pad and reliably hides the
-keyboard, and the Android chrome mirrors iOS: a 44 dp navy-to-blue title bar whose gradient
-continues behind the status bar, 34x30 dp controls and a symmetric 2 px window frame.
-The desktop and CLI keep every earlier feature, and a shared engine powers
-three mobile variants. Desktop, Android, iOS and the userscript all expose the same
-week/month/year/all statistics panel, a "restore defaults" action (keeping login, password
-and language) and the same three timing ranges:
+Version 4.3.2 is a desktop security update: the InstaLing password is no longer written
+as plaintext. `Config.json` keeps only a `password_enc` blob encrypted by Electron
+`safeStorage` (Keychain on macOS, DPAPI on Windows, libsecret/kwallet on Linux); an
+existing plaintext entry is migrated on the first launch. The settings UI never receives
+the secret, and the engine gets the decrypted value through `INSTALING_LOGIN` /
+`INSTALING_PASSWORD` for a single run. If the keychain is unavailable the previous
+behaviour is kept rather than losing the password, and an undecryptable blob asks for the
+password again. Android, iOS and the userscript never store credentials.
+
+Earlier releases added the human-like timing: after a prompt appears the bot waits
+`think_min`–`think_max` (defaults 1500–4000 ms), then reads the result before "next":
+`review_min`–`review_max` (2500–5500 ms) after a misspelling, wrong word, blank answer or
+new word, and `review_correct_min`–`review_correct_max` (500–1200 ms) after a correct
+answer. Every value is random within its range. On iOS a single floating
+"Gotowe"/"Done" button sits above the number pad, and the Android chrome mirrors iOS.
+Desktop, Android, iOS and the userscript all expose the same week/month/year/all
+statistics panel, a "restore defaults" action and the same three timing ranges:
 
 - **Android APK** — native WebView shell with Start/Stop, PL/EN, answer counter,
   statistics, a ⚙ settings dialog (accuracy, the three pause ranges, typing delays,
@@ -59,16 +62,18 @@ downloads the recommended build and scrolls to the matching install tutorial. Ev
 platform uses the same icon generated from `build/icon.png`.
 
 Mobile apps do not store passwords; they reuse the normal website session in the WebView.
-A session runs only while the app or browser tab is open. Every app — desktop, Android,
-iOS and the userscript — shows week/month/year/all statistics; the full desktop additionally
-keeps saved-word export, tray mode and hidden background sessions.
+The desktop app stores the password encrypted with the OS keychain and hands it to the
+engine through environment variables for a single run. A session runs only while the app
+or browser tab is open. Every app — desktop, Android, iOS and the userscript — shows
+week/month/year/all statistics; the full desktop additionally keeps saved-word export,
+tray mode and hidden background sessions.
 
 ## Install
 
-- Windows: `instaling-bot-4.3.1-setup-win64.exe` from the latest release.
-- macOS: `instaling-bot-4.3.1-macos-arm64.pkg` or `instaling-bot-4.3.1-macos-x64.pkg`.
-- Android: `instaling-bot-4.3.1-android.apk`.
-- iOS: `instaling-bot-4.3.1-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
+- Windows: `instaling-bot-4.3.2-setup-win64.exe` from the latest release.
+- macOS: `instaling-bot-4.3.2-macos-arm64.pkg` or `instaling-bot-4.3.2-macos-x64.pkg`.
+- Android: `instaling-bot-4.3.2-android.apk`.
+- iOS: `instaling-bot-4.3.2-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
 - Linux / terminal: `curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash`
 
 ## Notes

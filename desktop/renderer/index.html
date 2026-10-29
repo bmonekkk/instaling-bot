@@ -11,7 +11,7 @@
 <div class="app" id="app">
     <header class="titlebar" id="titlebar">
         <span class="titlebar-icon" aria-hidden="true">🤖</span>
-        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.3.1</span></span>
+        <span class="titlebar-text">instaling-bot <span class="titlebar-version" id="title-version">v4.3.2</span></span>
         <div class="window-controls">
             <button class="window-button" id="win-minimize" type="button" data-i18n-title="window.minimize" data-i18n-aria-label="window.minimize" title="Minimalizuj" aria-label="Minimalizuj">_</button>
             <button class="window-button" id="win-maximize" type="button" data-i18n-title="window.maximize" data-i18n-aria-label="window.maximize" title="Maksymalizuj" aria-label="Maksymalizuj">□</button>
@@ -77,6 +77,7 @@
                             </span>
                         </label>
                         <p class="hint" data-i18n="account.hint">Dane są zapisywane lokalnie w folderze aplikacji i nigdy nie opuszczają tego komputera.</p>
+                        <p class="hint" id="credentials-saved-hint" data-i18n="account.savedHint" hidden>Hasło jest zapisane i zaszyfrowane w pęku kluczy systemu. Pozostaw pole puste, aby je zachować, albo wpisz nowe, aby je zmienić.</p>
                         <p class="hint" id="env-credentials-hint" data-i18n="account.envHint" hidden>Pola zablokowane poniżej ustawiono zmiennymi środowiskowymi INSTALING_LOGIN / INSTALING_PASSWORD. Mają one pierwszeństwo przed Config.json.</p>
                     </fieldset>
 
@@ -249,7 +250,7 @@
         <span class="status-cell" id="footer-status" data-i18n="footer.ready">Gotowy</span>
         <span class="status-cell grow" id="footer-path" data-i18n-title="footer.dataFolder" title="Folder danych">—</span>
         <button class="status-cell link" id="footer-author" type="button" data-i18n-title="footer.author" title="Profil autora na GitHubie">by bmonekkk</button>
-        <span class="status-cell" id="footer-version">v4.3.1</span>
+        <span class="status-cell" id="footer-version">v4.3.2</span>
     </footer>
 </div>
 

@@ -1,10 +1,24 @@
-# Security audit — instaling-bot 4.3.1
+# Security audit — instaling-bot 4.3.2
 
 Scope: desktop (Electron), CLI + shared core, browser userscript, Android WebView APK,
 iOS WKWebView IPA, website, and the CI/release pipeline. This is a **self-assessment**, not
 an external penetration test, and it does **not** claim the project is fully secure. Every
-finding below is either fixed (in 4.1.0, 4.2.0 or 4.2.2), mitigated by design, or listed as an
-accepted limitation.
+finding below is either fixed (in 4.1.0, 4.2.0, 4.2.2 or 4.3.2), mitigated by design, or
+listed as an accepted limitation.
+
+## 4.3.2 — credential storage hardening
+
+The desktop app no longer stores the InstaLing password in plaintext. `desktop/credential-store.js`
+wraps Electron `safeStorage` (macOS Keychain, Windows DPAPI, Linux libsecret/kwallet) and
+`Config.json` keeps only `credentials.password_enc` plus `password_scheme: safeStorage-v1`.
+A legacy plaintext entry is encrypted and removed on the first launch; every write path seals
+the config, and `ensureDataFiles()` cannot re-introduce an empty plaintext key beside the
+encrypted blob. The renderer never receives the secret (`password_saved` + an empty field),
+and the engine child receives `INSTALING_LOGIN` / `INSTALING_PASSWORD` through its environment
+for a single run. If the keychain is unavailable the previous behaviour is kept rather than
+losing the password; an undecryptable blob reads as "no password" so the app asks again. The
+`chmod 600` / private ACL remains as defence in depth. Android, iOS and the userscript never
+stored credentials and are unchanged. No new network calls, permissions or trust boundaries.
 
 ## 4.3.0 / 4.3.1 — no security-surface change
 
@@ -58,7 +72,8 @@ banner rather than a background notification. No `Config.json` access, no creden
   credentials off disk entirely.
 - **Electron:** `contextIsolation: true`, `nodeIntegration: false`, `sandbox: true`;
   narrow `contextBridge` preload; `assertSender` on every IPC handler; local `loadFile`
-  only; external URLs HTTPS-only; strict renderer CSP; config file chmod/ACL.
+  only; external URLs HTTPS-only; strict renderer CSP; config file chmod/ACL and
+  `safeStorage` encryption of the password at rest.
 - **Android:** `allowBackup="false"`, `usesCleartextTraffic="false"`; WebView file/content
   access disabled, no mixed content, no form saving; HTTPS `instaling.pl`-only navigation
   allowlist; engine injected only on the bot host; JS bridge guarded by a per-injection
@@ -103,11 +118,14 @@ tool. They are **not** claiming to be solved.
    `SavedWords.json`, `reminder-state.json` and the desktop log file use default modes and
    are not chmod-hardened. Diagnostics (`pages/`, `screenshots/`) store page HTML that may
    contain session/CSRF tokens.
-5. **Electron returns the saved password to the renderer** (expected, so the settings field
-   can be prefilled). The password lives in renderer memory while the window is open.
+5. **Renderer never sees the saved password.** It receives `password_saved: true` and an
+   empty field; a value is sent only when the user types a new password. The plaintext
+   exists in the main process for the duration of a run. `Config.json` holds only the
+   `safeStorage`-encrypted `password_enc` blob (Keychain / DPAPI / libsecret), with the
+   old `chmod 600` / ACL kept as defence in depth.
 6. **Supply chain (Low–Medium).** GitHub Actions are pinned to mutable major tags rather
    than commit SHAs; `release.yml` grants workflow-wide `contents: write`; no build
-   provenance/SBOM. Hardening planned but not done yet as of 4.3.1.
+   provenance/SBOM. Hardening planned but not done yet as of 4.3.2.
 7. **Swift is not covered by CodeQL** (JS/TS and Java/Kotlin only).
 
 ## Reproducing the checks

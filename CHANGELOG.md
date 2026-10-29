@@ -2,6 +2,11 @@
 
 All notable changes to this fork are documented here.
 
+## [4.3.2] - 2026-10-29
+
+### Fixed
+- **The desktop app no longer stores the InstaLing password in plaintext.** `Config.json` now keeps only an opaque `password_enc` blob encrypted with Electron's `safeStorage` (macOS Keychain, Windows DPAPI, libsecret/kwallet on Linux). Existing plaintext passwords are migrated on the first launch after the upgrade. The engine child receives the decrypted value through `INSTALING_LOGIN` / `INSTALING_PASSWORD`, so the file never needs it. The renderer no longer receives the secret either: it shows "saved" and sends a new value only when the user types one. If the OS keychain is unavailable the old behaviour is kept rather than losing the password; if the blob cannot be decrypted the app asks for the password again. Android, iOS and the userscript do not store credentials and are unchanged.
+
 ## [4.3.1] - 2026-10-28
 
 ### Fixed

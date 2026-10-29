@@ -40,7 +40,7 @@ edytowania. Ustawienia i zapamiętane słówka trzymają w pamięci WebView (And
 
 | Opcja | Znaczenie |
 |---|---|
-| `credentials.login` / `password` | dane logowania do InstaLing |
+| `credentials.login` / `password` | dane logowania do InstaLing. W desktopie hasło jest zapisywane jako `password_enc` (szyfrowane przez `safeStorage`); CLI nadal czyta `password` lub zmienne środowiskowe |
 | `valid_chance` | część poprawnych odpowiedzi, np. `0.8` = 80% |
 | `show_browser` | pokazuje okno Chrome; `false` na serwerze bez GUI |
 | `mute_audio` | wycisza dźwięk przeglądarki |
@@ -78,11 +78,15 @@ i [README → Humanizacja](https://github.com/bmonekkk/instaling-bot#-humanizacj
 ## Prywatność
 
 Bot działa lokalnie. Nie wysyła danych logowania ani słówek na żaden serwer. Dane trafiają
-do plików w folderze aplikacji. Desktop nadaje `Config.json` uprawnienia tylko dla właściciela
-(`600` na macOS/Linux, prywatna lista ACL na Windows) i maskuje hasła w logach oraz
-powiadomieniach. Zamiast zapisywać hasło w pliku, możesz użyć `INSTALING_LOGIN` i
-`INSTALING_PASSWORD`. Nie publikuj `Config.json` ani logów — usuń z nich dane osobowe przed
-wklejeniem do issue.
+do plików w folderze aplikacji. Desktop nie zapisuje hasła jawnym tekstem: `Config.json`
+zawiera tylko zaszyfrowany `password_enc` z systemowego pęku kluczy (Keychain / DPAPI /
+libsecret), a silnik dostaje odszyfrowaną wartość przez zmienne środowiskowe na czas jednego
+przebiegu. Plik ma też uprawnienia tylko dla właściciela (`600` na macOS/Linux, prywatna
+lista ACL na Windows), a hasła są maskowane w logach i powiadomieniach. Jeśli pęk kluczy
+jest niedostępny (np. minimalny Linux bez libsecret), aplikacja zachowuje dotychczasowe
+zachowanie zamiast zgubić hasło. Zamiast zapisywać hasło w pliku, możesz użyć
+`INSTALING_LOGIN` i `INSTALING_PASSWORD`. Nie publikuj `Config.json` ani logów — usuń z nich
+dane osobowe przed wklejeniem do issue.
 
 Adres `sites.login` jest walidowany: musi wskazywać oficjalną stronę logowania `instaling.pl`
 po HTTPS. Dzięki temu zmodyfikowany `Config.json` nie może przekierować loginu i hasła na obcą

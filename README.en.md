@@ -19,15 +19,16 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**4.3.1**) is a consistency release — desktop, phone and userscript look and behave the same:
+The current version (**4.3.2**) is a desktop security release — the password is no longer stored as plaintext:
 
 - 🖥️ **desktop** for Windows and macOS: GUI, live log, statistics and a bundled Chrome,
+- 🔐 **password in the OS keychain**: `Config.json` keeps only an encrypted blob (`safeStorage`), and an existing plaintext entry is migrated on the first launch,
 - 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, session settings, statistics and configurable reminders,
 - 🌐 **userscript** for Safari on iOS/iPadOS and Firefox on Android, with a persistent settings panel,
 - ⌨️ a full **CLI** for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes, plus a **thinking pause** before typing the translation and a **review pause** before "next".
 
-Version 4.3.1 reworks the timing to match how a person works. After the word appears the bot waits before the first keystroke (`think_min` / `think_max`, defaults 1500–4000 ms), as if thinking about the translation. After checking the answer it reads the result before clicking "next": longer after a typo, wrong word, empty answer or a new word (`review_min` / `review_max`, 2500–5500 ms), and briefly after a correct answer (`review_correct_min` / `review_correct_max`, 500–1200 ms). Every value is picked at random from its range and works on desktop, Android, iOS and in the userscript. The old `click_min` / `click_max` and `nav_min` / `nav_max` settings are gone from the panels but still act as silent fallbacks for older configs. On iOS a single classic **"Done"/"Gotowe"** button now floats above the number pad and reliably hides the keyboard, and Android uses the same compact controls as iOS. Version 4.2.2 fixed the between-word transition after a page reload, and 4.2.1 aligned statistics, restore-defaults and reminders across platforms. The mobile apps still never store your password — they keep the normal, persistent website session. Desktop and CLI keep every earlier feature.
+Version 4.3.2 closes the biggest storage gap: the desktop app no longer writes the InstaLing password as plaintext. `Config.json` holds only `password_enc`, encrypted by `safeStorage` (Keychain on macOS, DPAPI on Windows, libsecret/kwallet on Linux). On the first launch after the upgrade the existing plaintext entry is encrypted and removed from the file. The settings UI never receives the password — it shows "saved" and sends a new value only when you type one. The engine gets the decrypted value through environment variables for a single run. If the OS keychain is unavailable the app keeps the previous behaviour instead of losing the password; if a blob cannot be decrypted (for example after a keychain reset) it asks for the password again. Android, iOS and the userscript never store credentials and are unchanged. Everything from 4.3.1 (iOS 26, "Done", Android like iOS) and 4.3.0 (three timing ranges) still applies.
 
 Open source, ISC license.
 
@@ -66,9 +67,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.3.1-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.3.1-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.3.1-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.3.2-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.3.2-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.3.2-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -145,11 +146,11 @@ You can edit the files by hand too — the app uses the same format as the CLI.
 
 ## 📱 Mobile: Android and iOS
 
-Version 4.3.1 reworks the timing on the phone too: the bot thinks before typing, then reads the result before "next" — longer after a mistake or a new word, briefly after a correct answer. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, the three timing ranges, typing delays, pause and typo chances, reminder time and frequency) and **full statistics** with week / month / year / all tabs (sessions, answers, accuracy, new words, total time and active days). Every settings panel has a **restore-defaults** button. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
+Version 4.3.1 reworked the timing on the phone too: the bot thinks before typing, then reads the result before "next" — longer after a mistake or a new word, briefly after a correct answer. The mobile apps are not a cut-down imitation: they use the **same answer engine**, typing humanization, saved words and PL/EN interface as the desktop. They also have the **same settings** (answer accuracy, the three timing ranges, typing delays, pause and typo chances, reminder time and frequency) and **full statistics** with week / month / year / all tabs (sessions, answers, accuracy, new words, total time and active days). Every settings panel has a **restore-defaults** button. The difference is the shell — on a phone the bot runs while the app or browser tab is open, with no background automation.
 
 ### 🤖 Android: APK (recommended)
 
-1. Download `instaling-bot-4.3.1-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Download `instaling-bot-4.3.2-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Open the file and allow installation from this source when Android asks.
 3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
 4. Open the learning page and press **Start** in the top bar.
@@ -179,7 +180,7 @@ The panel has Start/Stop, PL/EN, an answer counter, a toggleable **statistics pa
 
 For people who prefer a separate app:
 
-1. Download `instaling-bot-4.3.1-ios.ipa` from the latest release.
+1. Download `instaling-bot-4.3.2-ios.ipa` from the latest release.
 2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
 3. Sign in to `instaling.pl` in the app and press **Start**.
 
@@ -413,6 +414,14 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 
 
 ## 📦 Recent changes
+
+### 4.3.2 — 2026-10-29
+
+- 🔐 **The desktop password is encrypted in the OS keychain.** `Config.json` no longer contains the password as plaintext — only `password_enc`, written by Electron `safeStorage` (Keychain on macOS, DPAPI on Windows, libsecret/kwallet on Linux). An existing plaintext entry is migrated on the first launch and removed from the file.
+- 🖥️ **The UI never receives the password.** The settings panel shows "saved" and sends a new value only when you type one; the engine gets the decrypted value through `INSTALING_LOGIN` / `INSTALING_PASSWORD` for a single run.
+- 🛟 **Safe fallback.** If the OS keychain is unavailable the app keeps the previous behaviour instead of losing the password; if a blob cannot be decrypted it asks for the password again.
+- 📱 **Mobile unchanged** — Android, iOS and the userscript never store credentials.
+- 🔢 **Version `4.3.2`** (userscript `4.3.2`, iOS 4.3.2 / 40302).
 
 ### 4.3.1 — 2026-10-28
 
