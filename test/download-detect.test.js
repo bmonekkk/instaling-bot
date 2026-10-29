@@ -4,6 +4,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const {
     CARD_FOR,
@@ -83,4 +85,15 @@ test('every detected system maps to an existing card and a label', () => {
     assert.deepEqual(CARD_FOR.iphone, ['dl-userscript']);
     assert.deepEqual(CARD_FOR.ipad, ['dl-userscript']);
     assert.deepEqual(CARD_FOR.linux, ['dl-cli']);
+});
+
+test('a generic macOS visitor lands on the desktop tutorial, not the download list', () => {
+    // Safari on macOS has no Client Hints, so detection falls back to the plain
+    // `mac` key. Its hero button must still scroll to the install tutorial.
+    const html = fs.readFileSync(path.join(__dirname, '..', 'docs', 'index.html'), 'utf8');
+    const entry = html.split('\n').find(line => /^\s*mac:\s*\[/.test(line));
+
+    assert.ok(entry, 'macOS hero entry is missing from docs/index.html');
+    assert.match(entry, /'#install-desktop'/);
+    assert.doesNotMatch(entry, /'#downloads'/);
 });
