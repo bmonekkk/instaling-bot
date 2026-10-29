@@ -139,6 +139,16 @@ async function firstVisible(page, selectorList) {
     return null;
 }
 
+async function waitForAnyVisible(page, selectorList, timeout = 15000) {
+    const deadline = Date.now() + timeout;
+    while (Date.now() < deadline) {
+        const selector = await firstVisible(page, selectorList);
+        if (selector) return selector;
+        await new Promise(resolve => setTimeout(resolve, 300));
+    }
+    return null;
+}
+
 async function snapshot(page, dir, name) {
     const html = await page.evaluate(() => document.documentElement.outerHTML).catch(() => '');
     fs.writeFileSync(path.join(dir, `${name}.html`), html);
@@ -258,7 +268,7 @@ async function main() {
         await snapshot(page, outDir, 'dashboard');
 
         if (args.start) {
-            const selector = await firstVisible(page, SELECTORS.startSession);
+            const selector = await waitForAnyVisible(page, SELECTORS.startSession, 10000);
             if (!selector) {
                 console.log('→ no "start session" button found on this page');
             } else {
@@ -268,15 +278,27 @@ async function main() {
                 });
                 await new Promise(resolve => setTimeout(resolve, 2500));
 
-                // Some accounts land on a "continue previous session" screen.
-                const cont = await firstVisible(page, SELECTORS.continueSession);
+                // The site may ask to continue a previous session or to start a
+                // new one; mirror the bot's startSession() flow.
+                const cont = await waitForAnyVisible(page, SELECTORS.continueSession, 6000);
                 if (cont) {
                     console.log(`→ continuing a previous session (${cont})`);
                     await page.click(cont).catch(() => null);
-                    await new Promise(resolve => setTimeout(resolve, 2500));
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                } else {
+                    const fresh = await waitForAnyVisible(page, SELECTORS.newSession, 4000);
+                    if (fresh) {
+                        console.log(`→ starting a new session (${fresh})`);
+                        await page.click(fresh).catch(() => null);
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                    }
                 }
 
-                const ready = await firstVisible(page, SELECTORS.answer.concat(SELECTORS.newWordForm));
+                const ready = await waitForAnyVisible(
+                    page,
+                    SELECTORS.answer.concat(SELECTORS.newWordForm),
+                    20000
+                );
                 console.log(ready ? `→ session page ready (${ready})` : '→ session page did not expose an answer field');
                 const session = await collect(page);
                 session.prompt = await page.evaluate(sel => {

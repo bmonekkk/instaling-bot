@@ -13,18 +13,20 @@ Author: automated audit of the live site + the bot's own fingerprint
    no device fingerprinting script, no `navigator.webdriver` check, and no lockout or
    rate-limit response on a failed login. The server is plain nginx + PHP with a
    `PHPSESSID` cookie.
-2. **The realistic detection surface is statistical, not technical.** The site is
-   server-rendered, so every "check" is a full request. That means the server knows
-   the exact time between serving a question and receiving the answer — and it can
-   aggregate that into session length and pace. That data is the real tell.
+2. **The realistic detection surface is statistical, not technical.** The session app
+   (`/app/session/`) is a jQuery/AJAX front end that talks to PHP endpoints. `save_answer`
+   carries no client timestamp, so the server times the request itself and can
+   reconstruct every pause. That data is the real tell, and the exact endpoint map is
+   in [`SESSION_API.md`](SESSION_API.md).
 3. **The reports teachers and parents see are about regularity and mastery, not
    timing.** The official FAQ says the report "pokazuje tylko liczbę sesji
    ukończonych" (shows only the number of completed sessions) and that incomplete
    sessions are not shown at all. So a too-fast session is not flagged automatically.
-4. **Our current pace is ~2× faster than the site's own benchmark.** InstaLing says
-   a session takes "około 5 minut". With the 4.3.1 defaults the bot finishes 20
-   words in about 2.5–2.7 minutes (8.2 s/word). That is the single most noticeable
-   discrepancy we have, and it is fixable with configuration, not stealth code.
+4. **Our current pace sits at the fast end of plausible.** InstaLing says a session
+   takes "około 5 minut", but a strong student can finish in under two. With the 4.3.1
+   defaults the bot finishes 20 words in about 2.5–2.7 minutes (8.2 s/word) — believable
+   for a good student on familiar words, less so for a brand-new set. The real risk is
+   not raw speed but **consistency**: the same tidy pace every day plus high accuracy.
 5. **Fingerprint-level hiding is already good and got better in this branch.** The
    new `src/core/stealth.js` takes the browser from 13/15 to 15/15 on a local
    detection battery, including headless mode.
@@ -48,9 +50,9 @@ node scripts/session-recon.js                  # logged-in recon (needs creds)
 
 Public-site evidence was collected with plain HTTPS requests (no account):
 login page, registration page, FAQ, "how it works", blog and the student-panel
-announcement. The logged-in session page is behind auth, so the exact answer
-endpoint is captured by `session-recon.js` when credentials are available; the
-analysis below marks what is verified vs. inferred.
+announcement. The logged-in part was captured with `session-recon.js` on a real
+student account; the sanitised result is in [`SESSION_API.md`](SESSION_API.md) and
+the raw capture stays in the gitignored `research/session-recon/`.
 
 ---
 
@@ -66,7 +68,11 @@ analysis below marks what is verified vs. inferred.
 | Security headers | no CSP, no HSTS, no `X-Frame-Options`, no `Referrer-Policy`, no `Permissions-Policy` | response headers |
 | Third-party JS (public pages) | Google Tag Manager `UA-3314888-13`, `tags.refinery89.com`, Google Funding Choices | HTML |
 | Bot-detection JS | none found (no fingerprinting, no challenge script) | HTML scan |
-| Page model | server-rendered PHP; a real navigation after "check" and "next" | bot engine + `PROJECT_NOTES.md` |
+| Page model | student panel + a separate AJAX session app (`/app/session/app.php`); `generate_next_word` → `save_answer` → next | logged-in recon |
+| Session API | `init_session`, `generate_next_word`, `save_answer`, `getAudioUrl`, `grade_report`, `save_comment` | logged-in recon |
+| CSRF on answers | none; `save_answer` sends only `child_id`, `word_id`, `answer`, a hard-coded `version` | logged-in recon |
+| Client timestamp | only on `generate_next_word` (`date`); `save_answer` has none, so the server times it | logged-in recon |
+| Answer grading | codes 1 correct, 2 synonym, 3 wrong case, 4 typo, else wrong | inline JS + recon |
 | Grading model | "oceniana jest systematyczność, a nie poprawność odpowiedzi" | official blog |
 | Reports | "raport systematyczności pokazuje tylko liczbę sesji ukończonych"; incomplete sessions are hidden | official FAQ |
 | Session length | "około 5 minut" / "od kilku do kilkunastu minut" | FAQ + "Jak to działa" |
@@ -214,40 +220,61 @@ Browser stride: 89 tests pass, `npm run check` clean.
 
 ---
 
-## 7. Using the logged-in recon
+## 7. Logged-in recon result
 
-Without credentials we could not inspect the post-login pages (the session page is
-behind auth). `session-recon.js` closes that gap and is safe by design: it stops
-before answering, so it cannot submit wrong answers to the account.
+The recon ran on a real student account. Full endpoint map: [`SESSION_API.md`](SESSION_API.md).
 
-```bash
-# credentials from env or config/Config.json
-INSTALING_LOGIN=... INSTALING_PASSWORD=... npm run audit:session
+What matters for detection:
 
-# or type the password yourself in the opened window
-npm run audit:session -- --manual
+- **The session app is AJAX.** `generate_next_word.php` returns a word, `save_answer.php`
+  receives `{child_id, word_id, answer, version}`, then the client asks for the next
+  word. There is no page reload to hide behind.
+- **`save_answer` has no client timestamp.** The server times the request itself, so
+  the interval it measures is genuine.
+- **There is no per-session token.** `version` is a hard-coded constant
+  (`C65E24B2…`), the same for every user and request; `child_id` is in the URL. No
+  nonce rotates. This is the same weakness the old direct-POST bots exploited.
+- **The server can reconstruct both pauses exactly:**
 
-# also open one session and capture the first question (still no answer)
-npm run audit:session -- --start
-```
+  ```
+  think + typing = t(save_answer)            - t(generate_next_word)
+  review         = t(next generate_next_word) - t(save_answer)
+  ```
 
-It writes to `research/session-recon/` (gitignored) with passwords redacted:
+  Those are precisely the three ranges the bot configures.
+- **Grade 4 is "Literówka"** (one wrong letter or two neighbours swapped) and is shown
+  in blue, not red. A deliberate misspelling is therefore recognised as a typo, not a
+  wrong answer. The bot currently compares strings, so it treats that case as a mistake
+  and applies the long review pause even though the page says "Literówka".
+- **Real clients fetch audio** (`getAudioUrl.php` → `/mp3/...`). The bot drives the real
+  page, so it does too.
+- **No bot-detection code appears in any loaded script.** The only client telemetry is
+  Google Analytics, Funding Choices, refinery89 and `uptimiarum.eu` (RUM).
 
-- `report.json` — every request (method, URL, type, POST body), responses, cookies,
-  navigations;
-- `dashboard.json` / `session.json` — localStorage, sessionStorage, form fields
-  (including hidden inputs such as CSRF tokens), script URLs, `performance` resources;
-- `*.html` / `*.png` — snapshots.
+`isTrusted` was `true` for the one click the recon performed (session start); the bot's
+CDP clicks and `page.type` keystrokes are trusted as well.
 
-What to look for in `report.json`:
+### Why were accounts banned before, then?
 
-1. the **check endpoint** and exactly what it POSTs (word id, answer, token?),
-2. whether **CSRF tokens** rotate per question,
-3. whether the page calls any **analytics or session-recording** endpoint we did not
-   know about,
-4. the **question page timestamp** relative to the check request — that is the
-   latency the server can measure,
-5. whether `isTrusted` is `false` anywhere (it would mean a DOM-level click leaked).
+The user reports that InstaLing has blocked accounts that used older automators. That
+is consistent with everything above — the detection just isn't client-side:
+
+1. **Direct API use.** Many old bots skipped the UI and POSTed `save_answer` with
+   `child_id`/`word_id` directly. That produces no `generate_next_word`, no
+   `getAudioUrl`, no asset loads, and an impossible request order. Easy to spot
+   server-side.
+2. **Timing.** `save_answer` arriving 200 ms after `generate_next_word`, every single
+   time, is a signature. This is the one that matters for us.
+3. **Protocol fingerprint.** A stale `version` constant, missing `child_id`, or a
+   different User-Agent between requests.
+4. **Account-level correlation.** The same IP or device pattern across several
+   accounts, concurrent sessions, or identical answer sequences.
+5. **Manual reports.** A teacher or parent noticing a 100 % score and a two-minute
+   session, then mailing support. The FAQ already has an entry about parents "helping"
+   with answers.
+
+Our bot avoids 1, 3 and the asset/order part of 2 because it drives the real UI. What
+remains is **timing and plausibility** — exactly the section above.
 
 ---
 
@@ -256,29 +283,41 @@ What to look for in `report.json`:
 1. **Offer a "realistic pace" preset** that targets ~10–12 s/word. This is the only
    change that addresses the strongest signal. Keep the current defaults for people
    who value speed.
-2. **Keep distraction pauses on** (2 %, 8–30 s). Cheap, invisible to the user, and it
+2. **Vary the session length, not just the per-word delay.** A bot that always takes
+   exactly four minutes is its own pattern. Aim for most sessions in the 3–6 minute
+   band with a long tail: an easy repeat set can finish in ~2 minutes, a distracted
+   day can take 8–10. The right-skewed sampler plus distraction pauses already push in
+   that direction; a per-session multiplier would finish the job.
+3. **Keep distraction pauses on** (2 %, 8–30 s). Cheap, invisible to the user, and it
    removes the "perfectly bounded" look.
-3. **Do not add more fingerprint patches.** The site has no fingerprinting; each extra
+4. **Read the grade, not the string.** The site returns grade `4` for a typo and shows
+   it in blue; the bot currently treats it as a full mistake and waits 2.5–5.5 s. Using
+   the visible result (`#answer_result`) to pick the short or long review pause keeps
+   the bot's behaviour consistent with what the page displays.
+5. **Make correctness and speed depend on word history.** A word answered correctly
+   before should stay correct and be answered faster; a brand-new word should be slower
+   and more likely to be missed. This matches how the scheduler models mastery and
+   removes the obvious statistical flatness of an independent coin flip per word.
+   Needs the saved-words history in the answer path — not implemented yet.
+6. **Do not add more fingerprint patches.** The site has no fingerprinting; each extra
    override is more risk than benefit. The current 15/15 is enough.
-4. **Make correctness depend on word history**, not a fresh coin flip per word. A word
-   the bot has answered correctly before should stay correct; a brand-new word is more
-   likely to be missed. This matches how the scheduler models mastery and removes an
-   obvious statistical flatness. Not implemented yet — it needs the saved-words history
-   in the answer path.
-5. **Run `session-recon` once with a real account** to confirm (or rule out) a
-   server-side timing/CSRF check before doing anything more complex.
-6. **Do not spoof the UA string on headed runs.** The real UA is already correct and
+7. **Do not spoof the UA string on headed runs.** The real UA is already correct and
    consistent with the actual binary; a fake UA would create a mismatch with UA-CH.
 
 ---
 
 ## 9. Bottom line
 
-InstaLing is not trying to catch bots. It is a school vocabulary tool whose
-anti-cheating model is "the teacher looks at whether the student did five sessions
-this week". The project's realistic risk is not a fingerprint check — it is a session
-that completes in two minutes while every other student takes five to ten.
+InstaLing is not trying to catch bots in the browser. It is a school vocabulary tool
+whose anti-cheating model is "the teacher looks at whether the student did five sessions
+this week". The bans that did happen are best explained by server-side request analysis
+and manual reports, not by a fingerprint check.
 
-So the highest-value work is the boring part: realistic pacing, a right-skewed time
-distribution, and occasional idle time. The fingerprint layer is now clean and
-reproducible, but it is table stakes, not the main defence.
+A four-minute session is a safe target, but it should not be a fixed four minutes: a
+strong student legitimately finishes in under two, and a distracted one takes ten. What
+stands out is a *uniform* pace, perfect accuracy and a brand-new word set answered as
+fast as a repeat set.
+
+So the highest-value work is the boring part: a human-shaped time distribution, session
+lengths that vary, and speed/accuracy that correlate with familiarity. The fingerprint
+layer is now clean and reproducible, but it is table stakes, not the main defence.
