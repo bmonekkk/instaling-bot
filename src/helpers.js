@@ -113,8 +113,19 @@ async function click(page, selector) {
         const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
         return !top || !(el === top || el.contains(top) || top.contains(el));
     }).catch(() => false)) {
-        // Still covered - fall back to a DOM click.
-        await page.$eval(found, el => el.click());
+        // Still covered. Remove the blocker from hit-testing and retry with a
+        // real CDP click: `el.click()` produces isTrusted=false, which is an
+        // automation tell. The DOM click stays only as a last resort.
+        await page.$eval(found, el => {
+            const r = el.getBoundingClientRect();
+            const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+            if (top && !(el === top || el.contains(top) || top.contains(el))) {
+                top.style.pointerEvents = 'none';
+            }
+        }).catch(() => null);
+        await page.click(found).catch(async () => {
+            await page.$eval(found, el => el.click());
+        });
     } else {
         await page.click(found);
     }

@@ -1,0 +1,156 @@
+{
+  "generatedAt": "2026-10-29T13:11:05.681Z",
+  "mode": "baseline",
+  "headless": false,
+  "browser": "Chrome/156.0.8078.47",
+  "passed": 13,
+  "total": 15,
+  "clickTrusted": true,
+  "checks": [
+    {
+      "name": "navigator.webdriver is not true",
+      "pass": false,
+      "detail": "true"
+    },
+    {
+      "name": "navigator.webdriver getter looks native",
+      "pass": true,
+      "detail": "function get webdriver() { [native code] }"
+    },
+    {
+      "name": "navigator.webdriver lives on the prototype",
+      "pass": true,
+      "detail": "own=null proto=true"
+    },
+    {
+      "name": "UA does not mention HeadlessChrome",
+      "pass": true,
+      "detail": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "UA advertises Chrome, not only Chromium",
+      "pass": true,
+      "detail": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "User-Agent Client Hints include Google Chrome",
+      "pass": false,
+      "detail": "Not:A-Brand,Chromium"
+    },
+    {
+      "name": "Polish language is advertised",
+      "pass": true,
+      "detail": "pl-PL"
+    },
+    {
+      "name": "PDF viewer plugin present",
+      "pass": true,
+      "detail": "5 plugins"
+    },
+    {
+      "name": "Notification permission is consistent",
+      "pass": true,
+      "detail": "Notification=default permissions=prompt"
+    },
+    {
+      "name": "window.chrome is present",
+      "pass": true,
+      "detail": "app,csi,loadTimes"
+    },
+    {
+      "name": "WebGL renderer is a real GPU path",
+      "pass": true,
+      "detail": "Google Inc. (Apple) / ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)"
+    },
+    {
+      "name": "window has non-zero outer size",
+      "pass": true,
+      "detail": "1366x900x1366x813"
+    },
+    {
+      "name": "document has focus",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "no ChromeDriver CDP globals",
+      "pass": true,
+      "detail": "false"
+    },
+    {
+      "name": "hardware concurrency is plausible",
+      "pass": true,
+      "detail": "10"
+    }
+  ],
+  "raw": {
+    "webdriver": true,
+    "webdriverOwn": null,
+    "webdriverProto": {
+      "hasGetter": true,
+      "configurable": true
+    },
+    "webdriverGetter": "function get webdriver() { [native code] }",
+    "languages": [
+      "pl-PL"
+    ],
+    "language": "pl-PL",
+    "languagesGetter": "function get languages() { [native code] }",
+    "plugins": 5,
+    "mimeTypes": 2,
+    "pdfViewerEnabled": true,
+    "chrome": true,
+    "chromeKeys": [
+      "app",
+      "csi",
+      "loadTimes"
+    ],
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+    "brands": [
+      {
+        "brand": "Not:A-Brand",
+        "version": "8"
+      },
+      {
+        "brand": "Chromium",
+        "version": "156"
+      }
+    ],
+    "uaMobile": false,
+    "platform": "MacIntel",
+    "vendor": "Google Inc.",
+    "productSub": "20030107",
+    "hardwareConcurrency": 10,
+    "deviceMemory": 16,
+    "maxTouchPoints": 0,
+    "notificationPermission": "default",
+    "permissionsNotification": "prompt",
+    "webglVendor": "Google Inc. (Apple)",
+    "webglRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+    "screen": [
+      1728,
+      1117,
+      1728,
+      1005,
+      30
+    ],
+    "window": [
+      1366,
+      900,
+      1366,
+      813
+    ],
+    "hasFocus": true,
+    "timezone": "Europe/Warsaw",
+    "locale": "pl",
+    "connection": {
+      "effectiveType": "4g",
+      "rtt": 150,
+      "downlink": 1.75
+    },
+    "mediaDevices": true,
+    "bluetooth": true,
+    "cdpLeak": false,
+    "automationFlags": true
+  }
+}

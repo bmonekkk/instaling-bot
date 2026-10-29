@@ -11,6 +11,8 @@ const {translate} = require('./i18n.js');
 const {
     chooseEnglish,
     chooseErrorMode,
+    distractionPause,
+    humanDelay,
     misspell,
     normalize,
     pickWrongTranslation,
@@ -29,6 +31,11 @@ const DEFAULT_CONFIG = {
         type_pause_min: 250,
         type_pause_max: 700,
         typo_chance: 0.15,
+        // Occasional longer "got distracted" pause, so the time distribution
+        // has a human tail instead of being perfectly bounded.
+        distraction_chance: 0.02,
+        distraction_min: 8000,
+        distraction_max: 30000,
         // How quickly the bot clicks navigation buttons: "next word", "start /
         // continue session" and login. One shared min/max pair, like the desktop
         // Advanced section.
@@ -315,14 +322,20 @@ function createEngine({
     const shouldContinue = () => state.running;
     const randomBetween = (min, max) => Math.round(min + Math.random() * (max - min));
     // Shared delay before/after navigation clicks ("next", login/start, continue).
-    const navWait = () => randomBetween(config.delays.nav_min, config.delays.nav_max);
+    // humanDelay keeps the distribution right-skewed instead of flat.
+    const navWait = () => humanDelay(config.delays.nav_min, config.delays.nav_max);
     // "Thinking" pause after the prompt is visible, before the first keystroke.
-    const thinkWait = () => randomBetween(config.delays.think_min, config.delays.think_max);
+    const thinkWait = () => humanDelay(config.delays.think_min, config.delays.think_max)
+        + distractionPause(
+            config.delays.distraction_chance ?? 0.02,
+            config.delays.distraction_min ?? 8000,
+            config.delays.distraction_max ?? 30000
+        );
     // "Reading the result" pause before "next": longer after a mistake or a new
     // word, short after a correct answer.
     const reviewWait = correct => (correct
-        ? randomBetween(config.delays.review_correct_min, config.delays.review_correct_max)
-        : randomBetween(config.delays.review_min, config.delays.review_max));
+        ? humanDelay(config.delays.review_correct_min, config.delays.review_correct_max)
+        : humanDelay(config.delays.review_min, config.delays.review_max));
     // Short transition wait after a plain click. The real pacing is the think
     // pause on the fresh page, so this only lets an AJAX response settle.
     const transitionWait = () => randomBetween(150, 400);

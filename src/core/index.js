@@ -5,6 +5,7 @@ const {getRandomInt, pick} = require('./random.js');
 const {buildTypingSteps, getTypoChar, misspell, ACCENT_MAP, TYPO_NEIGHBORS} = require('./typing.js');
 const {chooseEnglish, normalize, shouldAnswerCorrect} = require('./answer.js');
 const {ERROR_MODES, chooseErrorMode, pickWrongTranslation} = require('./mistakes.js');
+const {distractionPause, humanDelay} = require('./timing.js');
 
 module.exports = {
     ACCENT_MAP,
@@ -13,8 +14,10 @@ module.exports = {
     buildTypingSteps,
     chooseEnglish,
     chooseErrorMode,
+    distractionPause,
     getRandomInt,
     getTypoChar,
+    humanDelay,
     misspell,
     normalize,
     pick,

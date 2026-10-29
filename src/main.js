@@ -38,6 +38,8 @@ const {green, yellow, red, blue, error} = require('./printer.js');
 const chalk = require('chalk');
 const {getAllWords, insertWord, getWord, saveWords} = require('./words.js');
 const {chooseErrorMode, pickWrongTranslation} = require('./mistakes.js');
+const {humanDelay, distractionPause} = require('./core/timing.js');
+const {applyStealth, hideHeadlessUA, launchOptions} = require('./core/stealth.js');
 const {markSessionDone} = require('./reminder.js');
 const {recordSession} = require('./stats.js');
 
@@ -80,31 +82,16 @@ function notify(event, payload = {}) {
 }
 
 async function start() {
-    const options = {
+    // Puppeteer adds --enable-automation by default (adds the "controlled by
+    // automated software" bar and sets navigator.webdriver). launchOptions()
+    // drops it and applies the rest of the bot's browser flags.
+    const options = launchOptions({
         headless: !config.show_browser,
-        defaultViewport: config.show_browser ? null : {width: 1366, height: 900},
-        // Puppeteer adds --enable-automation by default (adds the "controlled by
-        // automated software" bar and sets navigator.webdriver). Drop it.
-        ignoreDefaultArgs: ['--enable-automation'],
-        args: [
-            '--disable-blink-features=AutomationControlled',
-            `--window-size=${config.window_width ?? 1366},${config.window_height ?? 900}`,
-            '--window-position=40,40',
-            '--lang=pl-PL,pl',
-            '--no-first-run',
-            '--no-default-browser-check'
-        ]
-    };
-
-    // The desktop app bundles Chrome for Testing and passes its exact path.
-    // The CLI keeps using Puppeteer's default downloaded browser.
-    if (process.env.INSTALING_CHROME) {
-        options.executablePath = process.env.INSTALING_CHROME;
-    }
-
-    if (config.mute_audio) {
-        options.args.push('--mute-audio');
-    }
+        executablePath: process.env.INSTALING_CHROME || undefined,
+        width: config.window_width ?? 1366,
+        height: config.window_height ?? 900,
+        extraArgs: config.mute_audio ? ['--mute-audio'] : []
+    });
 
     const [browser] = await Promise.all([
         puppeteer.launch(options),
@@ -124,12 +111,12 @@ async function start() {
         }
     });
 
-    // Small, non-invasive stealth tweaks. They reduce the most common automation
-    // fingerprints, but no timing tweak can guarantee that a site won't detect a bot.
-    await page.evaluateOnNewDocument(() => {
-        Object.defineProperty(navigator, 'webdriver', {get: () => undefined});
-        Object.defineProperty(navigator, 'languages', {get: () => ['pl-PL', 'pl', 'en-US', 'en']});
-    });
+    // Fingerprint patches applied before any site script runs. Headless runs
+    // also need the "HeadlessChrome" token removed from the User-Agent header.
+    await applyStealth(page);
+    if (!config.show_browser) {
+        await hideHeadlessUA(page, browser);
+    }
 
     if (config.show_browser) {
         await page.bringToFront().catch(() => {});
@@ -151,7 +138,7 @@ function navDelays() {
 
 function navPause() {
     const [min, max] = navDelays();
-    return delay(getRandomInt(min, max));
+    return delay(humanDelay(min, max));
 }
 
 // "Thinking" pause after the prompt is visible, before the first keystroke.
@@ -164,7 +151,14 @@ function thinkDelays() {
 
 function thinkPause() {
     const [min, max] = thinkDelays();
-    return delay(getRandomInt(min, max));
+    // Occasionally the "student" gets distracted before answering. Rare, but
+    // it is the kind of outlier a tight uniform distribution never produces.
+    const distraction = distractionPause(
+        config.delays?.distraction_chance ?? 0.02,
+        config.delays?.distraction_min ?? 8000,
+        config.delays?.distraction_max ?? 30000
+    );
+    return delay(humanDelay(min, max) + distraction);
 }
 
 // "Reading the result" pause before "next": the longer pair after a mistake or
@@ -183,7 +177,7 @@ function reviewDelays(correct) {
 
 function reviewPause(correct) {
     const [min, max] = reviewDelays(correct);
-    return delay(getRandomInt(min, max));
+    return delay(humanDelay(min, max));
 }
 
 async function login(page) {

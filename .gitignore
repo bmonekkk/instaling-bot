@@ -134,3 +134,6 @@ mobile/ios/InstalingBot/Resources/core.js
 
 # Release-verification downloads
 release-assets/
+
+# Anti-detection recon output (may contain account data)
+research/session-recon/

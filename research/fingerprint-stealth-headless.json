@@ -1,0 +1,162 @@
+{
+  "generatedAt": "2026-10-29T13:06:14.569Z",
+  "mode": "stealth",
+  "headless": true,
+  "browser": "Chrome/156.0.8078.47",
+  "passed": 15,
+  "total": 15,
+  "clickTrusted": true,
+  "checks": [
+    {
+      "name": "navigator.webdriver is not true",
+      "pass": true,
+      "detail": "undefined"
+    },
+    {
+      "name": "navigator.webdriver getter looks native",
+      "pass": true,
+      "detail": "function get webdriver() { [native code] }"
+    },
+    {
+      "name": "navigator.webdriver lives on the prototype",
+      "pass": true,
+      "detail": "own=null proto=true"
+    },
+    {
+      "name": "UA does not mention HeadlessChrome",
+      "pass": true,
+      "detail": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "UA advertises Chrome, not only Chromium",
+      "pass": true,
+      "detail": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36"
+    },
+    {
+      "name": "User-Agent Client Hints include Google Chrome",
+      "pass": true,
+      "detail": "Google Chrome,Chromium,Not_A Brand"
+    },
+    {
+      "name": "Polish language is advertised",
+      "pass": true,
+      "detail": "pl-PL,pl,en-US,en"
+    },
+    {
+      "name": "PDF viewer plugin present",
+      "pass": true,
+      "detail": "5 plugins"
+    },
+    {
+      "name": "Notification permission is consistent",
+      "pass": true,
+      "detail": "Notification=default permissions=default"
+    },
+    {
+      "name": "window.chrome is present",
+      "pass": true,
+      "detail": "app,csi,loadTimes"
+    },
+    {
+      "name": "WebGL renderer is a real GPU path",
+      "pass": true,
+      "detail": "Google Inc. (Apple) / ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)"
+    },
+    {
+      "name": "window has non-zero outer size",
+      "pass": true,
+      "detail": "1366x900x1366x900"
+    },
+    {
+      "name": "document has focus",
+      "pass": true,
+      "detail": "true"
+    },
+    {
+      "name": "no ChromeDriver CDP globals",
+      "pass": true,
+      "detail": "false"
+    },
+    {
+      "name": "hardware concurrency is plausible",
+      "pass": true,
+      "detail": "10"
+    }
+  ],
+  "raw": {
+    "webdriverOwn": null,
+    "webdriverProto": {
+      "hasGetter": true,
+      "configurable": true
+    },
+    "webdriverGetter": "function get webdriver() { [native code] }",
+    "languages": [
+      "pl-PL",
+      "pl",
+      "en-US",
+      "en"
+    ],
+    "language": "pl-PL",
+    "languagesGetter": "function get languages() { [native code] }",
+    "plugins": 5,
+    "mimeTypes": 2,
+    "pdfViewerEnabled": true,
+    "chrome": true,
+    "chromeKeys": [
+      "app",
+      "csi",
+      "loadTimes"
+    ],
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+    "brands": [
+      {
+        "brand": "Google Chrome",
+        "version": "156"
+      },
+      {
+        "brand": "Chromium",
+        "version": "156"
+      },
+      {
+        "brand": "Not_A Brand",
+        "version": "24"
+      }
+    ],
+    "uaMobile": false,
+    "platform": "MacIntel",
+    "vendor": "Google Inc.",
+    "productSub": "20030107",
+    "hardwareConcurrency": 10,
+    "deviceMemory": 16,
+    "maxTouchPoints": 0,
+    "notificationPermission": "default",
+    "permissionsNotification": "default",
+    "webglVendor": "Google Inc. (Apple)",
+    "webglRenderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Pro, Unspecified Version)",
+    "screen": [
+      800,
+      600,
+      800,
+      600,
+      24
+    ],
+    "window": [
+      1366,
+      900,
+      1366,
+      900
+    ],
+    "hasFocus": true,
+    "timezone": "Europe/Warsaw",
+    "locale": "pl",
+    "connection": {
+      "effectiveType": "4g",
+      "rtt": 100,
+      "downlink": 1.5
+    },
+    "mediaDevices": true,
+    "bluetooth": true,
+    "cdpLeak": false,
+    "automationFlags": false
+  }
+}
