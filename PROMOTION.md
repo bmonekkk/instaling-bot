@@ -188,7 +188,8 @@ Zostaw pierwszy komentarz z detalami o silniku i odpowiadaj na pytania o regulam
   but a bot with constant timing is obvious. So the engine randomises typing delays, pauses
   before answering, mistypes and backspaces occasionally, and mixes up the kind of mistake it
   makes. It drives a real browser, remembers the words it learned, and runs on five platforms
-  from one codebase. No backend, no telemetry, no password stored.
+  from one codebase. No backend, no telemetry; on the desktop the password is encrypted in
+  the OS keychain, and the phones never store it.
 - **Grafiki:** logo 240×240 (`build/icon.png`), galeria 1270×760 — zrzuty desktopu, Androida
   i iOS pokazujące sesję i panel ustawień.
 - **Wskazówki:** premiera 00:01 PT (09:01 CET). Obsadź komentarze przez cały dzień.
@@ -210,7 +211,7 @@ mają przedstawiać projekt, a nie changelog.
 - Android jak iOS: kompaktowy pasek tytułu, gradient w pasku stanu, symetryczna ramka,
 - jeden silnik na desktop, Androida, iOS, userscript i CLI,
 - statystyki tygodnia/miesiąca/roku i przypomnienia na każdej platformie,
-- bez backendu, bez telemetrii, hasła nigdy nie są zapisywane.
+- bez backendu, bez telemetrii, hasło na desktopie szyfrowane w pęku kluczy systemu, a na telefonach nigdy nie zapisywane.
 
 ## 5. Rytm publikacji
 
