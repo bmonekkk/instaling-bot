@@ -196,18 +196,12 @@ Zostaw pierwszy komentarz z detalami o silniku i odpowiadaj na pytania o regulam
 ### 4e. GitHub Discussions (ogłoszenie o wydaniu)
 
 Opublikowane: https://github.com/bmonekkk/instaling-bot/discussions/3
+Tytuł: **🎉 instaling-bot 4.3.1 — udało się, wszystko działa!**
 
-> **instaling-bot 4.3.1 — działający iOS, unoszące się „Gotowe" i Android jak iOS**
->
-> 4.3.1 to wydanie poprawkowe: aplikacja iOS nie crashuje już przy starcie na iOS 26 (cykl
-> życia `UIScene`), a „Gotowe" nad klawiaturą to teraz pojedynczy, klasyczny przycisk bez
-> szarego paska. Android dostał ten sam kompaktowy wygląd co iOS.
->
-> Dwóch ludzkich pauz z 4.3.0 (myślenie przed pisaniem i czytanie wyniku przed „dalej")
-> nie ruszamy. Pełna lista zmian: [CHANGELOG](https://github.com/bmonekkk/instaling-bot/blob/master/CHANGELOG.md).
-
-To jedyne miejsce, gdzie opisujemy zmiany w wydaniu — posty promocyjne (4a–4d) mają
-przedstawiać projekt, a nie changelog.
+Ton jest celowo swobodny („udało się"), a treść wypunktowana: iOS startuje, „Gotowe" to
+pojedynczy przycisk, Android wygląda jak iOS, dwie pauzy zostają + tabela plików i link do
+releases. To jedyne miejsce, gdzie opisujemy zmiany w wydaniu — posty promocyjne (4a–4d)
+mają przedstawiać projekt, a nie changelog.
 
 ### 4f. Krótkie „co nowego" — tylko do posta o wydaniu
 
@@ -225,3 +219,24 @@ przedstawiać projekt, a nie changelog.
   i asystentom AI.
 - Strona jest teraz jednym `index.html`; nowy temat dodawaj jako sekcję na stronie głównej
   (link z kotwicą), dopóki nie uzbiera się dość treści na osobny adres.
+
+## 6. Gdzie to wkleić — gotowe linki
+
+Posty z sekcji 4 wklejasz ręcznie (żadna z tych platform nie pozwala publikować w Twoim
+imieniu bez Twojego konta). Żeby było szybciej:
+
+| Platforma | Link do wklejenia |
+|---|---|
+| Wykop (znalezisko) | https://wykop.pl/dodaj/link |
+| Reddit — z wypełnionym tytułem i linkiem | `https://www.reddit.com/submit?type=LINK&title=<TYTUŁ>&url=<URL>` |
+| Hacker News (Show HN) | https://news.ycombinator.com/submit |
+| Product Hunt | https://www.producthunt.com/posts/new |
+
+Przy Reddicie wystarczy zakodować tytuł i link (`%20` za spację) — formularz otworzy się
+wypełniony, zostaje wybrać subreddit i wysłać.
+
+**Czego nie da się zautomatyzować:** HN nie ma API do pisania (posty tylko z przeglądarki, a
+zalewanie go skryptami kończy się banem), Product Hunt uruchamia premierę przez stronę, a
+Wykop i Reddit mają API, ale wymagają Twoich kluczy i logowania — poza tym oba serwisy traktują
+automatyczne self-promo jak spam. GitHub Actions może natomiast ogłaszać nowe wydania
+automatycznie w **GitHub Discussions**, jeśli kiedyś będziesz chciał.
