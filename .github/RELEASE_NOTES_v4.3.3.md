@@ -4,6 +4,14 @@ Wydanie poprawkowe 4.3.3 naprawia powiadomienia w aplikacji desktopowej na macOS
 
 Poprawka obejmuje **powiadomienie o końcu sesji** i **codzienne przypomnienie**. Windows i Linux działają bez zmian — tam natywne powiadomienia były sprawne od początku.
 
+## Aktualizacja plików mobilnych (bez nowego wydania)
+
+APK, IPA i userscript w tym wydaniu zostały przebudowane 2026-10-31, żeby dodać **wsparcie na Ko-fi**:
+
+- **Android APK** i **iOS IPA** mają teraz przycisk **☕** w pasku tytułu (obok ⚙), który otwiera `https://ko-fi.com/bmonekkk`.
+- **Userscript** ma drugi link na dole panelu: **☕ Wesprzyj projekt na Ko-fi** / **☕ Support on Ko-fi**. Jego wersja to `4.3.3.1`, więc menedżery skryptów pobiorą aktualizację automatycznie.
+- Wersje aplikacji pozostają `4.3.3` (iOS 40303); to nadal to samo wydanie. Jeśli masz już zainstalowany APK/IPA 4.3.3, pobierz plik ponownie, żeby zobaczyć nowy przycisk.
+
 ## Naprawione w 4.3.3
 
 - **Powiadomienia na macOS wreszcie się pokazują.** Gdy natywne API zwróci błąd, wiadomość jest wysyłana przez `osascript` (`display notification`). Banner pojawia się wtedy, gdy okno jest ukryte w zasobniku, zminimalizowane albo zamknięte — widoczne okno nadal nie dostaje duplikatu.
