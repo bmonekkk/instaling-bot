@@ -5,7 +5,8 @@ All notable changes to this fork are documented here.
 ## [Unreleased]
 
 ### Added
-- **Ko-fi support in the mobile shells.** The Android APK and the iOS IPA now show a **☕** button in the title bar, and the userscript panel has a second footer link (**☕ Wesprzyj projekt na Ko-fi** / **☕ Support on Ko-fi**) below the GitHub link. All three open `https://ko-fi.com/bmonekkk` in the browser, matching the desktop tray/settings entry. The label follows the PL/EN switch. This is a UI-only change: no version bump, no new release, and the currently published APK/IPA will include it only in the next build.
+- **Ko-fi support in the mobile shells.** The Android APK and the iOS IPA now show a **☕** button in the title bar, and the userscript panel has a second footer link (**☕ Wesprzyj projekt na Ko-fi** / **☕ Support on Ko-fi**) below the GitHub link. All three open `https://ko-fi.com/bmonekkk` in the browser, matching the desktop tray/settings entry. The label follows the PL/EN switch.
+- **Republished under v4.3.3.** The rebuilt APK, IPA and userscript replace the previous assets on the existing `v4.3.3` release (no new release). The userscript revision is `4.3.3.1` so script managers see a newer version and auto-update; the app versions stay `4.3.3`.
 
 ## [4.3.3] - 2026-10-31
 

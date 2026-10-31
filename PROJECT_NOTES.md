@@ -490,7 +490,7 @@ Then connect Puppeteer/Chrome DevTools to `http://127.0.0.1:9333`. Set `INSTALIN
 - **Reminders too.** `checkReminder()` uses the same helper, so the daily reminder appears on macOS as well.
 - **Windows/Linux unchanged.** The native path still runs first; Windows keeps `app.setAppUserModelId(APP_ID)` and the click-to-open handler on the native notification. The `osascript` fallback is macOS-only.
 - Verified on the affected Mac (Electron 45, macOS 2026): native `show()` emits `failed`, the fallback `osascript` returns 0, and `com.apple.scripteditor2` becomes the registered sender.
-- Version bumped to `4.3.3` (userscript `4.3.3`, iOS 4.3.3 / 40303). No security-surface change; mobile and the userscript are functionally unchanged.
+- Version bumped to `4.3.3` (userscript `4.3.3.1` after the Ko-fi rebuild, iOS 4.3.3 / 40303). No security-surface change; the desktop and the engine are unchanged.
 
 ## What changed in 4.3.2
 

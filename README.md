@@ -424,7 +424,7 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 - ⏰ **Dotyczy też przypomnień.** Codzienne przypomnienie o sesji korzysta z tej samej ścieżki.
 - 🪟 **Windows i Linux bez zmian** — natywne powiadomienia działają tam od zawsze, a Windows nadal ustawia `AppUserModelId`.
 - 🖥️ **Tylko ukryte okno.** Powiadomienie pojawia się, gdy okno jest w zasobniku, zminimalizowane lub zamknięte; widoczne okno nie dostaje duplikatu.
-- 🔢 **Wersja `4.3.3`** (userscript `4.3.3`, iOS 4.3.3 / 40303).
+- 🔢 **Wersja `4.3.3`** (userscript `4.3.3.1`, iOS 4.3.3 / 40303).
 
 ### 4.3.2 — 2026-10-29
 

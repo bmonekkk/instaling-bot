@@ -424,7 +424,7 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 - ⏰ **Reminders benefit too.** The daily session reminder uses the same path.
 - 🪟 **Windows and Linux unchanged** — native notifications have always worked there, and Windows still sets `AppUserModelId`.
 - 🖥️ **Hidden window only.** The notification appears when the window is in the tray, minimised or closed; a visible window gets no duplicate.
-- 🔢 **Version `4.3.3`** (userscript `4.3.3`, iOS 4.3.3 / 40303).
+- 🔢 **Version `4.3.3`** (userscript `4.3.3.1`, iOS 4.3.3 / 40303).
 
 ### 4.3.2 — 2026-10-29
 

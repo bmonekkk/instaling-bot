@@ -20,7 +20,7 @@ Poprawka obejmuje **powiadomienie o końcu sesji** i **codzienne przypomnienie**
 | macOS 13+ (Intel) | `instaling-bot-4.3.3-macos-x64.pkg` | procesory Intel |
 | Android 7+ (uniwersalny) | `instaling-bot-4.3.3-android.apk` | APK, WebView |
 | iPhone / iPad (iOS 16+) | `instaling-bot-4.3.3-ios.ipa` | SideStore/AltStore, bez podpisu |
-| Safari iOS/iPadOS / Firefox Android | `instaling-bot.user.js` | userscript (4.3.3), aktualizuje się sam |
+| Safari iOS/iPadOS / Firefox Android | `instaling-bot.user.js` | userscript (4.3.3.1), aktualizuje się sam |
 | Linux / terminal | — | CLI: `instaling-bot --help` |
 
 > **Aktualizacja userscriptu (4.3.3).** Sam `instaling-bot.user.js` dostał wersję `4.3.3`, żeby menedżery skryptów pobrały nowy bundle. Userscript aktualizuje się automatycznie przez `releases/latest/download/instaling-bot.user.js`.
