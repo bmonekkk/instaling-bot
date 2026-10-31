@@ -2,6 +2,11 @@
 
 All notable changes to this fork are documented here.
 
+## [4.3.3] - 2026-10-31
+
+### Fixed
+- **Notifications now actually appear on macOS.** Native Electron notifications use the `UNNotification` API, which refuses unsigned binaries: `Notification.show()` fired a `failed` event (`UNErrorDomain` error 1, `notificationsNotAllowed`) and macOS dropped the banner. Because the installers are unsigned, the desktop app now listens for that failure and re-sends the message through `osascript` (`display notification`), which the system delivers via its Script Editor registration. The session-finished notification and the daily reminder both benefit. Signed builds keep the native, clickable notification, and Windows/Linux are untouched (they still use the native API, and the app keeps `setAppUserModelId` for Windows). No security-surface change.
+
 ## [4.3.2] - 2026-10-29
 
 ### Fixed

@@ -197,17 +197,18 @@ Zostaw pierwszy komentarz z detalami o silniku i odpowiadaj na pytania o regulam
 ### 4e. GitHub Discussions (ogłoszenie o wydaniu)
 
 Opublikowane: https://github.com/bmonekkk/instaling-bot/discussions/3
-Tytuł: **🎉 instaling-bot 4.3.2 — hasło w pęku kluczy, wszystko działa!**
+Tytuł: **🎉 instaling-bot 4.3.3 — powiadomienia wreszcie działają (też na macOS)**
 
-Ton jest celowo swobodny („wszystko działa"), a treść wypunktowana: hasło desktopu
-szyfrowane w pęku kluczy systemu z automatyczną migracją, mobile i userscript bez zmian,
-poprawka przewijania na macOS + tabela plików i link do releases. Wcześniejsze punkty
-(iOS startuje, „Gotowe" to pojedynczy przycisk, Android jak iOS, trzy pauzy) zostają
-wspomniane jako nadal działające. To jedyne miejsce, gdzie opisujemy zmiany w wydaniu —
-posty promocyjne (4a–4d) mają przedstawiać projekt, a nie changelog.
+Ton jest celowo swobodny („wreszcie działa"), a treść wypunktowana: powiadomienia o końcu
+sesji i przypomnienia docierają na macOS mimo niepodpisanego builda (awaryjna ścieżka
+`osascript`), Windows i Linux bez zmian, wszystko z 4.3.2 (hasło w pęku kluczy) zostaje.
+To jedyne miejsce, gdzie opisujemy zmiany w wydaniu — posty promocyjne (4a–4d) mają
+przedstawiać projekt, a nie changelog.
 
 ### 4f. Krótkie „co nowego" — tylko do posta o wydaniu
 
+- powiadomienia o końcu sesji i przypomnienia działają też na macOS (awaryjna ścieżka `osascript` przy niepodpisanym buildzie),
+- Windows i Linux używają natywnych powiadomień bez zmian,
 - hasło desktopu szyfrowane w pęku kluczy systemu (Keychain / DPAPI / libsecret) z automatyczną migracją,
 - aplikacje mobilne i userscript nigdy nie zapisują hasła,
 - iOS startuje, „Gotowe" jako unoszący się przycisk, Android jak iOS,

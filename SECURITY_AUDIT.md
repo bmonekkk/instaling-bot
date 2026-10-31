@@ -1,10 +1,19 @@
-# Security audit — instaling-bot 4.3.2
+# Security audit — instaling-bot 4.3.3
 
 Scope: desktop (Electron), CLI + shared core, browser userscript, Android WebView APK,
 iOS WKWebView IPA, website, and the CI/release pipeline. This is a **self-assessment**, not
 an external penetration test, and it does **not** claim the project is fully secure. Every
 finding below is either fixed (in 4.1.0, 4.2.0, 4.2.2 or 4.3.2), mitigated by design, or
 listed as an accepted limitation.
+
+## 4.3.3 — no security-surface change
+
+4.3.3 only fixes notification delivery on macOS. When the native `UNNotification` API
+rejects an unsigned build (`UNErrorDomain` error 1), `desktop/main.js` re-sends the same
+text through `osascript`. The message is AppleScript-escaped and still passed through
+`redact()`, so no credentials leak; the child process is a fixed `/usr/bin/osascript`
+invocation with an argument array (no shell), and no new network calls, permissions or
+stored data are introduced.
 
 ## 4.3.2 — credential storage hardening
 
@@ -125,7 +134,7 @@ tool. They are **not** claiming to be solved.
    old `chmod 600` / ACL kept as defence in depth.
 6. **Supply chain (Low–Medium).** GitHub Actions are pinned to mutable major tags rather
    than commit SHAs; `release.yml` grants workflow-wide `contents: write`; no build
-   provenance/SBOM. Hardening planned but not done yet as of 4.3.2.
+   provenance/SBOM. Hardening planned but not done yet as of 4.3.3.
 7. **Swift is not covered by CodeQL** (JS/TS and Java/Kotlin only).
 
 ## Reproducing the checks

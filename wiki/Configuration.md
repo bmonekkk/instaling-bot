@@ -51,7 +51,7 @@ edytowania. Ustawienia i zapamiętane słówka trzymają w pamięci WebView (And
 | `reminder.repeat_minutes` | powtarzanie co N minut, `0` = raz dziennie |
 | `background.run_in_tray` | zamykanie okna chowa aplikację do zasobnika |
 | `background.start_at_login` | uruchamianie przy logowaniu systemu |
-| `notifications.session_finished` | powiadomienie o końcu sesji, gdy okno jest ukryte lub zminimalizowane (`true` domyślnie) |
+| `notifications.session_finished` | powiadomienie o końcu sesji, gdy okno jest ukryte lub zminimalizowane (`true` domyślnie). Na macOS niepodpisany build wysyła je awaryjną ścieżką `osascript` |
 | `language` | język interfejsu desktopowego: `pl` lub `en`; przełącznik **PL/EN** jest na pasku menu |
 | `INSTALING_LOGIN` / `INSTALING_PASSWORD` | zmienne środowiskowe z danymi logowania; mają pierwszeństwo przed `Config.json` |
 

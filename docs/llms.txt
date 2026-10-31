@@ -22,14 +22,18 @@ resumes a session, reads each prompt, answers with a configurable accuracy, reme
 translations and can make believable mistakes (empty field, different translation or a
 typo) for human-like behaviour. Everything runs locally; there is no backend or telemetry.
 
-Version 4.3.2 is a desktop security update: the InstaLing password is no longer written
-as plaintext. `Config.json` keeps only a `password_enc` blob encrypted by Electron
-`safeStorage` (Keychain on macOS, DPAPI on Windows, libsecret/kwallet on Linux); an
-existing plaintext entry is migrated on the first launch. The settings UI never receives
-the secret, and the engine gets the decrypted value through `INSTALING_LOGIN` /
-`INSTALING_PASSWORD` for a single run. If the keychain is unavailable the previous
-behaviour is kept rather than losing the password, and an undecryptable blob asks for the
-password again. Android, iOS and the userscript never store credentials.
+Version 4.3.3 is a hotfix for notifications on macOS. Native Electron notifications only
+work in signed apps, and the installers ship unsigned, so macOS rejected them; when the
+native API fails the desktop app now falls back to `osascript`, so the "session finished"
+banner and the daily reminder actually appear. Windows and Linux keep their native
+notifications. Version 4.3.2 added desktop password encryption: `Config.json` keeps only a
+`password_enc` blob encrypted by Electron `safeStorage` (Keychain on macOS, DPAPI on
+Windows, libsecret/kwallet on Linux); an existing plaintext entry is migrated on the first
+launch. The settings UI never receives the secret, and the engine gets the decrypted value
+through `INSTALING_LOGIN` / `INSTALING_PASSWORD` for a single run. If the keychain is
+unavailable the previous behaviour is kept rather than losing the password, and an
+undecryptable blob asks for the password again. Android, iOS and the userscript never store
+credentials.
 
 Earlier releases added the human-like timing: after a prompt appears the bot waits
 `think_min`–`think_max` (defaults 1500–4000 ms), then reads the result before "next":
@@ -70,10 +74,10 @@ tray mode and hidden background sessions.
 
 ## Install
 
-- Windows: `instaling-bot-4.3.2-setup-win64.exe` from the latest release.
-- macOS: `instaling-bot-4.3.2-macos-arm64.pkg` or `instaling-bot-4.3.2-macos-x64.pkg`.
-- Android: `instaling-bot-4.3.2-android.apk`.
-- iOS: `instaling-bot-4.3.2-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
+- Windows: `instaling-bot-4.3.3-setup-win64.exe` from the latest release.
+- macOS: `instaling-bot-4.3.3-macos-arm64.pkg` or `instaling-bot-4.3.3-macos-x64.pkg`.
+- Android: `instaling-bot-4.3.3-android.apk`.
+- iOS: `instaling-bot-4.3.3-ios.ipa` (SideStore/AltStore) or `instaling-bot.user.js`.
 - Linux / terminal: `curl -fsSL https://raw.githubusercontent.com/bmonekkk/instaling-bot/master/install.sh | bash`
 
 ## Notes

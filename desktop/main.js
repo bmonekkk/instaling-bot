@@ -1,5 +1,5 @@
 const {app, BrowserWindow, ipcMain, shell, Menu, Tray, nativeImage, Notification, safeStorage} = require('electron');
-const {execFileSync, fork} = require('child_process');
+const {execFile, execFileSync, fork} = require('child_process');
 const fs = require('fs');
 const fsp = require('fs/promises');
 const path = require('path');
@@ -17,6 +17,7 @@ const {
 } = require('../src/reminder.js');
 const {loadStats, summarizeAll} = require('../src/stats.js');
 const {hasStoredPassword, migrate, readPassword, seal} = require('./credential-store.js');
+const {buildDisplayNotificationScript} = require('./apple-notification.js');
 const {t, normalizeLanguage} = require('./renderer/i18n.js');
 
 const APP_ID = 'com.bmoneczek.instalingbot';
@@ -823,7 +824,8 @@ function hideToTray() {
 }
 
 function notifySessionFinished() {
-    if (!Notification.isSupported() || lastNotifiedRun === botState.finishedAt) return;
+    const canNotify = Notification.isSupported() || process.platform === 'darwin';
+    if (!canNotify || lastNotifiedRun === botState.finishedAt) return;
     if (configCache?.notifications?.session_finished === false) return;
     // Notify only when the result is not already on screen: hidden to tray,
     // minimised, or no window at all. A visible, focused window is enough.
@@ -842,15 +844,43 @@ function notifySessionFinished() {
 }
 
 function notifyTrayMessage(body) {
-    if (!Notification.isSupported()) return;
-    const notification = new Notification({title: 'instaling-bot', body: redact(body)});
-    notification.on('click', showWindow);
-    notification.show();
+    postNotification({body, onClick: showWindow});
 }
 
 function notifyTrayError(message) {
     if (mainWindow && mainWindow.isVisible()) return;
     notifyTrayMessage(tr('notify.startFailed', {message}));
+}
+
+// macOS refuses native notifications from unsigned binaries: `Notification.show()`
+// fires a `failed` event with UNErrorDomain error 1 (notificationsNotAllowed).
+// Since the installers ship unsigned, fall back to `osascript`, which routes the
+// banner through the system's Script Editor registration and does display. Signed
+// builds keep the native, clickable notification.
+function osascriptNotification(title, body) {
+    const script = buildDisplayNotificationScript(title, body);
+    execFile('osascript', ['-e', script], () => {});
+}
+
+function postNotification({title = 'instaling-bot', body, silent = false, onClick}) {
+    const safeBody = redact(body);
+    if (!Notification.isSupported()) {
+        if (process.platform === 'darwin') osascriptNotification(title, safeBody);
+        return;
+    }
+
+    let shown = false;
+    const notification = new Notification({title, body: safeBody, silent});
+    notification.on('show', () => {
+        shown = true;
+    });
+    // `failed` fires asynchronously on macOS when the API refuses an unsigned app.
+    notification.on('failed', () => {
+        if (shown) return;
+        if (process.platform === 'darwin') osascriptNotification(title, safeBody);
+    });
+    if (onClick) notification.on('click', onClick);
+    notification.show();
 }
 
 function openExternalUrl(url) {
@@ -949,14 +979,8 @@ async function checkReminder() {
     const now = new Date();
     if (!isReminderDue(config, state, now)) return;
 
-    if (Notification.isSupported()) {
-        const notification = new Notification({
-            title: 'instaling-bot',
-            body: tr('notify.reminder'),
-            silent: false
-        });
-        notification.on('click', showWindow);
-        notification.show();
+    if (Notification.isSupported() || process.platform === 'darwin') {
+        postNotification({body: tr('notify.reminder'), onClick: showWindow});
     }
 
     send('app:reminder', {date: dateKey(now)});

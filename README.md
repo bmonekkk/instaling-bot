@@ -19,16 +19,17 @@ Bot do automatycznego rozwiązywania słówek na [instaling.pl](https://instalin
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-Aktualna wersja (**4.3.2**) to wydanie bezpieczeństwa dla desktopu — hasło nie leży już jawnym tekstem w pliku konfiguracyjnym:
+Aktualna wersja (**4.3.3**) to poprawka powiadomień na macOS — o końcu sesji i przypomnieniach dowiesz się także wtedy, gdy okno jest ukryte:
 
 - 🖥️ **desktop** dla Windows i macOS: GUI, live log, statystyki i wbudowany Chrome,
+- 🔔 **powiadomienia działają też na macOS**: niepodpisana aplikacja nie może użyć natywnego API, więc bot wysyła banner awaryjną ścieżką (`osascript`); Windows i Linux bez zmian,
 - 🔐 **hasło w pęku kluczy systemu**: `Config.json` przechowuje tylko zaszyfrowany blob (`safeStorage`), a stary jawny wpis jest migrowany przy pierwszym uruchomieniu,
 - 📱 **Android APK** i **iOS**: wspólny silnik, interfejs PL/EN, ustawienia sesji, statystyki i konfigurowalne przypomnienia,
 - 🌐 **userscript** dla Safari na iOS/iPadOS oraz Firefoksa na Androidzie, z trwałym panelem ustawień,
 - ⌨️ pełnoprawne **CLI** dla Linuksa i terminala, instalowane jedną komendą `curl`,
 - 🧠 humanizację pisania: losowe opóźnienia, mikro-pauzy, literówki poprawiane backspace'em i trzy rodzaje celowych błędów, a do tego **pauzę na pomyślenie** przed wpisaniem tłumaczenia i **pauzę na przeczytanie wyniku** przed „dalej".
 
-Wersja 4.3.2 zamyka największą lukę w przechowywaniu danych: desktop nie zapisuje już hasła do InstaLing jawnym tekstem. `Config.json` zawiera wyłącznie `password_enc`, zaszyfrowany przez `safeStorage` (Keychain na macOS, DPAPI na Windows, libsecret/kwallet na Linuksie). Przy pierwszym uruchomieniu po aktualizacji istniejący jawny wpis jest automatycznie szyfrowany i usuwany z pliku. Interfejs ustawień nie dostaje już hasła — pokazuje „zapisane" i wysyła nową wartość tylko wtedy, gdy ją wpiszesz. Silnik dostaje odszyfrowane dane przez zmienne środowiskowe na czas jednego przebiegu. Jeśli systemowy pęk kluczy jest niedostępny, aplikacja zachowuje dotychczasowe zachowanie zamiast zgubić hasło; jeśli bloba nie da się odszyfrować (np. po resecie pęku), poprosi o hasło ponownie. Android, iOS i userscript nie przechowują haseł i pozostały bez zmian. Wszystko z 4.3.1 (iOS 26, „Gotowe", Android jak iOS) i 4.3.0 (trzy zakresy pauz) działa jak dotąd.
+Wersja 4.3.3 naprawia powiadomienia na macOS. Natywne powiadomienia Electron korzystają z systemowego API, które odrzuca niepodpisane aplikacje — `Notification.show()` kończyło się błędem („UNErrorDomain error 1"), więc banner nigdy się nie pojawiał mimo włączonej opcji. Instalatory są niepodpisane (celowo, bez certyfikatu Apple), dlatego bot wykrywa ten błąd i wysyła komunikat awaryjną ścieżką przez `osascript`, którą system dostarcza. Obejmuje to powiadomienie o końcu sesji i codzienne przypomnienie. Windows i Linux nadal używają natywnego API (na Windowsie ustawiamy `AppUserModelId`), a podpisane buildy zachowują klikalne powiadomienie. Wszystko z 4.3.2 (hasło w pęku kluczy), 4.3.1 (iOS 26, „Gotowe", Android jak iOS) i 4.3.0 (trzy zakresy pauz) działa jak dotąd.
 
 Open source, licencja ISC.
 
@@ -67,9 +68,9 @@ Powiadomienie o zakończeniu sesji jest domyślnie włączone i pojawia się tyl
 
 Pobierz instalator z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.3.2-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.3.2-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.3.2-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.3.3-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.3.3-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.3.3-macos-x64.pkg`
 
 Instalator desktopowy zawiera własną przeglądarkę Chrome for Testing. Nie trzeba instalować Node.js ani Chrome.
 
@@ -150,7 +151,7 @@ Wersja 4.3.1 uporządkowała też tempo pracy na telefonie: bot myśli przed pis
 
 ### 🤖 Android: APK (zalecane)
 
-1. Pobierz `instaling-bot-4.3.2-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Pobierz `instaling-bot-4.3.3-android.apk` z [najnowszego wydania](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Otwórz plik na telefonie i zezwól na instalację z tego źródła (Android zapyta raz).
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
@@ -180,7 +181,7 @@ Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **pane
 
 Dla osób, które wolą osobną aplikację:
 
-1. Pobierz `instaling-bot-4.3.2-ios.ipa` z najnowszego wydania.
+1. Pobierz `instaling-bot-4.3.3-ios.ipa` z najnowszego wydania.
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
@@ -414,6 +415,14 @@ APK release buduje `./gradlew :app:assembleRelease`; bez sekretów `ANDROID_KEYS
 
 
 ## 📦 Ostatnie zmiany
+
+### 4.3.3 — 2026-10-31
+
+- 🔔 **Powiadomienia naprawdę działają na macOS.** Natywne powiadomienia Electron używają systemowego API, które odrzuca niepodpisane aplikacje — `Notification.show()` kończyło się błędem `UNErrorDomain` 1, więc banner nigdy się nie pokazywał. Bot wykrywa ten błąd i wysyła komunikat przez `osascript`, który system dostarcza.
+- ⏰ **Dotyczy też przypomnień.** Codzienne przypomnienie o sesji korzysta z tej samej ścieżki.
+- 🪟 **Windows i Linux bez zmian** — natywne powiadomienia działają tam od zawsze, a Windows nadal ustawia `AppUserModelId`.
+- 🖥️ **Tylko ukryte okno.** Powiadomienie pojawia się, gdy okno jest w zasobniku, zminimalizowane lub zamknięte; widoczne okno nie dostaje duplikatu.
+- 🔢 **Wersja `4.3.3`** (userscript `4.3.3`, iOS 4.3.3 / 40303).
 
 ### 4.3.2 — 2026-10-29
 

@@ -61,6 +61,15 @@ w folderze danych.
 
 Instalatory są niepodpisane; to oczekiwane. Kod źródłowy jest publiczny.
 
+### Brak powiadomień na macOS
+
+Od 4.3.3 powiadomienia o końcu sesji i przypomnienia działają też na niepodpisanych buildach.
+Jeśli nadal ich nie widać, sprawdź **System Settings → Notifications** i zezwól na powiadomienia
+dla „instaling-bot" oraz „Script Editor" — ten drugi jest nośnikiem awaryjnej ścieżki
+(`osascript`), bo macOS nie pozwala niepodpisanej aplikacji użyć natywnego API. Powiadomienie
+pojawia się tylko wtedy, gdy okno jest ukryte w zasobniku, zminimalizowane albo zamknięte;
+widoczne okno nie dostaje duplikatu.
+
 ### Za dużo RAM w tle
 
 Włącz tryb zasobnika. Zamknięcie okna niszczy proces renderowania i zostaje lekki proces

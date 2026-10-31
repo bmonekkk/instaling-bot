@@ -19,16 +19,17 @@ A bot that automatically solves vocabulary exercises on [instaling.pl](https://i
 [![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
 [![Discussions](https://img.shields.io/github/discussions/bmonekkk/instaling-bot?label=discussions)](https://github.com/bmonekkk/instaling-bot/discussions)
 
-The current version (**4.3.2**) is a desktop security release — the password is no longer stored as plaintext:
+The current version (**4.3.3**) is a notification hotfix for macOS — you are now told when a session ends and when a reminder is due even if the window is hidden:
 
 - 🖥️ **desktop** for Windows and macOS: GUI, live log, statistics and a bundled Chrome,
+- 🔔 **notifications work on macOS too**: an unsigned build cannot use the native API, so the app sends the banner through a fallback (`osascript`); Windows and Linux are unchanged,
 - 🔐 **password in the OS keychain**: `Config.json` keeps only an encrypted blob (`safeStorage`), and an existing plaintext entry is migrated on the first launch,
 - 📱 **Android APK** and **iOS**: one shared engine, PL/EN interface, session settings, statistics and configurable reminders,
 - 🌐 **userscript** for Safari on iOS/iPadOS and Firefox on Android, with a persistent settings panel,
 - ⌨️ a full **CLI** for Linux and the terminal, installed with a single `curl` command,
 - 🧠 human-like typing: random delays, micro-pauses, typos fixed with backspace and three kinds of deliberate mistakes, plus a **thinking pause** before typing the translation and a **review pause** before "next".
 
-Version 4.3.2 closes the biggest storage gap: the desktop app no longer writes the InstaLing password as plaintext. `Config.json` holds only `password_enc`, encrypted by `safeStorage` (Keychain on macOS, DPAPI on Windows, libsecret/kwallet on Linux). On the first launch after the upgrade the existing plaintext entry is encrypted and removed from the file. The settings UI never receives the password — it shows "saved" and sends a new value only when you type one. The engine gets the decrypted value through environment variables for a single run. If the OS keychain is unavailable the app keeps the previous behaviour instead of losing the password; if a blob cannot be decrypted (for example after a keychain reset) it asks for the password again. Android, iOS and the userscript never store credentials and are unchanged. Everything from 4.3.1 (iOS 26, "Done", Android like iOS) and 4.3.0 (three timing ranges) still applies.
+Version 4.3.3 fixes notifications on macOS. Native Electron notifications use the system API, which refuses unsigned apps — `Notification.show()` failed with "UNErrorDomain error 1", so the banner never appeared even with the option enabled. The installers are deliberately unsigned (no Apple certificate), so the app detects that failure and re-sends the message through `osascript`, which the system delivers. This covers both the session-finished notification and the daily reminder. Windows and Linux keep the native API (Windows sets `AppUserModelId`), and signed builds keep the native, clickable notification. Everything from 4.3.2 (keychain password), 4.3.1 (iOS 26, "Done", Android like iOS) and 4.3.0 (three timing ranges) still applies.
 
 Open source, ISC license.
 
@@ -67,9 +68,9 @@ The session-finished notification is on by default and appears only when the win
 
 Download an installer from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest):
 
-- **Windows:** `instaling-bot-4.3.2-setup-win64.exe` (NSIS, x64)
-- **macOS Apple Silicon:** `instaling-bot-4.3.2-macos-arm64.pkg`
-- **macOS Intel:** `instaling-bot-4.3.2-macos-x64.pkg`
+- **Windows:** `instaling-bot-4.3.3-setup-win64.exe` (NSIS, x64)
+- **macOS Apple Silicon:** `instaling-bot-4.3.3-macos-arm64.pkg`
+- **macOS Intel:** `instaling-bot-4.3.3-macos-x64.pkg`
 
 The desktop installer includes its own Chrome for Testing browser. You do not need to install Node.js or Chrome.
 
@@ -150,7 +151,7 @@ Version 4.3.1 reworked the timing on the phone too: the bot thinks before typing
 
 ### 🤖 Android: APK (recommended)
 
-1. Download `instaling-bot-4.3.2-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
+1. Download `instaling-bot-4.3.3-android.apk` from the [latest release](https://github.com/bmonekkk/instaling-bot/releases/latest).
 2. Open the file and allow installation from this source when Android asks.
 3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
 4. Open the learning page and press **Start** in the top bar.
@@ -180,7 +181,7 @@ The panel has Start/Stop, PL/EN, an answer counter, a toggleable **statistics pa
 
 For people who prefer a separate app:
 
-1. Download `instaling-bot-4.3.2-ios.ipa` from the latest release.
+1. Download `instaling-bot-4.3.3-ios.ipa` from the latest release.
 2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
 3. Sign in to `instaling.pl` in the app and press **Start**.
 
@@ -414,6 +415,14 @@ A release APK is built with `./gradlew :app:assembleRelease`; without the `ANDRO
 
 
 ## 📦 Recent changes
+
+### 4.3.3 — 2026-10-31
+
+- 🔔 **Notifications really work on macOS now.** Native Electron notifications use the system API, which refuses unsigned apps — `Notification.show()` failed with `UNErrorDomain` 1, so the banner never appeared. The app detects that failure and sends the message through `osascript`, which the system delivers.
+- ⏰ **Reminders benefit too.** The daily session reminder uses the same path.
+- 🪟 **Windows and Linux unchanged** — native notifications have always worked there, and Windows still sets `AppUserModelId`.
+- 🖥️ **Hidden window only.** The notification appears when the window is in the tray, minimised or closed; a visible window gets no duplicate.
+- 🔢 **Version `4.3.3`** (userscript `4.3.3`, iOS 4.3.3 / 40303).
 
 ### 4.3.2 — 2026-10-29
 
