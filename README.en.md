@@ -42,6 +42,8 @@ Instaling Bot is an independent open-source project maintained as a hobby. If yo
 
 Support is entirely voluntary and not required to use the project. The project is not officially affiliated with InstaLing. Donations do not guarantee specific features or release dates.
 
+The desktop app has a **☕** button in the tray menu and settings panel, the **Android APK** and **iOS IPA** have a **☕** button in the title bar, and the **userscript** panel links to Ko-fi under the GitHub link — so you can support the project from whichever variant you use.
+
 
 ## ✨ Four variants, one engine
 
@@ -156,7 +158,7 @@ Version 4.3.1 reworked the timing on the phone too: the bot thinks before typing
 3. Launch **instaling-bot** and sign in to `instaling.pl` in the app window.
 4. Open the learning page and press **Start** in the top bar.
 
-The top bar has a **PL/EN** switch, a 📊 statistics button, a ⏰ reminder, ⚙ settings, Start and Stop. Below it you see the status, the answer counter and today's statistics. When a newer release exists, the app shows an **Update** button linking to GitHub.
+The top bar has a **PL/EN** switch, a 📊 statistics button, a ⏰ reminder, ⚙ settings, ☕ (support on Ko-fi), Start and Stop. Below it you see the status, the answer counter and today's statistics. When a newer release exists, the app shows an **Update** button linking to GitHub.
 
 **Settings:** tap ⚙ to change answer accuracy, the **pause before typing** (`think_min` / `think_max`), the **pause after a mistake or a new word** (`review_min` / `review_max`), the **pause after a correct answer** (`review_correct_min` / `review_correct_max`), letter delays (`type_min` / `type_max`), the pause chance (`type_pause_chance`), the typo chance (`typo_chance`) and the **reminder time and frequency**. A **restore-defaults** button resets every setting except login, password and language. Values are saved in the app and apply immediately, without a restart.
 
@@ -175,7 +177,7 @@ Chrome on iOS does not support extensions, but Safari does:
 3. Open [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) in Safari and import it into Userscripts.
 4. Visit `instaling.pl`, sign in and tap the floating 🤖 button.
 
-The panel has Start/Stop, PL/EN, an answer counter, a toggleable **statistics panel** (week / month / year / all tabs) and **restore-defaults**. Expand **Settings** to change answer accuracy, the pause before typing (`think_min` / `think_max`), the pause after a mistake or a new word (`review_min` / `review_max`), the pause after a correct answer (`review_correct_min` / `review_correct_max`), letter delays (`type_min` / `type_max`, `typo_chance`, `type_pause_chance`) and autostart — values persist in the extension storage, and saved words persist between sessions too. The panel sizes itself with `100dvh`, so it stays inside Safari's viewport. The script sends no browser notifications: when you open a tab after the reminder time and today's session is not done, it shows a small in-page banner. It updates itself through `@updateURL`.
+The panel has Start/Stop, PL/EN, an answer counter, a toggleable **statistics panel** (week / month / year / all tabs) and **restore-defaults**. Expand **Settings** to change answer accuracy, the pause before typing (`think_min` / `think_max`), the pause after a mistake or a new word (`review_min` / `review_max`), the pause after a correct answer (`review_correct_min` / `review_correct_max`), letter delays (`type_min` / `type_max`, `typo_chance`, `type_pause_chance`) and autostart — values persist in the extension storage, and saved words persist between sessions too. The panel sizes itself with `100dvh`, so it stays inside Safari's viewport. At the bottom there are two links: **GitHub / updates** and **☕ Support on Ko-fi**. The script sends no browser notifications: when you open a tab after the reminder time and today's session is not done, it shows a small in-page banner. It updates itself through `@updateURL`.
 
 ### 🍏 iOS: IPA for SideStore / AltStore
 
@@ -185,7 +187,7 @@ For people who prefer a separate app:
 2. Install [SideStore](https://sidestore.io/) or AltStore and add the IPA.
 3. Sign in to `instaling.pl` in the app and press **Start**.
 
-The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, session settings (accuracy, the three timing ranges, typing delays, pause and typo chances), a **reminder-frequency dropdown** with a left-aligned time, a **statistics panel** (week / month / year / all), **restore-defaults** and an update button.
+The IPA is **unsigned** — you sign it with your own Apple ID. A free account needs a refresh every **7 days**; SideStore can do that automatically. The app has the same PL/EN switch, session settings (accuracy, the three timing ranges, typing delays, pause and typo chances), a **reminder-frequency dropdown** with a left-aligned time, a **statistics panel** (week / month / year / all), **restore-defaults**, an update button and a **☕** button (support on Ko-fi).
 
 **Shortcuts:** the app accepts `instalingbot://start` and `instalingbot://stop`, so an iOS automation can start a session. The session only runs while the app is in the foreground.
 

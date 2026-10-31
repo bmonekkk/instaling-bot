@@ -42,6 +42,8 @@ Instaling Bot to niezależny projekt open source rozwijany hobbystycznie. Jeśli
 
 Wsparcie jest całkowicie dobrowolne i nie jest wymagane do korzystania z projektu. Projekt nie jest oficjalnie powiązany z InstaLing. Wpłaty nie gwarantują konkretnych funkcji ani terminów aktualizacji.
 
+Aplikacja desktopowa ma przycisk **☕** w menu zasobnika i panelu ustawień, **Android APK** i **iOS IPA** mają przycisk **☕** w pasku tytułu, a panel **userscriptu** linkuje do Ko-fi pod linkiem do GitHuba — możesz wesprzeć projekt z tego wariantu, którego używasz.
+
 
 ## ✨ Cztery warianty, jeden silnik
 
@@ -156,7 +158,7 @@ Wersja 4.3.1 uporządkowała też tempo pracy na telefonie: bot myśli przed pis
 3. Uruchom **instaling-bot**, zaloguj się na `instaling.pl` w oknie aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start** na górnym pasku.
 
-Górny pasek ma przełącznik **PL/EN**, przycisk statystyk 📊, przypomnienie ⏰, ustawienia ⚙, Start i Stop. Pod paskiem widać status, licznik odpowiedzi oraz dzisiejsze statystyki. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
+Górny pasek ma przełącznik **PL/EN**, przycisk statystyk 📊, przypomnienie ⏰, ustawienia ⚙, ☕ (wsparcie na Ko-fi), Start i Stop. Pod paskiem widać status, licznik odpowiedzi oraz dzisiejsze statystyki. Gdy pojawi się nowsze wydanie, aplikacja pokaże przycisk **Aktualizacja** prowadzący do GitHuba.
 
 **Ustawienia:** dotknij ⚙, aby zmienić poprawność odpowiedzi, **pauzę przed pisaniem** (`think_min` / `think_max`), **pauzę po błędzie lub nowym słówku** (`review_min` / `review_max`), **pauzę po poprawnej odpowiedzi** (`review_correct_min` / `review_correct_max`), opóźnienia liter (`type_min` / `type_max`), szansę na pauzę (`type_pause_chance`), szansę na literówkę (`typo_chance`) oraz **godzinę i częstotliwość przypomnienia**. Przycisk **Przywróć domyślne** resetuje wszystkie ustawienia poza loginem, hasłem i językiem. Wartości zapisują się w aplikacji i obowiązują od razu, bez ponownego uruchamiania.
 
@@ -175,7 +177,7 @@ Chrome na iOS nie obsługuje rozszerzeń, ale Safari tak:
 3. Otwórz [instaling-bot.user.js](https://github.com/bmonekkk/instaling-bot/releases/latest/download/instaling-bot.user.js) w Safari i zaimportuj skrypt w Userscripts.
 4. Wejdź na `instaling.pl`, zaloguj się i dotknij pływającego przycisku 🤖.
 
-Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **panel statystyk** (zakładki tydzień / miesiąc / rok / wszystko) i **Przywróć domyślne**. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, pauzę przed pisaniem (`think_min` / `think_max`), pauzę po błędzie lub nowym słówku (`review_min` / `review_max`), pauzę po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`), opóźnienia liter (`type_min` / `type_max`, `typo_chance`, `type_pause_chance`) oraz autostart — wartości zapisują się trwale w pamięci rozszerzenia. Panel ma `max-height` oparty na `100dvh`, więc nie wychodzi poza ekran Safari. Słowa również zapisują się między sesjami. Userscript nie wysyła powiadomień przeglądarki: gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona, pokazuje mały baner na stronie. Skrypt aktualizuje się sam przez `@updateURL`.
+Panel userscriptu ma Start/Stop, PL/EN, licznik odpowiedzi, przełączany **panel statystyk** (zakładki tydzień / miesiąc / rok / wszystko) i **Przywróć domyślne**. Rozwiń **Ustawienia**, aby zmienić poprawność odpowiedzi, pauzę przed pisaniem (`think_min` / `think_max`), pauzę po błędzie lub nowym słówku (`review_min` / `review_max`), pauzę po poprawnej odpowiedzi (`review_correct_min` / `review_correct_max`), opóźnienia liter (`type_min` / `type_max`, `typo_chance`, `type_pause_chance`) oraz autostart — wartości zapisują się trwale w pamięci rozszerzenia. Panel ma `max-height` oparty na `100dvh`, więc nie wychodzi poza ekran Safari. Słowa również zapisują się między sesjami. Na dole panelu są dwa linki: **GitHub / aktualizacje** i **☕ Wesprzyj projekt na Ko-fi**. Userscript nie wysyła powiadomień przeglądarki: gdy otworzysz kartę po godzinie przypomnienia i dzisiejsza sesja nie jest ukończona, pokazuje mały baner na stronie. Skrypt aktualizuje się sam przez `@updateURL`.
 
 ### 🍏 iOS: IPA dla SideStore / AltStore
 
@@ -185,7 +187,7 @@ Dla osób, które wolą osobną aplikację:
 2. Zainstaluj [SideStore](https://sidestore.io/) lub AltStore i dodaj plik IPA.
 3. Zaloguj się na `instaling.pl` w aplikacji i naciśnij **Start**.
 
-IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, ustawienia sesji (poprawność, opóźnienia pisania i klikania, szybkość klikania przycisków, szanse na pauzę i literówkę), **listę częstotliwości przypomnienia** z godziną wyrównaną do lewej, **panel statystyk** (tydzień / miesiąc / rok / wszystko), **Przywróć domyślne** i przycisk aktualizacji.
+IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto wymaga odświeżania co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma to samo PL/EN, ustawienia sesji (poprawność, opóźnienia pisania i klikania, szybkość klikania przycisków, szanse na pauzę i literówkę), **listę częstotliwości przypomnienia** z godziną wyrównaną do lewej, **panel statystyk** (tydzień / miesiąc / rok / wszystko), **Przywróć domyślne**, przycisk aktualizacji i przycisk **☕** (wsparcie na Ko-fi).
 
 **Skróty (Shortcuts):** aplikacja przyjmuje `instalingbot://start` i `instalingbot://stop`, więc możesz uruchomić sesję z automatyzacji iOS. Sesja działa tylko, gdy aplikacja jest na pierwszym planie.
 

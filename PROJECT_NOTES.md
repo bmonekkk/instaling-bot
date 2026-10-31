@@ -221,7 +221,7 @@ Android MainActivity
   ├─ WebView loads https://instaling.pl/ (cookies persist; flushed on pause/destroy)
   ├─ onPageFinished → evaluate core.js → InstalingBot.create({config}) → resume()
   ├─ JS posts events through InstalingBotNative.postEvent(json)
-  ├─ toolbar: PL/EN, reminder, ⚙ settings, Start, Stop; update check via GitHub API
+  ├─ toolbar: PL/EN, reminder, ⚙ settings, ☕ Ko-fi, Start, Stop; update check via GitHub API
   ├─ settings dialog: valid_chance + all timing controls (click/type/pause/typo),
   │   reminder hour/minute + repeat → prefs + setConfig()
   ├─ stats line from engine.getStats() (today, accuracy, streak)
@@ -232,7 +232,7 @@ Android MainActivity
 iOS MainViewController
   ├─ WKUserScript (core.js + boot with persisted config) at documentEnd, main frame only
   ├─ engine posts JSON through webkit.messageHandlers.instalingBot
-  ├─ toolbar: PL/EN, reminder, ⚙ settings, Start, Stop; update check via URLSession
+  ├─ toolbar: PL/EN, reminder, ⚙ settings, ☕ Ko-fi, Start, Stop; update check via URLSession
   ├─ settings sheet: valid_chance + all timing controls (click/type/pause/typo),
   │   reminder hour/minute + repeat → UserDefaults + setConfig()
   ├─ stats line from engine.getStats()
@@ -242,6 +242,8 @@ iOS MainViewController
 ```
 
 The mobile engine is **tick-based**, not a long `while` loop: instaling.pl performs a real navigation after "check", which destroys the JS context. Each page load resumes the persisted run (`instalingBot.run` in WebView storage or GM storage). Before clicking "check" the engine stores `pending` (polish, typed answer, known translation, sentence, mistake); the result page reads `#word`, saves the word, updates counters and clears `pending`. Without this, answers were lost on every reload.
+
+**Ko-fi support entry points.** Desktop uses `KOFI_URL` in the tray menu and the settings panel. Android (`KOFI_URL` + `kofiButton`, label `L_KOFI`) and iOS (`kofiURL` + `kofiButton`, label index 56) add a `☕` title-bar button; the userscript adds a second `.kofi` footer link with the `panel.support` string (PL/EN). All of them open `https://ko-fi.com/bmonekkk` externally — never inside the WebView — and are UI-only, so they carry no version bump.
 
 ## The important fixes (don't regress these)
 
@@ -271,6 +273,7 @@ The mobile engine is **tick-based**, not a long `while` loop: instaling.pl perfo
 24. **No credentials on mobile** — the shells must not read `Config.json` or ask for a password. They reuse the website session in the WebView. Keep the login-page guard in `startSession()`.
 25. **Mobile assets are generated** — `mobile/android/app/src/main/assets/core.js` and `mobile/ios/InstalingBot/Resources/core.js` are gitignored build outputs. Run `npm run build:mobile` before Gradle/XcodeGen; CI does this in every mobile job.
 26. **Unsigned builds** — Android falls back to the debug key when `ANDROID_KEYSTORE_*` is missing, and iOS is built with `CODE_SIGNING_ALLOWED=NO`. Do not add store signing assumptions without testing SideStore/AltStore.
+27. **External links stay external** — the Ko-fi buttons/links (desktop tray + settings, APK/IPA title bar, userscript footer) and the update button must open the system browser, never navigate the WebView or the Electron window. On Android keep `openExternally()`, on iOS `UIApplication.shared.open`, and on desktop `openExternalUrl()`; the userscript uses a normal `target="_blank"` anchor.
 
 ## Config cheat sheet
 

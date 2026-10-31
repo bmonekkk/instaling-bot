@@ -102,6 +102,7 @@ Deliverable: `src/core/` + tests, mobile fixtures, spike script.
 | Daily reminder | yes (repeating) | in-page banner | yes (repeating) | yes (repeating) |
 | Statistics (day/week/month/year/all) | yes | yes | yes | yes |
 | Update check | yes | yes | yes | yes |
+| Ko-fi support link | tray + settings | footer link | title-bar ☕ | title-bar ☕ |
 | Saved words | file | GM storage | WebView storage | WKWebView storage |
 | Automation | tray/CLI | `?autostart=1` | deep link | URL scheme/Shortcuts |
 | Login | app | existing session | existing session | existing session |
@@ -193,5 +194,10 @@ Shipped as one 4.0.0 release instead of a separate 3.4.0 beta:
   without it UIKit traps at launch. `SceneDelegate` now creates the window and the
   `MainViewController`, and `UIApplicationSceneManifest` is declared in `project.yml`.
   `AppDelegate` only owns notifications and resolves the `instalingbot://start|stop` links.
+- **Ko-fi support entry points (unreleased).** Android (`KOFI_URL` + `kofiButton`, label
+  `L_KOFI`) and iOS (`kofiURL` + `kofiButton`, label index 56) add a `☕` title-bar button;
+  the userscript adds a second `.kofi` footer link using the new `panel.support` string.
+  All open `https://ko-fi.com/bmonekkk` externally, and the labels follow PL/EN. UI-only,
+  so no version bump accompanies it.
 - **Oversized userscript panel (fixed in 4.2.1).** The panel uses
   `max-height: calc(100dvh - 96px)` with a `100vh` fallback and `overscroll-behavior: contain`.

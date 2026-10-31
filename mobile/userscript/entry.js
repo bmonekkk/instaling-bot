@@ -13,6 +13,7 @@ const VERSION = __VERSION__;
 // the emoji when the bundle is built without the asset.
 const ICON = typeof __ICON__ === 'string' ? __ICON__ : '';
 const RELEASES_URL = 'https://github.com/bmonekkk/instaling-bot/releases/latest';
+const KOFI_URL = 'https://ko-fi.com/bmonekkk';
 
 const REMINDER_KEY = 'reminder';
 const DEFAULT_REMINDER = {enabled: true, time: '17:00', repeat_minutes: 0};
@@ -353,6 +354,7 @@ function buildUi() {
             </label>
             <div class="log"></div>
             <a class="link" target="_blank" rel="noopener"></a>
+            <a class="link kofi" target="_blank" rel="noopener"></a>
         </div>
     `;
 
@@ -440,7 +442,8 @@ function buildUi() {
         langLabel: panel.querySelector('.lang-label'),
         langSelect: panel.querySelector('.lang-select'),
         log: panel.querySelector('.log'),
-        link: panel.querySelector('.link')
+        link: panel.querySelector('.link'),
+        kofi: panel.querySelector('.kofi')
     };
 
     if (ICON) {
@@ -490,6 +493,7 @@ function buildUi() {
         });
     }
     els.link.href = RELEASES_URL;
+    els.kofi.href = KOFI_URL;
     applyStaticText();
 }
 
@@ -524,6 +528,7 @@ function applyStaticText() {
     els.bannerText.textContent = t('reminder.banner');
     els.bannerClose.textContent = 'OK';
     els.link.textContent = t('panel.link');
+    els.kofi.textContent = t('panel.support');
     for (const option of els.reminderRepeat.options) {
         option.textContent = t(option.dataset.i18n);
     }

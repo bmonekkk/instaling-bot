@@ -59,3 +59,6 @@ Nigdy nie publikuj haseł, ciasteczek, tokenów ani logów z danymi osobowymi.
 Projekt rozwijam hobbystycznie. Jeśli jest przydatny, możesz postawić mi kawę na
 [Ko-fi](https://ko-fi.com/H5P529J2VO). Wsparcie jest dobrowolne i nie gwarantuje funkcji
 ani terminów.
+
+Przycisk **☕** znajdziesz też w aplikacji: na desktopie w menu zasobnika i panelu ustawień,
+w APK/IPA w pasku tytułu, a w panelu userscriptu jako link pod linkiem do GitHuba.

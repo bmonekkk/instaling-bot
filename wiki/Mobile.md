@@ -13,6 +13,10 @@ literówki, godzina i częstotliwość przypomnienia), przycisk
 **Przywróć domyślne** oraz **pełne statystyki** z zakładkami tydzień / miesiąc / rok /
 wszystko (sesje, odpowiedzi, skuteczność, nowe słówka, czas i aktywne dni).
 
+Jeśli projekt Ci się przydaje, możesz wesprzeć jego rozwój: w aplikacjach mobilnych jest
+przycisk **☕** w pasku tytułu, a w panelu userscriptu link **☕ Wesprzyj projekt na Ko-fi**
+pod linkiem do GitHuba. Wsparcie jest dobrowolne i nie odblokowuje żadnych funkcji.
+
 Aplikacje mobilne **nie zapisują hasła**. Logujesz się normalnie na `instaling.pl` w ich
 wbudowanej przeglądarce, a bot odpowiada w otwartej sesji. Sesja działa tylko przy
 otwartej aplikacji lub karcie — telefon może wstrzymać WebView w tle.
@@ -25,9 +29,9 @@ otwartej aplikacji lub karcie — telefon może wstrzymać WebView w tle.
 3. Zaloguj się na `instaling.pl` w aplikacji.
 4. Wejdź na stronę nauki i naciśnij **Start**.
 
-Górny pasek: **PL/EN**, 📊 (statystyki), ⏰ (przypomnienie), ⚙ (ustawienia), **Start**,
-**Stop**. Pod paskiem widać status, licznik odpowiedzi i dzisiejsze statystyki. Gdy jest
-nowsze wydanie, pojawia się przycisk **Aktualizacja**.
+Górny pasek: **PL/EN**, ⏰ (przypomnienie), 📊 (statystyki), ⚙ (ustawienia), ☕
+(wsparcie na Ko-fi), **Start**, **Stop**. Pod paskiem widać status, licznik odpowiedzi i
+dzisiejsze statystyki. Gdy jest nowsze wydanie, pojawia się przycisk **Aktualizacja**.
 
 - **Ustawienia (⚙):** poprawność odpowiedzi (`valid_chance`), pauza przed pisaniem
   (`think_min`/`think_max`), pauza po błędzie lub nowym słówku (`review_min`/`review_max`),
@@ -62,6 +66,7 @@ tydzień / miesiąc / rok / wszystko) i **Przywróć domyślne**. Rozwijane **Us
 poprawność, pauzy przed pisaniem i po wyniku (`think_*`, `review_*`, `review_correct_*`),
 czasy pisania oraz autostart. Ustawienia i słówka zapisują się w `GM_setValue`. Panel używa
 `100dvh`, więc nie wychodzi poza ekran Safari. Skrypt aktualizuje się przez `@updateURL`.
+Na dole panelu są dwa linki: **GitHub / aktualizacje** i **☕ Wesprzyj projekt na Ko-fi**.
 
 Zamiast powiadomień w tle userscript pokazuje **banner na stronie**: pojawia się, gdy
 otworzysz kartę `instaling.pl` po godzinie przypomnienia, a dzisiejsza sesja nie jest
@@ -77,7 +82,8 @@ IPA jest **niepodpisana** — podpisujesz ją własnym Apple ID. Darmowe konto w
 odświeżenia co **7 dni**; SideStore potrafi robić to automatycznie. Aplikacja ma PL/EN,
 ustawienia sesji (w tym szybkość klikania przycisków), **listę częstotliwości przypomnienia**
 z godziną wyrównaną do lewej, **panel statystyk** (tydzień / miesiąc / rok / wszystko),
-**Przywróć domyślne** i przycisk aktualizacji.
+**Przywróć domyślne**, przycisk aktualizacji i przycisk **☕** w pasku tytułu (wsparcie na
+Ko-fi).
 Skróty iOS mogą użyć `instalingbot://start` / `instalingbot://stop`.
 
 ## Userscript na Androidzie

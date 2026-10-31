@@ -47,17 +47,19 @@ statistics panel, a "restore defaults" action and the same three timing ranges:
 - **Android APK** — native WebView shell with Start/Stop, PL/EN, answer counter,
   statistics, a ⚙ settings dialog (accuracy, the three pause ranges, typing delays,
   reminder time and a frequency dropdown), a reminder that repeats every N minutes and
-  stops once a session is finished that day, a "restore defaults" button, an update
-  button and `instalingbot://start` / `instalingbot://stop` deep links for
-  Tasker/MacroDroid.
+  stops once a session is finished that day, a "restore defaults" button, a ☕ button in
+  the title bar that opens the Ko-fi support page, an update button and
+  `instalingbot://start` / `instalingbot://stop` deep links for Tasker/MacroDroid.
 - **iOS IPA** — unsigned build for SideStore/AltStore with the same engine, settings,
-  statistics, a reminder-frequency dropdown, a repeating configurable reminder and a URL
-  scheme for Shortcuts. A free Apple ID needs a refresh every 7 days.
+  statistics, a reminder-frequency dropdown, a repeating configurable reminder, a ☕ Ko-fi
+  button in the title bar and a URL scheme for Shortcuts. A free Apple ID needs a refresh
+  every 7 days.
 - **Userscript** — floating panel for Safari on iOS/iPadOS and Firefox on Android, with
   a persisted settings panel (accuracy, the three pause ranges, typing delays, reminder
   time and frequency, autostart), statistics, a "restore defaults" button, an in-page
-  reminder banner, `?autostart=1`, `?lang=en`, GM storage and automatic updates through
-  `@updateURL`. The panel is sized with `100dvh` so it stays inside Safari's viewport.
+  reminder banner, a ☕ "Support on Ko-fi" link under the GitHub link, `?autostart=1`,
+  `?lang=en`, GM storage and automatic updates through `@updateURL`. The panel is sized
+  with `100dvh` so it stays inside Safari's viewport.
 
 The website tags every download with OS/minimum version, architecture and format, and
 detects the visitor's device (Windows, macOS ARM64/Intel, Android, iPhone, iPad, Linux)
@@ -85,6 +87,8 @@ tray mode and hidden background sessions.
 - License: ISC.
 - Language: Polish-first documentation, English README and support; every app switches
   between Polish and English.
+- Support: voluntary, via Ko-fi (https://ko-fi.com/bmonekkk). The desktop tray menu and
+  settings panel, the APK/IPA title bar and the userscript panel expose a ☕ link to it.
 - Installers, APK and IPA are unsigned; SmartScreen and Gatekeeper may warn on first launch.
 - Mobile sessions stop when the app/tab is suspended in the background.
 - The project is educational, is not affiliated with InstaLing and is not intended to cheat.

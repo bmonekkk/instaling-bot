@@ -6,6 +6,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
 
     private static let startURL = URL(string: "https://instaling.pl/")!
     private static let releasesURL = URL(string: "https://github.com/bmonekkk/instaling-bot/releases/latest")!
+    private static let kofiURL = URL(string: "https://ko-fi.com/bmonekkk")!
     private static let apiURL = URL(string: "https://api.github.com/repos/bmonekkk/instaling-bot/releases/latest")!
     // iOS keeps at most 64 pending local notifications, so a repeating reminder
     // is emulated with a bounded batch of one-shot triggers that the app
@@ -28,6 +29,7 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
     private var reminderButton: ClassicButton!
     private var statsButton: ClassicButton!
     private var settingsButton: ClassicButton!
+    private var kofiButton: ClassicButton!
     private var updateButton: ClassicButton!
 
     private var language = "pl"
@@ -53,7 +55,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                "Raz dziennie", "Co 15 minut", "Co 30 minut", "Co godzinę", "Co 2 godziny", "Co 3 godziny",
                "Pauza przed pisaniem min (ms)", "Pauza przed pisaniem max (ms)",
                "Pauza po błędzie min (ms)", "Pauza po błędzie max (ms)",
-               "Pauza po poprawnej min (ms)", "Pauza po poprawnej max (ms)"],
+               "Pauza po poprawnej min (ms)", "Pauza po poprawnej max (ms)",
+               "Wesprzyj na Ko-fi"],
         "en": ["Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                "Session finished", "Error", "Stopped", "Update",
                "Session settings", "Answer accuracy (%)", "Repeat reminder",
@@ -70,7 +73,8 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
                "Every 3 hours",
                "Min pause before typing (ms)", "Max pause before typing (ms)",
                "Min pause after a mistake (ms)", "Max pause after a mistake (ms)",
-               "Min pause after a correct answer (ms)", "Max pause after a correct answer (ms)"]
+               "Min pause after a correct answer (ms)", "Max pause after a correct answer (ms)",
+               "Support on Ko-fi"]
     ]
 
     private func label(_ index: Int) -> String {
@@ -138,7 +142,11 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         settingsButton.accessibilityLabel = label(10)
         settingsButton.addTarget(self, action: #selector(openSettings), for: .touchUpInside)
 
-        let titleRow = UIStackView(arrangedSubviews: [title, languageButton, reminderButton, statsButton, settingsButton])
+        kofiButton = makeButton("☕", background: ClassicPalette.window, foreground: .black)
+        kofiButton.accessibilityLabel = label(56)
+        kofiButton.addTarget(self, action: #selector(openKofi), for: .touchUpInside)
+
+        let titleRow = UIStackView(arrangedSubviews: [title, languageButton, reminderButton, statsButton, settingsButton, kofiButton])
         titleRow.axis = .horizontal
         titleRow.alignment = .center
         titleRow.spacing = 4
@@ -487,11 +495,16 @@ final class MainViewController: UIViewController, WKScriptMessageHandler, WKNavi
         startButton.setTitle(label(0), for: .normal)
         stopButton.setTitle(label(1), for: .normal)
         updateButton.setTitle(label(9), for: .normal)
+        kofiButton.accessibilityLabel = label(56)
         statusLabel.text = statusText(lastStatus)
     }
 
     @objc private func openReleases() {
         UIApplication.shared.open(Self.releasesURL)
+    }
+
+    @objc private func openKofi() {
+        UIApplication.shared.open(Self.kofiURL)
     }
 
     // MARK: - Settings & statistics

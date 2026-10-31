@@ -137,4 +137,6 @@ i [Współtworzenie](Contributing).
 ## Czy można wesprzeć projekt?
 
 Tak, dobrowolnie przez [Ko-fi](https://ko-fi.com/H5P529J2VO). Wsparcie nie gwarantuje
-konkretnych funkcji ani terminów.
+konkretnych funkcji ani terminów. W aplikacji desktopowej otworzysz je z menu zasobnika i
+panelu ustawień, w APK/IPA jest przycisk **☕** w pasku tytułu, a panel userscriptu ma link
+do Ko-fi pod linkiem do GitHuba.

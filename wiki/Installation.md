@@ -38,6 +38,8 @@ i plik `.user.js`.
 
 Aplikacje mobilne nie zapisują hasła: logujesz się na `instaling.pl` w ich WebView.
 Sesja działa tylko przy otwartej aplikacji lub karcie. Pełna instrukcja: [Mobile](Mobile).
+APK i IPA mają też przycisk **☕** w pasku tytułu (wsparcie na Ko-fi), a panel userscriptu
+link do Ko-fi pod linkiem do GitHuba.
 
 ## CLI: Linux, macOS i Windows
 

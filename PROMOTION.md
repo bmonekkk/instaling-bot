@@ -224,6 +224,10 @@ przedstawiać projekt, a nie changelog.
   i asystentom AI.
 - Strona jest teraz jednym `index.html`; nowy temat dodawaj jako sekcję na stronie głównej
   (link z kotwicą), dopóki nie uzbiera się dość treści na osobny adres.
+- Wsparcie jest w każdej powłoce: desktop (menu zasobnika + panel ustawień), APK/IPA
+  (przycisk **☕** w pasku tytułu) i userscript (link pod linkiem do GitHuba). Nie trzeba
+  więc osobnego CTA w każdym poście — wystarczy ogólne „możesz wesprzeć projekt”, a link
+  do Ko-fi jest już w aplikacji. Zmiana UI nie wymaga nowego wydania.
 
 ## 6. Gdzie to wkleić — gotowe linki
 

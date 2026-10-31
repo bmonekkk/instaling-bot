@@ -63,6 +63,7 @@ public class MainActivity extends Activity {
 
     private static final String START_URL = "https://instaling.pl/";
     private static final String RELEASES_URL = "https://github.com/bmonekkk/instaling-bot/releases/latest";
+    private static final String KOFI_URL = "https://ko-fi.com/bmonekkk";
     private static final String API_URL = "https://api.github.com/repos/bmonekkk/instaling-bot/releases/latest";
     private static final int NOTIFICATION_PERMISSION = 41;
     private static final int DEFAULT_REMINDER_HOUR = 17;
@@ -90,6 +91,7 @@ public class MainActivity extends Activity {
     private Button reminderButton;
     private Button settingsButton;
     private Button statsButton;
+    private Button kofiButton;
     private Button updateButton;
     private SharedPreferences prefs;
     private boolean pendingStart = false;
@@ -120,7 +122,8 @@ public class MainActivity extends Activity {
                     "Aktywne dni", "Brak danych dla wybranego okresu.", "Zamknij",
                     "Pauza przed pisaniem min (ms)", "Pauza przed pisaniem max (ms)",
                     "Pauza po b\u0142\u0119dzie min (ms)", "Pauza po b\u0142\u0119dzie max (ms)",
-                    "Pauza po poprawnej min (ms)", "Pauza po poprawnej max (ms)"},
+                    "Pauza po poprawnej min (ms)", "Pauza po poprawnej max (ms)",
+                    "Wesprzyj na Ko-fi"},
             // en
             {"Start", "Stop", "Ready", "Starting...", "Working...", "Stopping...",
                     "Session finished", "Error", "Stopped", "Daily reminder",
@@ -139,7 +142,8 @@ public class MainActivity extends Activity {
                     "No data for the selected period.", "Close",
                     "Min pause before typing (ms)", "Max pause before typing (ms)",
                     "Min pause after a mistake (ms)", "Max pause after a mistake (ms)",
-                    "Min pause after a correct answer (ms)", "Max pause after a correct answer (ms)"}
+                    "Min pause after a correct answer (ms)", "Max pause after a correct answer (ms)",
+                    "Support on Ko-fi"}
     };
     // Label indexes beyond the original block, appended so the older indices stay put.
     private static final int L_NAV_MIN = 33;
@@ -168,6 +172,7 @@ public class MainActivity extends Activity {
     private static final int L_REVIEW_MAX = 56;
     private static final int L_REVIEW_CORRECT_MIN = 57;
     private static final int L_REVIEW_CORRECT_MAX = 58;
+    private static final int L_KOFI = 59;
     // Repeat choices in minutes, matching the desktop select.
     private static final int[] REPEAT_MINUTES = {0, 15, 30, 60, 120, 180};
 
@@ -259,6 +264,11 @@ public class MainActivity extends Activity {
         settingsButton = titleButton("\u2699");
         settingsButton.setOnClickListener(view -> openSettings());
         titleBar.addView(settingsButton);
+
+        kofiButton = titleButton("\u2615");
+        kofiButton.setContentDescription(label(L_KOFI));
+        kofiButton.setOnClickListener(view -> openUrl(KOFI_URL));
+        titleBar.addView(kofiButton);
 
         root.addView(titleBar);
 
@@ -596,6 +606,7 @@ public class MainActivity extends Activity {
         startButton.setText(label(0));
         stopButton.setText(label(1));
         updateButton.setText(label(12));
+        kofiButton.setContentDescription(label(L_KOFI));
         statusView.setText(statusLabel(lastStatus));
         refreshReminderButton();
         if (pageReady) {
